@@ -5,7 +5,7 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { SquarePen } from "lucide-react";
+import { LogInIcon, SquarePen } from "lucide-react";
 
 export function AppSidebar() {
   return (
@@ -18,7 +18,10 @@ export function AppSidebar() {
         <SidebarGroup />
         <SidebarGroup />
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter className="flex flex-row items-center justify-between border border-t">
+        <div className="text-lg font-semibold ml-2">Login</div>
+        <LogInIcon className="size-5 cursor-pointer mr-2" />
+      </SidebarFooter>
     </Sidebar>
   );
 }
