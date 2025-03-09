@@ -1,7 +1,14 @@
 "use client";
 
-import { useSession, signIn } from "@/lib/auth-client";
-import { LoaderIcon, LogInIcon, SettingsIcon } from "lucide-react";
+import { useSession, signIn, signOut } from "@/lib/auth-client";
+import {
+  LogInIcon,
+  SettingsIcon,
+  SunIcon,
+  MoonIcon,
+  LaptopIcon,
+  LogOutIcon,
+} from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import type { SVGProps } from "react";
@@ -14,10 +21,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 
 const SidebarFooterComponent = () => {
   const { data, isPending } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const { setTheme } = useTheme();
+  const router = useRouter();
 
   const handleLogin = async (provider: "google" | "github") => {
     try {
@@ -91,7 +113,64 @@ const SidebarFooterComponent = () => {
           <div className="text-xs">{data.user.email}</div>
         </div>
       </div>
-      <SettingsIcon className="size-5 cursor-pointer mr-2" />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <SettingsIcon className="size-5 cursor-pointer mr-2" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-[150px]">
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href="/settings" className="flex items-center gap-2">
+              <SettingsIcon className="size-4" />
+              Settings
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="flex items-center gap-2 cursor-pointer">
+              <SunIcon className="size-4" />
+              Theme
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem
+                onClick={() => setTheme("light")}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <SunIcon className="size-4" />
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTheme("dark")}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <MoonIcon className="size-4" />
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTheme("system")}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <LaptopIcon className="size-4" />
+                System
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={async () =>
+              await signOut({
+                fetchOptions: {
+                  onSuccess: () => {
+                    router.push("/");
+                  },
+                },
+              })
+            }
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <LogOutIcon className="size-4" />
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
