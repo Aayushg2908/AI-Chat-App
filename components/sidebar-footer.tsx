@@ -33,18 +33,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const SidebarFooterComponent = () => {
   const { data, isPending } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const { setTheme } = useTheme();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogin = async (provider: "google" | "github") => {
     try {
       setIsLoading(true);
-      await signIn.social({ provider });
+      await signIn.social({
+        provider,
+        callbackURL: pathname,
+      });
     } catch (error) {
       console.error("Login failed:", error);
     } finally {
