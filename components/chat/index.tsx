@@ -5,7 +5,7 @@ const ChatComponent = () => {
 
   return (
     <div className="relative h-[calc(100vh-50px)]">
-      <div className="h-[calc(100%-111px)] overflow-y-auto">
+      <div className="h-[calc(100%-111px)] overflow-y-auto scrollbar-hide">
         {messages.map((message, index) => (
           <div key={index} className="p-4 space-y-4">
             {message}

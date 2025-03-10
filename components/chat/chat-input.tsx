@@ -70,7 +70,7 @@ export const ChatInput = () => {
             placeholder={
               isLoading ? "Sending message..." : "Type your message here..."
             }
-            className={`w-full resize-none bg-transparent text-gray-300 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
+            className={`w-full scrollbar-hide resize-none bg-transparent text-gray-300 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
               isLoading ? "placeholder-gray-600" : ""
             }`}
             maxRows={8}
