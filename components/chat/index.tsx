@@ -1,10 +1,16 @@
 import ChatInput from "./chat-input";
 
 const ChatComponent = () => {
+  const messages = Array.from({ length: 50 }, (_, i) => `Message ${i + 1}`);
+
   return (
-    <div className="relative h-[calc(100vh-64px)]">
-      <div className="h-[calc(100%-64px)] overflow-y-auto">
-        <div className="p-4 space-y-4">Main content will come here</div>
+    <div className="relative h-[calc(100vh-50px)]">
+      <div className="h-[calc(100%-111px)] overflow-y-auto">
+        {messages.map((message, index) => (
+          <div key={index} className="p-4 space-y-4">
+            {message}
+          </div>
+        ))}
       </div>
       <ChatInput />
     </div>
