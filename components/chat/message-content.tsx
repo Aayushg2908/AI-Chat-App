@@ -180,7 +180,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
   };
 
   return (
-    <div className="text-sm text-gray-300 markdown-body">
+    <div className="text-base text-gray-300 markdown-body">
       <ReactMarkdown
         remarkPlugins={[remarkMath, remarkGfm]}
         rehypePlugins={[

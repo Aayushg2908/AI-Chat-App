@@ -56,54 +56,52 @@ export const ChatInput = () => {
   };
 
   return (
-    <div className="z-10 absolute bottom-0 left-0 right-0 px-4">
-      <div className="max-w-3xl mx-auto">
-        <form
-          onSubmit={handleSend}
-          className="flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden"
-        >
-          <TextareaAutosize
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              isLoading ? "Sending message..." : "Type your message here..."
-            }
-            className={`w-full scrollbar-hide resize-none bg-transparent text-gray-300 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
-              isLoading ? "placeholder-gray-600" : ""
-            }`}
-            maxRows={8}
-            minRows={2}
+    <div className="max-w-3xl mx-auto">
+      <form
+        onSubmit={handleSend}
+        className="flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden"
+      >
+        <TextareaAutosize
+          ref={inputRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={
+            isLoading ? "Sending message..." : "Type your message here..."
+          }
+          className={`w-full scrollbar-hide resize-none bg-transparent text-gray-300 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
+            isLoading ? "placeholder-gray-600" : ""
+          }`}
+          maxRows={8}
+          minRows={2}
+          disabled={isLoading}
+        />
+        <div className="flex items-center justify-end px-3 py-2">
+          <Button
+            className="text-gray-400 hover:text-white transition-colors disabled:opacity-40 mr-1"
             disabled={isLoading}
-          />
-          <div className="flex items-center justify-end px-3 py-2">
-            <Button
-              className="text-gray-400 hover:text-white transition-colors disabled:opacity-40 mr-1"
-              disabled={isLoading}
-              size="icon"
-              variant="ghost"
-              type="button"
-              onClick={() => handleFileUpload()}
-            >
-              <Paperclip className="size-3.5" />
-            </Button>
-            <Button
-              type="submit"
-              className="text-gray-400 hover:text-white transition-colors disabled:opacity-40"
-              disabled={!input.trim() || isLoading}
-              size="icon"
-              variant="ghost"
-            >
-              {isLoading ? (
-                <LoaderCircle className="size-3.5 animate-spin" />
-              ) : (
-                <SendHorizontal className="size-3.5" />
-              )}
-            </Button>
-          </div>
-        </form>
-      </div>
+            size="icon"
+            variant="ghost"
+            type="button"
+            onClick={() => handleFileUpload()}
+          >
+            <Paperclip className="size-3.5" />
+          </Button>
+          <Button
+            type="submit"
+            className="text-gray-400 hover:text-white transition-colors disabled:opacity-40"
+            disabled={!input.trim() || isLoading}
+            size="icon"
+            variant="ghost"
+          >
+            {isLoading ? (
+              <LoaderCircle className="size-3.5 animate-spin" />
+            ) : (
+              <SendHorizontal className="size-3.5" />
+            )}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };
