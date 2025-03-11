@@ -18,14 +18,6 @@ const ChatMessages = () => {
     scrollToBottom();
   }, [messages]);
 
-  if (!messages || messages.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <p className="text-gray-500 text-sm">Start a conversation...</p>
-      </div>
-    );
-  }
-
   return (
     <ScrollArea className="h-full w-full">
       <div className="flex flex-col pb-0">
@@ -38,9 +30,6 @@ const ChatMessages = () => {
             )}
           >
             <div className="flex items-start">
-              <div className="font-semibold text-xs text-gray-400 uppercase mr-2">
-                {message.role === "user" ? "You" : "AI"}:
-              </div>
               <div className="flex-1">
                 <MessageContent content={message.content} />
               </div>

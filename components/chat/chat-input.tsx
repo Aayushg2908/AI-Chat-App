@@ -56,7 +56,7 @@ export const ChatInput = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto mt-2">
       <form
         onSubmit={handleSend}
         className="flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden"
