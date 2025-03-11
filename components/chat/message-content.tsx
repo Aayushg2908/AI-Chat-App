@@ -11,9 +11,10 @@ import type { Components } from "react-markdown";
 
 interface MessageContentProps {
   content: string;
+  isUserMessage?: boolean;
 }
 
-export const MessageContent = ({ content }: MessageContentProps) => {
+export const MessageContent = ({ content, isUserMessage = false }: MessageContentProps) => {
   useEffect(() => {
     const katexStylesheet = document.getElementById("katex-stylesheet");
     if (!katexStylesheet) {
@@ -53,6 +54,17 @@ export const MessageContent = ({ content }: MessageContentProps) => {
         code .hljs-string { color: #48bb78 !important; }
         code .hljs-number { color: #ed8936 !important; }
         code .hljs-comment { color: #718096 !important; font-style: italic; }
+        
+        /* Adjust styles for user messages */
+        .user-message .markdown-body a { color: #90cdf4 !important; }
+        .user-message .markdown-body code:not([class*="language-"]) { 
+          background-color: rgba(0, 0, 0, 0.2) !important; 
+          color: #fbd38d !important;
+        }
+        .user-message .markdown-body pre {
+          background-color: rgba(0, 0, 0, 0.3) !important;
+          border-color: rgba(0, 0, 0, 0.2) !important;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -71,7 +83,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
     ),
     code: ({ node, className, children, ...props }) => {
       const isInline = !className;
-
+      
       if (isInline) {
         return (
           <code
@@ -82,7 +94,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
           </code>
         );
       }
-
+      
       return (
         <code className={`${className || ""} hljs`} {...props}>
           {children}
@@ -180,7 +192,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
   };
 
   return (
-    <div className="text-base text-gray-300 markdown-body">
+    <div className={`text-base markdown-body ${isUserMessage ? 'user-message' : ''}`}>
       <ReactMarkdown
         remarkPlugins={[remarkMath, remarkGfm]}
         rehypePlugins={[

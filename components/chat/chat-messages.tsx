@@ -18,22 +18,40 @@ const ChatMessages = () => {
     scrollToBottom();
   }, [messages]);
 
+  if (!messages || messages.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p className="text-gray-500 text-sm">Start a conversation...</p>
+      </div>
+    );
+  }
+
   return (
     <ScrollArea className="h-full w-full">
-      <div className="flex flex-col pb-0">
+      <div className="w-full flex flex-col pb-0">
         {messages.map((message, index) => (
           <div
             key={index}
             className={cn(
-              "p-4 space-y-2",
-              message.role === "user" ? "bg-gray-800" : "bg-transparent"
+              "p-4",
+              message.role === "user" ? "flex justify-end" : ""
             )}
           >
-            <div className="flex items-start">
-              <div className="flex-1">
-                <MessageContent content={message.content} />
+            {message.role === "user" ? (
+              <div className="bg-blue-600 text-white px-3 py-2 rounded-2xl max-w-[80%]">
+                <MessageContent
+                  content={message.content}
+                  isUserMessage={true}
+                />
               </div>
-            </div>
+            ) : (
+              <div className="w-full">
+                <MessageContent
+                  content={message.content}
+                  isUserMessage={false}
+                />
+              </div>
+            )}
           </div>
         ))}
         <div ref={messagesEndRef} className="h-0" />
