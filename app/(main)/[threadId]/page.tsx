@@ -1,7 +1,8 @@
 import ChatComponent from "@/components/chat";
 
-const ThreadPage = ({ params }: { params: { threadId: string } }) => {
-  return <ChatComponent threadId={params.threadId} />;
+const ThreadPage = async ({ params }: { params: { threadId: string } }) => {
+  const { threadId } = await params;
+  return <ChatComponent threadId={threadId} />;
 };
 
 export default ThreadPage;

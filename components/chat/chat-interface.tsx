@@ -10,6 +10,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { cn } from "@/lib/utils";
 import MessageContent from "./message-content";
 import { Thread } from "@prisma/client";
+import { saveThreadMessages } from "@/actions";
 
 export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const {
@@ -19,7 +20,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     handleSubmit,
     isLoading,
     status,
-    setData,
+    setMessages,
   } = useChat({
     api: "/api/chat",
     onError: (error: Error) => {
@@ -29,9 +30,19 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
 
   useEffect(() => {
     if (thread) {
-      setData(JSON.parse(thread.messages));
+      setMessages(JSON.parse(thread.messages || "[]"));
     }
   }, []);
+
+  useEffect(() => {
+    if (status === "ready" && messages.length > 0) {
+      const saveMessages = async () => {
+        if (!thread) return;
+        await saveThreadMessages(thread.id, JSON.stringify(messages));
+      };
+      saveMessages();
+    }
+  }, [status]);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);

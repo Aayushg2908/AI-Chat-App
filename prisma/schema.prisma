@@ -66,9 +66,9 @@ model Verification {
 }
 
 model Thread {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
   title    String
-  messages String
+  messages String?
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
