@@ -9,8 +9,9 @@ import { useSession } from "@/lib/auth-client";
 import TextareaAutosize from "react-textarea-autosize";
 import { cn } from "@/lib/utils";
 import MessageContent from "./message-content";
+import { Thread } from "@prisma/client";
 
-export const ChatInterface = () => {
+export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const {
     messages,
     handleInputChange,
@@ -18,12 +19,19 @@ export const ChatInterface = () => {
     handleSubmit,
     isLoading,
     status,
+    setData,
   } = useChat({
     api: "/api/chat",
     onError: (error: Error) => {
       console.error("Chat error:", error);
     },
   });
+
+  useEffect(() => {
+    if (thread) {
+      setData(JSON.parse(thread.messages));
+    }
+  }, []);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
