@@ -177,7 +177,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
       <div className="max-w-3xl mx-auto mt-2 w-full">
         <form
           onSubmit={handleSend}
-          className="flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden"
+          className="flex flex-col dark:bg-[#1e1e1e] bg-[#f7f6f6] rounded-lg overflow-hidden"
         >
           <TextareaAutosize
             ref={inputRef}
@@ -187,8 +187,8 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
             placeholder={
               isLoading ? "Sending message..." : "Type your message here..."
             }
-            className={`w-full scrollbar-hide resize-none bg-transparent text-gray-300 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
-              isLoading ? "placeholder-gray-600" : ""
+            className={`w-full scrollbar-hide resize-none bg-transparent dark:text-gray-300 text-gray-700 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
+              isLoading ? "dark:placeholder-gray-600 placeholder-gray-500" : ""
             }`}
             maxRows={8}
             minRows={2}
@@ -196,7 +196,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
           />
           <div className="flex items-center justify-end px-3 py-2">
             <Button
-              className="text-gray-400 hover:text-white transition-colors disabled:opacity-40 mr-1"
+              className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40 mr-1"
               disabled={isLoading}
               size="icon"
               variant="ghost"
@@ -207,7 +207,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
             </Button>
             <Button
               type="submit"
-              className="text-gray-400 hover:text-white transition-colors disabled:opacity-40"
+              className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
               disabled={!input.trim() || isLoading}
               size="icon"
               variant="ghost"

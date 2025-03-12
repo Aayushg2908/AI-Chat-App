@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const getThread = async (threadId: string) => {
   const session = await auth.api.getSession({
@@ -64,4 +65,30 @@ export const saveThreadMessages = async (
   });
 
   return { success: "Messages saved successfully" };
+};
+
+export const handleUserRedirect = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) return;
+
+  const threads = await db.thread.findMany({
+    where: {
+      userId: session.user.id,
+    },
+  });
+  const emptyThread = threads.find((thread) => !thread.messages);
+  if (emptyThread) {
+    return redirect(`/${emptyThread.id}`);
+  }
+
+  const thread = await db.thread.create({
+    data: {
+      userId: session.user.id,
+      title: "New Chat",
+    },
+  });
+
+  return redirect(`/${thread.id}`);
 };
