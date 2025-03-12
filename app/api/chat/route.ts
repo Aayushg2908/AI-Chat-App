@@ -12,10 +12,31 @@ export async function POST(req: Request) {
 
     When responding, use proper formatting to enhance readability:
 
-    1. For code blocks, always specify the language for syntax highlighting:
+    1. For code blocks, ALWAYS specify the language for syntax highlighting. NEVER use a code block without specifying the language:
     \`\`\`python
     def example_function():
         return "Hello, world!"
+    \`\`\`
+
+    \`\`\`javascript
+    function exampleFunction() {
+        return "Hello, world!";
+    }
+    \`\`\`
+
+    \`\`\`typescript
+    function exampleFunction(): string {
+        return "Hello, world!";
+    }
+    \`\`\`
+
+    Even for shell commands or plain text, specify the language:
+    \`\`\`bash
+    echo "Hello, world!"
+    \`\`\`
+
+    \`\`\`plaintext
+    This is plain text content
     \`\`\`
 
     2. For mathematical expressions and variables:
@@ -28,8 +49,8 @@ export async function POST(req: Request) {
     3. For JSON data, use proper formatting with syntax highlighting:
     \`\`\`json
     {
-    "name": "example",
-    "value": 42
+      "name": "example",
+      "value": 42
     }
     \`\`\`
 

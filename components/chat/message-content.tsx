@@ -6,7 +6,7 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import type { Components } from "react-markdown";
 import { Check, Copy } from "lucide-react";
 
@@ -53,14 +53,40 @@ export const MessageContent = ({
       style.textContent = `
         .math-inline .katex { color: #f56565 !important; }
         .math-display .katex { color: #ed8936 !important; }
-        code .hljs-variable, 
-        code .hljs-attr, 
-        code .hljs-property { color: #f56565 !important; }
-        code .hljs-keyword { color: #805ad5 !important; }
-        code .hljs-function { color: #4299e1 !important; }
-        code .hljs-string { color: #48bb78 !important; }
-        code .hljs-number { color: #ed8936 !important; }
-        code .hljs-comment { color: #718096 !important; font-style: italic; }
+        
+        /* Code highlighting colors */
+        code .hljs-keyword { color: #c678dd !important; }  /* purple */
+        code .hljs-built_in { color: #e6c07b !important; } /* yellow-ish */
+        code .hljs-type { color: #e6c07b !important; }     /* yellow-ish */
+        code .hljs-literal { color: #56b6c2 !important; }  /* cyan */
+        code .hljs-number { color: #d19a66 !important; }   /* orange */
+        code .hljs-regexp { color: #98c379 !important; }   /* green */
+        code .hljs-string { color: #98c379 !important; }   /* green */
+        code .hljs-subst { color: #e6c07b !important; }    /* yellow-ish */
+        code .hljs-symbol { color: #56b6c2 !important; }   /* cyan */
+        code .hljs-class { color: #e6c07b !important; }    /* yellow-ish */
+        code .hljs-function { color: #61afef !important; } /* blue */
+        code .hljs-title { color: #61afef !important; }    /* blue */
+        code .hljs-params { color: #d19a66 !important; }   /* orange */
+        code .hljs-comment { color: #7f848e !important; font-style: italic; } /* gray */
+        code .hljs-doctag { color: #c678dd !important; }   /* purple */
+        code .hljs-meta { color: #7f848e !important; }     /* gray */
+        code .hljs-section { color: #e06c75 !important; }  /* red */
+        code .hljs-tag { color: #e06c75 !important; }      /* red */
+        code .hljs-name { color: #e06c75 !important; }     /* red */
+        code .hljs-attr { color: #d19a66 !important; }     /* orange */
+        code .hljs-attribute { color: #98c379 !important; }/* green */
+        code .hljs-variable { color: #e06c75 !important; } /* red */
+        code .hljs-template-variable { color: #e06c75 !important; } /* red */
+        code .hljs-selector-tag { color: #c678dd !important; } /* purple */
+        code .hljs-selector-id { color: #61afef !important; }  /* blue */
+        code .hljs-selector-class { color: #d19a66 !important; } /* orange */
+        code .hljs-selector-attr { color: #c678dd !important; } /* purple */
+        code .hljs-selector-pseudo { color: #56b6c2 !important; } /* cyan */
+        code .hljs-addition { color: #98c379 !important; background: rgba(152, 195, 121, 0.1); } /* green */
+        code .hljs-deletion { color: #e06c75 !important; background: rgba(224, 108, 117, 0.1); } /* red */
+        code .hljs-emphasis { font-style: italic; }
+        code .hljs-strong { font-weight: bold; }
         
         /* Adjust styles for user messages */
         .user-message .markdown-body a { color: #90cdf4 !important; }
@@ -73,17 +99,67 @@ export const MessageContent = ({
           border-color: rgba(0, 0, 0, 0.2) !important;
         }
         
-        /* Code block copy button */
+        /* Code block wrapper */
         .code-block-wrapper {
           position: relative;
           width: 100%;
+          margin: 1rem 0;
         }
+        
+        .code-block {
+          background-color: #282c34 !important;
+          border-radius: 6px !important;
+          margin: 0 !important;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .code-header {
+          background-color: #21252b;
+          color: #abb2bf;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          font-size: 0.85rem;
+          padding: 0.5rem 1rem;
+          border-bottom: 1px solid #181a1f;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .code-content {
+          overflow-x: auto;
+        }
+        
+        .code-main {
+          padding: 1rem;
+          overflow-x: auto;
+          width: 100%;
+        }
+        
+        .code-main pre {
+          margin: 0 !important;
+          background-color: transparent !important;
+          border: none !important;
+          padding: 0 !important;
+          overflow: visible !important;
+        }
+        
+        .code-main code {
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          font-size: 0.85rem;
+          line-height: 1.5;
+          background-color: transparent !important;
+          padding: 0 !important;
+          white-space: pre !important;
+        }
+        
+        /* Code copy button */
         .code-copy-button {
           position: absolute;
           top: 8px;
           right: 8px;
-          background-color: rgba(0, 0, 0, 0.3);
-          color: #cbd5e0;
+          background-color: rgba(255, 255, 255, 0.1);
+          color: #abb2bf;
           border: none;
           border-radius: 4px;
           padding: 4px;
@@ -94,22 +170,25 @@ export const MessageContent = ({
           transition: all 0.2s ease;
           z-index: 10;
         }
+        
         .code-copy-button:hover {
-          background-color: rgba(0, 0, 0, 0.5);
+          background-color: rgba(255, 255, 255, 0.2);
           color: white;
         }
         
         /* Fix for code overflow */
         pre, code {
-          white-space: pre-wrap !important;
-          word-wrap: break-word !important;
-          overflow-wrap: break-word !important;
           max-width: 100% !important;
         }
         
         /* Ensure inline code doesn't overflow */
         p code {
           word-break: break-all !important;
+          background-color: #2c313a !important;
+          color: #e06c75 !important;
+          padding: 0.2em 0.4em !important;
+          border-radius: 3px !important;
+          font-size: 0.85em !important;
         }
       `;
       document.head.appendChild(style);
@@ -204,6 +283,102 @@ export const MessageContent = ({
       const currentIndex = codeBlockIndex++;
       const preRef = useRef<HTMLPreElement>(null);
 
+      let lang = "";
+      const matchClassName = /language-(\w+)/.exec(className || "");
+
+      if (matchClassName && matchClassName[1]) {
+        lang = matchClassName[1];
+      }
+
+      if (!lang && children) {
+        try {
+          const childElement = React.Children.toArray(children)[0];
+          if (React.isValidElement(childElement)) {
+            const childProps = childElement.props as any;
+            if (childProps && childProps.className) {
+              const childMatch = /language-(\w+)/.exec(childProps.className);
+              if (childMatch && childMatch[1]) {
+                lang = childMatch[1];
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error extracting language from code block:", error);
+        }
+      }
+
+      const getLanguageDisplayName = (langId: string): string => {
+        const normalizedLangId = langId.toLowerCase();
+
+        const languageMap: Record<string, string> = {
+          js: "JavaScript",
+          javascript: "JavaScript",
+          ts: "TypeScript",
+          typescript: "TypeScript",
+          jsx: "JSX",
+          tsx: "TSX",
+          html: "HTML",
+          css: "CSS",
+          scss: "SCSS",
+          sass: "Sass",
+          less: "Less",
+          python: "Python",
+          py: "Python",
+          ruby: "Ruby",
+          rb: "Ruby",
+          go: "Go",
+          rust: "Rust",
+          java: "Java",
+          c: "C",
+          cpp: "C++",
+          cs: "C#",
+          csharp: "C#",
+          php: "PHP",
+          swift: "Swift",
+          kotlin: "Kotlin",
+          scala: "Scala",
+          shell: "Shell",
+          bash: "Bash",
+          sh: "Shell",
+          zsh: "Shell",
+          powershell: "PowerShell",
+          ps: "PowerShell",
+          sql: "SQL",
+          json: "JSON",
+          yaml: "YAML",
+          yml: "YAML",
+          xml: "XML",
+          markdown: "Markdown",
+          md: "Markdown",
+          plaintext: "Plain Text",
+          text: "Plain Text",
+        };
+
+        return (
+          languageMap[normalizedLangId] ||
+          langId.charAt(0).toUpperCase() + langId.slice(1)
+        );
+      };
+
+      let displayLanguage = "Code";
+
+      if (lang) {
+        displayLanguage = getLanguageDisplayName(lang);
+      } else {
+        const codeContent = String(children).toLowerCase();
+        if (
+          codeContent.includes("def ") ||
+          codeContent.includes("import ") ||
+          codeContent.includes("class ") ||
+          codeContent.includes("print(") ||
+          codeContent.includes("nums:") ||
+          codeContent.includes("target:") ||
+          /^\s*#.*/.test(codeContent) //
+        ) {
+          displayLanguage = "Python";
+        }
+      }
+
       useEffect(() => {
         if (preRef.current) {
           codeBlocksRef.current.set(currentIndex, preRef.current);
@@ -218,15 +393,18 @@ export const MessageContent = ({
 
       return (
         <div className="code-block-wrapper">
-          <pre
-            ref={preRef}
-            className={`bg-gray-900 p-4 rounded-md overflow-x-auto my-2 border border-gray-700 ${
-              className || ""
-            }`}
-            {...props}
-          >
-            {children}
-          </pre>
+          <div className="code-block">
+            <div className="code-header">
+              <span>{displayLanguage}</span>
+            </div>
+            <div className="code-content">
+              <div className="code-main">
+                <pre ref={preRef} {...props}>
+                  {children}
+                </pre>
+              </div>
+            </div>
+          </div>
           <button
             className="code-copy-button"
             onClick={() => copyToClipboard(currentIndex)}
