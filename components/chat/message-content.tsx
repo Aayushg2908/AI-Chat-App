@@ -6,15 +6,22 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import type { Components } from "react-markdown";
+import { Check, Copy } from "lucide-react";
 
 interface MessageContentProps {
   content: string;
   isUserMessage?: boolean;
 }
 
-export const MessageContent = ({ content, isUserMessage = false }: MessageContentProps) => {
+export const MessageContent = ({
+  content,
+  isUserMessage = false,
+}: MessageContentProps) => {
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const codeBlocksRef = useRef<Map<number, HTMLElement>>(new Map());
+
   useEffect(() => {
     const katexStylesheet = document.getElementById("katex-stylesheet");
     if (!katexStylesheet) {
@@ -65,25 +72,180 @@ export const MessageContent = ({ content, isUserMessage = false }: MessageConten
           background-color: rgba(0, 0, 0, 0.3) !important;
           border-color: rgba(0, 0, 0, 0.2) !important;
         }
+        
+        /* Code block copy button */
+        .code-block-wrapper {
+          position: relative;
+          width: 100%;
+        }
+        .code-copy-button {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background-color: rgba(0, 0, 0, 0.3);
+          color: #cbd5e0;
+          border: none;
+          border-radius: 4px;
+          padding: 4px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          z-index: 10;
+        }
+        .code-copy-button:hover {
+          background-color: rgba(0, 0, 0, 0.5);
+          color: white;
+        }
+        
+        /* Fix for code overflow */
+        pre, code {
+          white-space: pre-wrap !important;
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+          max-width: 100% !important;
+        }
+        
+        /* Ensure inline code doesn't overflow */
+        p code {
+          word-break: break-all !important;
+        }
       `;
       document.head.appendChild(style);
     }
+
+    return () => {
+      codeBlocksRef.current.clear();
+    };
+  }, [content]);
+
+  useEffect(() => {
+    if (copiedIndex !== null) {
+      const timeout = setTimeout(() => {
+        setCopiedIndex(null);
+      }, 2000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [copiedIndex]);
+
+  const getTextFromElement = useCallback((element: HTMLElement): string => {
+    if (!element) return "";
+
+    const codeElement = element.querySelector("code");
+    if (codeElement) {
+      return codeElement.textContent || "";
+    }
+
+    return element.textContent || "";
   }, []);
 
+  const copyToClipboard = useCallback(
+    (index: number) => {
+      const preElement = codeBlocksRef.current.get(index);
+      if (!preElement) {
+        return;
+      }
+
+      const textToCopy = getTextFromElement(preElement);
+
+      if (!textToCopy) {
+        console.error("No text to copy");
+        return;
+      }
+
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = textToCopy;
+
+        textarea.style.position = "absolute";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
+
+        const successful = document.execCommand("copy");
+
+        document.body.removeChild(textarea);
+
+        if (successful) {
+          setCopiedIndex(index);
+        } else {
+          console.error("execCommand copy failed");
+        }
+      } catch (err) {
+        console.error("Error copying text:", err);
+
+        try {
+          navigator.clipboard
+            .writeText(textToCopy)
+            .then(() => {
+              setCopiedIndex(index);
+            })
+            .catch((err) => {
+              console.error("Clipboard API copy failed:", err);
+            });
+        } catch (clipboardErr) {
+          console.error("Both copy methods failed:", clipboardErr);
+        }
+      }
+    },
+    [getTextFromElement]
+  );
+
+  let codeBlockIndex = 0;
+
   const components: Components = {
-    pre: ({ node, className, children, ...props }) => (
-      <pre
-        className={`bg-gray-900 p-4 rounded-md overflow-x-auto my-2 border border-gray-700 ${
-          className || ""
-        }`}
-        {...props}
-      >
-        {children}
-      </pre>
-    ),
+    pre: ({ node, className, children, ...props }) => {
+      const currentIndex = codeBlockIndex++;
+      const preRef = useRef<HTMLPreElement>(null);
+
+      useEffect(() => {
+        if (preRef.current) {
+          codeBlocksRef.current.set(currentIndex, preRef.current);
+        }
+
+        return () => {
+          codeBlocksRef.current.delete(currentIndex);
+        };
+      }, [currentIndex]);
+
+      const isCopied = copiedIndex === currentIndex;
+
+      return (
+        <div className="code-block-wrapper">
+          <pre
+            ref={preRef}
+            className={`bg-gray-900 p-4 rounded-md overflow-x-auto my-2 border border-gray-700 ${
+              className || ""
+            }`}
+            {...props}
+          >
+            {children}
+          </pre>
+          <button
+            className="code-copy-button"
+            onClick={() => copyToClipboard(currentIndex)}
+            aria-label="Copy code"
+            title="Copy code"
+            type="button"
+          >
+            {isCopied ? (
+              <Check className="h-4 w-4 text-green-400" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+      );
+    },
     code: ({ node, className, children, ...props }) => {
       const isInline = !className;
-      
+
       if (isInline) {
         return (
           <code
@@ -94,7 +256,7 @@ export const MessageContent = ({ content, isUserMessage = false }: MessageConten
           </code>
         );
       }
-      
+
       return (
         <code className={`${className || ""} hljs`} {...props}>
           {children}
@@ -192,7 +354,11 @@ export const MessageContent = ({ content, isUserMessage = false }: MessageConten
   };
 
   return (
-    <div className={`text-base markdown-body ${isUserMessage ? 'user-message' : ''}`}>
+    <div
+      className={`text-base markdown-body ${
+        isUserMessage ? "user-message" : ""
+      }`}
+    >
       <ReactMarkdown
         remarkPlugins={[remarkMath, remarkGfm]}
         rehypePlugins={[
