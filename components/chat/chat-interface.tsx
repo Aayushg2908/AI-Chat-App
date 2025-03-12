@@ -11,7 +11,14 @@ import { cn } from "@/lib/utils";
 import MessageContent from "./message-content";
 
 export const ChatInterface = () => {
-  const { messages, input, handleSubmit, setInput, isLoading } = useChat({
+  const {
+    messages,
+    handleInputChange,
+    input,
+    handleSubmit,
+    isLoading,
+    status,
+  } = useChat({
     api: "/api/chat",
     onError: (error: Error) => {
       console.error("Chat error:", error);
@@ -119,6 +126,29 @@ export const ChatInterface = () => {
                   </div>
                 ))}
                 <div ref={messagesEndRef} className="h-4" />
+                {status === "submitted" && (
+                  <div className="flex items-start space-x-2 animate-in fade-in">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "0ms" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "150ms" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "300ms" }}
+                        ></div>
+                      </div>
+                      <span className="text-sm text-gray-400">
+                        AI is thinking...
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -133,7 +163,7 @@ export const ChatInterface = () => {
           <TextareaAutosize
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder={
               isLoading ? "Sending message..." : "Type your message here..."
