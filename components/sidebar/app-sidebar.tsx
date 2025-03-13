@@ -22,7 +22,7 @@ export async function AppSidebar() {
       <SidebarHeader>
         <SidebarHeaderComponent threads={threads} />
       </SidebarHeader>
-      <SidebarContent className="mt-10 scrollbar-hide">
+      <SidebarContent className="mt-8 scrollbar-hide">
         <SidebarContentComponent threads={threads} />
       </SidebarContent>
       <SidebarFooter className="border border-t">

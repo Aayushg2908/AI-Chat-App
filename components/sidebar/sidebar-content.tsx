@@ -13,7 +13,7 @@ import {
 } from "../ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { deleteThread, editThread } from "@/actions";
 import {
   AlertDialog,
@@ -43,6 +43,20 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
   const [editThreadId, setEditThreadId] = useState<string | null>(null);
   const [editThreadTitle, setEditThreadTitle] = useState("");
   const router = useRouter();
+
+  const threadRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  useEffect(() => {
+    if (threadId && threadRefs.current.has(threadId)) {
+      const activeThreadElement = threadRefs.current.get(threadId);
+      if (activeThreadElement) {
+        activeThreadElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }
+    }
+  }, [threadId]);
 
   const handleEdit = async () => {
     if (!editThreadId) return;
@@ -77,6 +91,9 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
         {threads?.map((thread) => (
           <SidebarGroupContent
             key={thread.id}
+            ref={(el) => {
+              if (el) threadRefs.current.set(thread.id, el);
+            }}
             className={cn(
               "relative group/thread px-3 py-2 rounded-md hover:bg-sidebar-accent transition-colors mb-2",
               threadId === thread.id &&
