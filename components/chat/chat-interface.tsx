@@ -10,7 +10,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { cn } from "@/lib/utils";
 import MessageContent from "./message-content";
 import { Thread } from "@prisma/client";
-import { saveThreadMessages } from "@/actions";
+import { editThread, saveThreadMessages } from "@/actions";
 
 export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const {
@@ -36,6 +36,10 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
 
   useEffect(() => {
     if (status === "ready" && messages.length > 0) {
+      if (messages.length === 2) {
+        if (!thread) return;
+        editThread(thread.id, messages[0].content);
+      }
       const saveMessages = async () => {
         if (!thread) return;
         await saveThreadMessages(thread.id, JSON.stringify(messages));
