@@ -2,21 +2,28 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import SidebarFooterComponent from "./sidebar-footer";
 import SidebarHeaderComponent from "./sidebar-header";
+import { getUserThreads } from "@/actions";
+import { Thread } from "@prisma/client";
+import SidebarContentComponent from "./sidebar-contennt";
 
-export function AppSidebar() {
+export async function AppSidebar() {
+  const response = await getUserThreads();
+  let threads: Thread[] = [];
+  if (response.success) {
+    threads = response.data;
+  }
+
   return (
     <Sidebar>
       <SidebarHeader>
         <SidebarHeaderComponent />
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup />
-        <SidebarGroup />
+      <SidebarContent className="mt-10 scrollbar-hide">
+        <SidebarContentComponent threads={threads} />
       </SidebarContent>
       <SidebarFooter className="border border-t">
         <SidebarFooterComponent />

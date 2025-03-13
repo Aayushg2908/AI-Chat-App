@@ -92,3 +92,19 @@ export const handleUserRedirect = async () => {
 
   return redirect(`/${thread.id}`);
 };
+
+export const getUserThreads = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  const threads = await db.thread.findMany({
+    where: {
+      userId: session.user.id,
+    },
+  });
+  return { success: "Threads fetched successfully", data: threads };
+};
