@@ -7,19 +7,37 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Loader2, SearchIcon, SquarePen } from "lucide-react";
+import {
+  Loader2,
+  MessageCircleMore,
+  SearchIcon,
+  SquarePen,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Thread } from "@prisma/client";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../ui/command";
 
-const SidebarHeaderComponent = () => {
+const SidebarHeaderComponent = ({ threads }: { threads: Thread[] }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "o") {
         e.preventDefault();
         router.push("/");
+      } else if (e.ctrlKey && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen(true);
       }
     };
 
@@ -39,38 +57,62 @@ const SidebarHeaderComponent = () => {
   };
 
   return (
-    <div className="flex flex-row items-center justify-between">
-      <h1 className="text-[22px] font-bold">ALLIN1</h1>
-      <div className="flex items-center gap-x-4">
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <SearchIcon className="size-5 cursor-pointer" />
-            </TooltipTrigger>
-            <TooltipContent className="bg-zinc-800 text-white">
-              Search
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              {loading ? (
-                <Loader2 className="size-5 cursor-pointer animate-spin" />
-              ) : (
-                <SquarePen
-                  onClick={handleNewChat}
-                  className="size-5 cursor-pointer"
-                />
-              )}
-            </TooltipTrigger>
-            <TooltipContent className="bg-zinc-800 text-white">
-              New Chat (Ctrl+Shift+O)
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+    <>
+      <div className="flex flex-row items-center justify-between">
+        <h1 className="text-[22px] font-bold">ALLIN1</h1>
+        <div className="flex items-center gap-x-4">
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild onClick={() => setOpen(true)}>
+                <SearchIcon className="size-5 cursor-pointer" />
+              </TooltipTrigger>
+              <TooltipContent className="bg-zinc-800 text-white">
+                Search
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                {loading ? (
+                  <Loader2 className="size-5 cursor-pointer animate-spin" />
+                ) : (
+                  <SquarePen
+                    onClick={handleNewChat}
+                    className="size-5 cursor-pointer"
+                  />
+                )}
+              </TooltipTrigger>
+              <TooltipContent className="bg-zinc-800 text-white">
+                New Chat (Ctrl+Shift+O)
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
-    </div>
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Search for your Threads..." />
+        <CommandList>
+          <CommandEmpty>No Threads found.</CommandEmpty>
+          <CommandGroup heading="Threads">
+            {threads.map((thread) => (
+              <CommandItem
+                key={thread.id}
+                value={thread.title}
+                className="cursor-pointer"
+                onSelect={() => {
+                  setOpen(false);
+                  router.push(`/${thread.id}`);
+                }}
+              >
+                <MessageCircleMore className="size-5" />
+                <span>{thread.title}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
+    </>
   );
 };
 

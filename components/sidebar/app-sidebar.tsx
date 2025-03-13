@@ -20,7 +20,7 @@ export async function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <SidebarHeaderComponent />
+        <SidebarHeaderComponent threads={threads} />
       </SidebarHeader>
       <SidebarContent className="mt-10 scrollbar-hide">
         <SidebarContentComponent threads={threads} />
