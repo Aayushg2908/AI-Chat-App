@@ -8,7 +8,7 @@ import SidebarFooterComponent from "./sidebar-footer";
 import SidebarHeaderComponent from "./sidebar-header";
 import { getUserThreads } from "@/actions";
 import { Thread } from "@prisma/client";
-import SidebarContentComponent from "./sidebar-contennt";
+import SidebarContentComponent from "./sidebar-content";
 
 export async function AppSidebar() {
   const response = await getUserThreads();
