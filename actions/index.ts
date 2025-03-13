@@ -111,3 +111,44 @@ export const getUserThreads = async () => {
   });
   return { success: "Threads fetched successfully", data: threads };
 };
+
+export const deleteThread = async (threadId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  await db.thread.delete({
+    where: {
+      id: threadId,
+      userId: session.user.id,
+    },
+  });
+  revalidatePath("/");
+
+  return { success: "Thread deleted successfully" };
+};
+
+export const editThread = async (threadId: string, title: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  await db.thread.update({
+    where: {
+      id: threadId,
+      userId: session.user.id,
+    },
+    data: {
+      title,
+    },
+  });
+  revalidatePath("/");
+
+  return { success: "Thread updated successfully" };
+};
