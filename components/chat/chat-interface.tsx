@@ -3,7 +3,13 @@
 import { useChat } from "@ai-sdk/react";
 import { KeyboardEvent, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
-import { LoaderCircle, Paperclip, SendHorizontal } from "lucide-react";
+import {
+  CircleStop,
+  LoaderCircle,
+  Paperclip,
+  SendHorizontal,
+  Square,
+} from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
 import TextareaAutosize from "react-textarea-autosize";
@@ -21,6 +27,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     isLoading,
     status,
     setMessages,
+    stop,
   } = useChat({
     api: "/api/chat",
     onError: (error: Error) => {
@@ -209,19 +216,31 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
             >
               <Paperclip className="size-3.5" />
             </Button>
-            <Button
-              type="submit"
-              className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
-              disabled={!input.trim() || isLoading}
-              size="icon"
-              variant="ghost"
-            >
-              {isLoading ? (
-                <LoaderCircle className="size-3.5 animate-spin" />
-              ) : (
-                <SendHorizontal className="size-3.5" />
-              )}
-            </Button>
+            {status === "streaming" ? (
+              <Button
+                type="button"
+                className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
+                onClick={() => stop()}
+                size="icon"
+                variant="ghost"
+              >
+                <CircleStop className="size-3.5" />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
+                disabled={!input.trim() || isLoading}
+                size="icon"
+                variant="ghost"
+              >
+                {isLoading ? (
+                  <LoaderCircle className="size-3.5 animate-spin" />
+                ) : (
+                  <SendHorizontal className="size-3.5" />
+                )}
+              </Button>
+            )}
           </div>
         </form>
       </div>
