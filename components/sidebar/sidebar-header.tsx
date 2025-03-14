@@ -34,7 +34,7 @@ const SidebarHeaderComponent = ({ threads }: { threads: Thread[] }) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "o") {
         e.preventDefault();
-        router.push("/");
+        handleNewChat();
       } else if (e.ctrlKey && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen(true);

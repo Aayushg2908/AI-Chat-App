@@ -79,7 +79,9 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
       await deleteThread(deleteThreadId);
       setDeleteThreadId(null);
       toast.success("Thread deleted successfully");
-      router.push("/");
+      if (deleteThreadId === threadId) {
+        router.push("/");
+      }
     } catch (error) {
       toast.error("Failed to delete thread");
     }
