@@ -220,78 +220,82 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
         )}
       </div>
 
-      {showScrollButton && (
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-50">
-          <Button
-            onClick={scrollToBottom}
-            className="rounded-full shadow-md flex items-center gap-1 px-3 py-1"
-            size="sm"
-            variant="secondary"
-          >
-            <ChevronDown className="h-4 w-4" />
-            <span>New messages</span>
-          </Button>
-        </div>
-      )}
-
-      <div className="max-w-3xl mx-auto mt-2 w-full">
-        <form
-          onSubmit={handleSend}
-          className="flex flex-col dark:bg-[#1e1e1e] bg-[#f7f6f6] rounded-lg overflow-hidden"
-        >
-          <TextareaAutosize
-            ref={inputRef}
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              isLoading ? "Sending message..." : "Type your message here..."
-            }
-            className={`w-full scrollbar-hide resize-none bg-transparent dark:text-gray-300 text-gray-700 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
-              isLoading ? "dark:placeholder-gray-600 placeholder-gray-500" : ""
-            }`}
-            maxRows={8}
-            minRows={2}
-            disabled={isLoading}
-          />
-          <div className="flex items-center justify-end px-3 py-2">
+      <div className="relative">
+        {showScrollButton && (
+          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-50">
             <Button
-              className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40 mr-1"
-              disabled={isLoading}
-              size="icon"
-              variant="ghost"
-              type="button"
-              onClick={() => handleFileUpload()}
+              onClick={scrollToBottom}
+              className="rounded-full shadow-md flex items-center gap-1 px-3 py-1"
+              size="sm"
+              variant="secondary"
             >
-              <Paperclip className="size-3.5" />
+              <ChevronDown className="h-4 w-4" />
+              <span>Scroll to bottom</span>
             </Button>
-            {status === "streaming" ? (
-              <Button
-                type="button"
-                className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
-                onClick={() => stop()}
-                size="icon"
-                variant="ghost"
-              >
-                <CircleStop className="size-3.5" />
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
-                disabled={!input.trim() || isLoading}
-                size="icon"
-                variant="ghost"
-              >
-                {isLoading ? (
-                  <LoaderCircle className="size-3.5 animate-spin" />
-                ) : (
-                  <SendHorizontal className="size-3.5" />
-                )}
-              </Button>
-            )}
           </div>
-        </form>
+        )}
+
+        <div className="max-w-3xl mx-auto mt-2 w-full">
+          <form
+            onSubmit={handleSend}
+            className="flex flex-col dark:bg-[#1e1e1e] bg-[#f7f6f6] rounded-lg overflow-hidden"
+          >
+            <TextareaAutosize
+              ref={inputRef}
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                isLoading ? "Sending message..." : "Type your message here..."
+              }
+              className={`w-full scrollbar-hide resize-none bg-transparent dark:text-gray-300 text-gray-700 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
+                isLoading
+                  ? "dark:placeholder-gray-600 placeholder-gray-500"
+                  : ""
+              }`}
+              maxRows={8}
+              minRows={2}
+              disabled={isLoading}
+            />
+            <div className="flex items-center justify-end px-3 py-2">
+              <Button
+                className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40 mr-1"
+                disabled={isLoading}
+                size="icon"
+                variant="ghost"
+                type="button"
+                onClick={() => handleFileUpload()}
+              >
+                <Paperclip className="size-3.5" />
+              </Button>
+              {status === "streaming" ? (
+                <Button
+                  type="button"
+                  className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
+                  onClick={() => stop()}
+                  size="icon"
+                  variant="ghost"
+                >
+                  <CircleStop className="size-3.5" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
+                  disabled={!input.trim() || isLoading}
+                  size="icon"
+                  variant="ghost"
+                >
+                  {isLoading ? (
+                    <LoaderCircle className="size-3.5 animate-spin" />
+                  ) : (
+                    <SendHorizontal className="size-3.5" />
+                  )}
+                </Button>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
