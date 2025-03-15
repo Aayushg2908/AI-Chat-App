@@ -1,14 +1,14 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { KeyboardEvent, useRef, useEffect } from "react";
+import { KeyboardEvent, useRef, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import {
   CircleStop,
   LoaderCircle,
   Paperclip,
   SendHorizontal,
-  Square,
+  ChevronDown,
 } from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
@@ -60,6 +60,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { onOpen } = useLoginModal();
   const { data } = useSession();
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -73,6 +74,40 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
       }
     });
   }, [messages]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } =
+          scrollContainerRef.current;
+        const isScrolledUp = scrollHeight - scrollTop - clientHeight > 50;
+        setShowScrollButton(isScrolledUp);
+      }
+    };
+
+    handleScroll();
+
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll);
+
+      window.addEventListener("resize", handleScroll);
+
+      return () => {
+        scrollContainer.removeEventListener("scroll", handleScroll);
+        window.removeEventListener("resize", handleScroll);
+      };
+    }
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -112,7 +147,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       <div className="flex-1 overflow-hidden">
         {!messages || messages.length === 0 ? (
           <div className="flex h-full items-center justify-center">
@@ -184,6 +219,20 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
           </div>
         )}
       </div>
+
+      {showScrollButton && (
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-50">
+          <Button
+            onClick={scrollToBottom}
+            className="rounded-full shadow-md flex items-center gap-1 px-3 py-1"
+            size="sm"
+            variant="secondary"
+          >
+            <ChevronDown className="h-4 w-4" />
+            <span>New messages</span>
+          </Button>
+        </div>
+      )}
 
       <div className="max-w-3xl mx-auto mt-2 w-full">
         <form
