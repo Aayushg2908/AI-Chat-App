@@ -68,7 +68,8 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
       await editThread(editThreadId, editThreadTitle);
       setEditThreadId(null);
       toast.success("Thread renamed successfully");
-    } catch (error) {
+    } catch (e) {
+      console.error(e);
       toast.error("Failed to rename thread");
     }
   };
@@ -82,7 +83,8 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
       if (deleteThreadId === threadId) {
         router.push("/");
       }
-    } catch (error) {
+    } catch (e) {
+      console.error(e);
       toast.error("Failed to delete thread");
     }
   };

@@ -1,12 +1,17 @@
 import { google } from "@ai-sdk/google";
 import { streamText } from "ai";
 
+export interface Message {
+  role: string;
+  content: string;
+}
+
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
-  const systemMessage = {
+  const systemMessage: Message = {
     role: "system",
     content: `You are a helpful AI assistant that provides detailed and well-formatted responses.
 
@@ -64,7 +69,7 @@ export async function POST(req: Request) {
     Always ensure that variables in code examples (especially array indices like z[i]) are properly formatted for syntax highlighting.`,
   };
 
-  const hasSystemMessage = messages.some((msg: any) => msg.role === "system");
+  const hasSystemMessage = messages.some((msg: Message) => msg.role === "system");
   const enhancedMessages = hasSystemMessage
     ? messages
     : [systemMessage, ...messages];

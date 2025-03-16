@@ -6,7 +6,14 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useLayoutEffect,
+  ComponentProps,
+} from "react";
 import type { Components } from "react-markdown";
 import { Check, Copy } from "lucide-react";
 
@@ -194,8 +201,9 @@ export const MessageContent = ({
       document.head.appendChild(style);
     }
 
+    const currentRef = codeBlocksRef.current;
     return () => {
-      codeBlocksRef.current.clear();
+      currentRef.clear();
     };
   }, [content]);
 
@@ -278,9 +286,18 @@ export const MessageContent = ({
 
   let codeBlockIndex = 0;
 
-  const components: Components = {
-    pre: ({ node, className, children, ...props }) => {
-      const currentIndex = codeBlockIndex++;
+  // Create a proper React component for code blocks
+  const CodeBlock = React.memo(
+    ({
+      className,
+      children,
+      index,
+      ...props
+    }: {
+      className?: string;
+      children: React.ReactNode;
+      index: number;
+    } & React.HTMLAttributes<HTMLPreElement>) => {
       const preRef = useRef<HTMLPreElement>(null);
 
       let lang = "";
@@ -294,7 +311,8 @@ export const MessageContent = ({
         try {
           const childElement = React.Children.toArray(children)[0];
           if (React.isValidElement(childElement)) {
-            const childProps = childElement.props as any;
+            const childProps =
+              childElement.props as ComponentProps<React.ElementType>;
             if (childProps && childProps.className) {
               const childMatch = /language-(\w+)/.exec(childProps.className);
               if (childMatch && childMatch[1]) {
@@ -379,17 +397,17 @@ export const MessageContent = ({
         }
       }
 
-      useEffect(() => {
+      useLayoutEffect(() => {
         if (preRef.current) {
-          codeBlocksRef.current.set(currentIndex, preRef.current);
+          codeBlocksRef.current.set(index, preRef.current);
         }
 
         return () => {
-          codeBlocksRef.current.delete(currentIndex);
+          codeBlocksRef.current.delete(index);
         };
-      }, [currentIndex]);
+      }, [index]);
 
-      const isCopied = copiedIndex === currentIndex;
+      const isCopied = copiedIndex === index;
 
       return (
         <div className="code-block-wrapper">
@@ -407,7 +425,7 @@ export const MessageContent = ({
           </div>
           <button
             className="code-copy-button"
-            onClick={() => copyToClipboard(currentIndex)}
+            onClick={() => copyToClipboard(index)}
             aria-label="Copy code"
             title="Copy code"
             type="button"
@@ -420,8 +438,22 @@ export const MessageContent = ({
           </button>
         </div>
       );
+    }
+  );
+
+  // Add display name to the component
+  CodeBlock.displayName = "CodeBlock";
+
+  const components: Components = {
+    pre: ({ className, children, ...props }) => {
+      const currentIndex = codeBlockIndex++;
+      return (
+        <CodeBlock className={className} index={currentIndex} {...props}>
+          {children}
+        </CodeBlock>
+      );
     },
-    code: ({ node, className, children, ...props }) => {
+    code: ({ className, children, ...props }) => {
       const isInline = !className;
 
       if (isInline) {
@@ -441,12 +473,12 @@ export const MessageContent = ({
         </code>
       );
     },
-    p: ({ node, children, ...props }) => (
+    p: ({ children, ...props }) => (
       <p className="my-2" {...props}>
         {children}
       </p>
     ),
-    a: ({ node, children, ...props }) => (
+    a: ({ children, ...props }) => (
       <a
         className="text-blue-400 hover:underline"
         target="_blank"
@@ -456,37 +488,37 @@ export const MessageContent = ({
         {children}
       </a>
     ),
-    ul: ({ node, children, ...props }) => (
+    ul: ({ children, ...props }) => (
       <ul className="list-disc pl-5 my-2" {...props}>
         {children}
       </ul>
     ),
-    ol: ({ node, children, ...props }) => (
+    ol: ({ children, ...props }) => (
       <ol className="list-decimal pl-5 my-2" {...props}>
         {children}
       </ol>
     ),
-    li: ({ node, children, ...props }) => (
+    li: ({ children, ...props }) => (
       <li className="my-1" {...props}>
         {children}
       </li>
     ),
-    h1: ({ node, children, ...props }) => (
+    h1: ({ children, ...props }) => (
       <h1 className="text-xl font-bold my-3" {...props}>
         {children}
       </h1>
     ),
-    h2: ({ node, children, ...props }) => (
+    h2: ({ children, ...props }) => (
       <h2 className="text-lg font-bold my-3" {...props}>
         {children}
       </h2>
     ),
-    h3: ({ node, children, ...props }) => (
+    h3: ({ children, ...props }) => (
       <h3 className="text-md font-bold my-2" {...props}>
         {children}
       </h3>
     ),
-    blockquote: ({ node, children, ...props }) => (
+    blockquote: ({ children, ...props }) => (
       <blockquote
         className="border-l-4 border-gray-500 pl-4 py-1 my-2 text-gray-400"
         {...props}
@@ -494,29 +526,29 @@ export const MessageContent = ({
         {children}
       </blockquote>
     ),
-    table: ({ node, children, ...props }) => (
+    table: ({ children, ...props }) => (
       <div className="overflow-x-auto my-4">
         <table className="min-w-full divide-y divide-gray-700" {...props}>
           {children}
         </table>
       </div>
     ),
-    thead: ({ node, children, ...props }) => (
+    thead: ({ children, ...props }) => (
       <thead className="bg-gray-800" {...props}>
         {children}
       </thead>
     ),
-    tbody: ({ node, children, ...props }) => (
+    tbody: ({ children, ...props }) => (
       <tbody className="divide-y divide-gray-700" {...props}>
         {children}
       </tbody>
     ),
-    tr: ({ node, children, ...props }) => (
+    tr: ({ children, ...props }) => (
       <tr className="hover:bg-gray-750" {...props}>
         {children}
       </tr>
     ),
-    th: ({ node, children, ...props }) => (
+    th: ({ children, ...props }) => (
       <th
         className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
         {...props}
@@ -524,7 +556,7 @@ export const MessageContent = ({
         {children}
       </th>
     ),
-    td: ({ node, children, ...props }) => (
+    td: ({ children, ...props }) => (
       <td className="px-3 py-2 whitespace-nowrap" {...props}>
         {children}
       </td>

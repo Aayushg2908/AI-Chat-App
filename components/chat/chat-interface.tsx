@@ -43,7 +43,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     if (thread) {
       setMessages(JSON.parse(thread.messages || "[]"));
     }
-  }, []);
+  }, [thread, setMessages]);
 
   useEffect(() => {
     if (status === "ready" && messages.length > 0) {
@@ -57,7 +57,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
       };
       saveMessages();
     }
-  }, [status]);
+  }, [status, messages, thread]);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
