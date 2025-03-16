@@ -186,11 +186,32 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                     )}
                   >
                     {message.role === "user" ? (
-                      <div className="bg-blue-600 text-white px-3 py-2 rounded-2xl max-w-[80%]">
-                        <MessageContent
-                          content={message.content}
-                          isUserMessage={true}
-                        />
+                      <div className="flex flex-col items-end group">
+                        <div className="bg-blue-600 text-white px-3 py-2 rounded-2xl max-w-[80%]">
+                          <MessageContent
+                            content={message.content}
+                            isUserMessage={true}
+                          />
+                        </div>
+                        <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <Button
+                            onClick={() =>
+                              handleCopyMessage(
+                                message.content,
+                                `user-message-${index}`
+                              )
+                            }
+                            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                            variant="ghost"
+                            size="icon"
+                          >
+                            {copiedMessageId === `user-message-${index}` ? (
+                              <Check className="size-2" />
+                            ) : (
+                              <Copy className="size-2" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <div className="w-full max-w-full overflow-hidden">
