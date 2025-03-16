@@ -9,6 +9,8 @@ import {
   Paperclip,
   SendHorizontal,
   ChevronDown,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
@@ -61,6 +63,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const { onOpen } = useLoginModal();
   const { data } = useSession();
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -146,6 +149,15 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     }
   };
 
+  const handleCopyMessage = (content: string, messageId: string) => {
+    navigator.clipboard.writeText(content).then(() => {
+      setCopiedMessageId(messageId);
+      setTimeout(() => {
+        setCopiedMessageId(null);
+      }, 2000);
+    });
+  };
+
   return (
     <div className="flex flex-col h-full relative">
       <div className="flex-1 overflow-hidden">
@@ -186,6 +198,31 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                           content={message.content}
                           isUserMessage={false}
                         />
+                        <div className="flex justify-end mt-2">
+                          <Button
+                            onClick={() =>
+                              handleCopyMessage(
+                                message.content,
+                                `message-${index}`
+                              )
+                            }
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 px-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                          >
+                            {copiedMessageId === `message-${index}` ? (
+                              <>
+                                <Check className="h-3.5 w-3.5 mr-1" />
+                                Copied
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="h-3.5 w-3.5 mr-1" />
+                                Copy response
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
