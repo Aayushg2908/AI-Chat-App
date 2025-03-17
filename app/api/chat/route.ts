@@ -23,7 +23,7 @@ type ModelKey = keyof typeof MODELS;
 export async function POST(req: Request) {
   const { messages, model } = await req.json();
 
-  const isValidModel = (key: any): key is ModelKey =>
+  const isValidModel = (key: string): key is ModelKey =>
     typeof key === "string" && Object.keys(MODELS).includes(key);
 
   const modelToUse = isValidModel(model)

@@ -79,7 +79,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
       };
       saveMessages();
     }
-  }, [status, messages, thread]);
+  }, [status, thread]);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -458,7 +458,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                       disabled={isLoading}
                     >
                       {Object.entries(MODELS).find(
-                        ([_, value]) => value === selectedModel
+                        ([, value]) => value === selectedModel
                       )?.[0] || "Gemini 1.5 Flash"}
                       <ChevronDown className="size-3" />
                     </Button>
