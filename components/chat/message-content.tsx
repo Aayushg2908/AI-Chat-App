@@ -1,19 +1,20 @@
 "use client";
 
-import ReactMarkdown from "react-markdown";
-import rehypeHighlight from "rehype-highlight";
-import rehypeKatex from "rehype-katex";
-import remarkMath from "remark-math";
-import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
 import React, {
   useEffect,
   useState,
   useCallback,
   useRef,
   useLayoutEffect,
+  useMemo,
   ComponentProps,
 } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import type { Components } from "react-markdown";
 import { Check, Copy } from "lucide-react";
 
@@ -213,32 +214,24 @@ export const MessageContent = ({
         setCopiedIndex(null);
       }, 2000);
 
-      return () => {
-        clearTimeout(timeout);
-      };
+      return () => clearTimeout(timeout);
     }
   }, [copiedIndex]);
 
   const getTextFromElement = useCallback((element: HTMLElement): string => {
     if (!element) return "";
-
     const codeElement = element.querySelector("code");
-    if (codeElement) {
-      return codeElement.textContent || "";
-    }
-
-    return element.textContent || "";
+    return codeElement
+      ? codeElement.textContent || ""
+      : element.textContent || "";
   }, []);
 
   const copyToClipboard = useCallback(
     (index: number) => {
       const preElement = codeBlocksRef.current.get(index);
-      if (!preElement) {
-        return;
-      }
+      if (!preElement) return;
 
       const textToCopy = getTextFromElement(preElement);
-
       if (!textToCopy) {
         console.error("No text to copy");
         return;
@@ -247,16 +240,12 @@ export const MessageContent = ({
       try {
         const textarea = document.createElement("textarea");
         textarea.value = textToCopy;
-
         textarea.style.position = "absolute";
         textarea.style.left = "-9999px";
         document.body.appendChild(textarea);
-
         textarea.select();
         textarea.setSelectionRange(0, 99999);
-
         const successful = document.execCommand("copy");
-
         document.body.removeChild(textarea);
 
         if (successful) {
@@ -266,47 +255,164 @@ export const MessageContent = ({
         }
       } catch (err) {
         console.error("Error copying text:", err);
-
-        try {
-          navigator.clipboard
-            .writeText(textToCopy)
-            .then(() => {
-              setCopiedIndex(index);
-            })
-            .catch((err) => {
-              console.error("Clipboard API copy failed:", err);
-            });
-        } catch (clipboardErr) {
-          console.error("Both copy methods failed:", clipboardErr);
-        }
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => setCopiedIndex(index))
+          .catch((err) => console.error("Clipboard API copy failed:", err));
       }
     },
     [getTextFromElement]
   );
 
-  let codeBlockIndex = 0;
+  const components: Components = useMemo(() => {
+    let codeBlockIndex = 0;
 
-  // Create a proper React component for code blocks
+    return {
+      pre: ({ className, children, ...props }) => {
+        const currentIndex = codeBlockIndex++;
+        return (
+          <CodeBlock
+            className={className}
+            index={currentIndex}
+            copyToClipboard={copyToClipboard}
+            isCopied={copiedIndex === currentIndex}
+            {...props}
+          >
+            {children}
+          </CodeBlock>
+        );
+      },
+      code: ({ className, children, ...props }) => {
+        const isInline = !className;
+        if (isInline) {
+          return (
+            <code
+              className="bg-gray-800 px-1 py-0.5 rounded text-pink-400"
+              {...props}
+            >
+              {children}
+            </code>
+          );
+        }
+        return (
+          <code className={`${className || ""} hljs`} {...props}>
+            {children}
+          </code>
+        );
+      },
+      p: ({ children, ...props }) => (
+        <p className="my-2" {...props}>
+          {children}
+        </p>
+      ),
+      a: ({ children, ...props }) => (
+        <a
+          className="text-blue-400 hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+          {...props}
+        >
+          {children}
+        </a>
+      ),
+      ul: ({ children, ...props }) => (
+        <ul className="list-disc pl-5 my-2" {...props}>
+          {children}
+        </ul>
+      ),
+      ol: ({ children, ...props }) => (
+        <ol className="list-decimal pl-5 my-2" {...props}>
+          {children}
+        </ol>
+      ),
+      li: ({ children, ...props }) => (
+        <li className="my-1" {...props}>
+          {children}
+        </li>
+      ),
+      h1: ({ children, ...props }) => (
+        <h1 className="text-xl font-bold my-3" {...props}>
+          {children}
+        </h1>
+      ),
+      h2: ({ children, ...props }) => (
+        <h2 className="text-lg font-bold my-3" {...props}>
+          {children}
+        </h2>
+      ),
+      h3: ({ children, ...props }) => (
+        <h3 className="text-md font-bold my-2" {...props}>
+          {children}
+        </h3>
+      ),
+      blockquote: ({ children, ...props }) => (
+        <blockquote
+          className="border-l-4 border-gray-500 pl-4 py-1 my-2 text-gray-400"
+          {...props}
+        >
+          {children}
+        </blockquote>
+      ),
+      table: ({ children, ...props }) => (
+        <div className="overflow-x-auto my-4">
+          <table className="min-w-full divide-y divide-gray-700" {...props}>
+            {children}
+          </table>
+        </div>
+      ),
+      thead: ({ children, ...props }) => (
+        <thead className="bg-gray-800" {...props}>
+          {children}
+        </thead>
+      ),
+      tbody: ({ children, ...props }) => (
+        <tbody className="divide-y divide-gray-700" {...props}>
+          {children}
+        </tbody>
+      ),
+      tr: ({ children, ...props }) => (
+        <tr className="hover:bg-gray-750" {...props}>
+          {children}
+        </tr>
+      ),
+      th: ({ children, ...props }) => (
+        <th
+          className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+          {...props}
+        >
+          {children}
+        </th>
+      ),
+      td: ({ children, ...props }) => (
+        <td className="px-3 py-2 whitespace-nowrap" {...props}>
+          {children}
+        </td>
+      ),
+    };
+  }, [copiedIndex, copyToClipboard]);
+
   const CodeBlock = React.memo(
     ({
       className,
       children,
       index,
+      isCopied,
+      copyToClipboard,
       ...props
     }: {
       className?: string;
       children: React.ReactNode;
       index: number;
+      isCopied: boolean;
+      copyToClipboard: (index: number) => void;
     } & React.HTMLAttributes<HTMLPreElement>) => {
       const preRef = useRef<HTMLPreElement>(null);
 
       let lang = "";
       const matchClassName = /language-(\w+)/.exec(className || "");
-
       if (matchClassName && matchClassName[1]) {
         lang = matchClassName[1];
       }
-
       if (!lang && children) {
         try {
           const childElement = React.Children.toArray(children)[0];
@@ -327,7 +433,6 @@ export const MessageContent = ({
 
       const getLanguageDisplayName = (langId: string): string => {
         const normalizedLangId = langId.toLowerCase();
-
         const languageMap: Record<string, string> = {
           js: "JavaScript",
           javascript: "JavaScript",
@@ -371,43 +476,22 @@ export const MessageContent = ({
           plaintext: "Plain Text",
           text: "Plain Text",
         };
-
         return (
           languageMap[normalizedLangId] ||
           langId.charAt(0).toUpperCase() + langId.slice(1)
         );
       };
 
-      let displayLanguage = "Code";
-
-      if (lang) {
-        displayLanguage = getLanguageDisplayName(lang);
-      } else {
-        const codeContent = String(children).toLowerCase();
-        if (
-          codeContent.includes("def ") ||
-          codeContent.includes("import ") ||
-          codeContent.includes("class ") ||
-          codeContent.includes("print(") ||
-          codeContent.includes("nums:") ||
-          codeContent.includes("target:") ||
-          /^\s*#.*/.test(codeContent) //
-        ) {
-          displayLanguage = "Python";
-        }
-      }
+      const displayLanguage = lang ? getLanguageDisplayName(lang) : "Code";
 
       useLayoutEffect(() => {
         if (preRef.current) {
           codeBlocksRef.current.set(index, preRef.current);
         }
-
         return () => {
           codeBlocksRef.current.delete(index);
         };
       }, [index]);
-
-      const isCopied = copiedIndex === index;
 
       return (
         <div className="code-block-wrapper">
@@ -441,127 +525,7 @@ export const MessageContent = ({
     }
   );
 
-  // Add display name to the component
   CodeBlock.displayName = "CodeBlock";
-
-  const components: Components = {
-    pre: ({ className, children, ...props }) => {
-      const currentIndex = codeBlockIndex++;
-      return (
-        <CodeBlock className={className} index={currentIndex} {...props}>
-          {children}
-        </CodeBlock>
-      );
-    },
-    code: ({ className, children, ...props }) => {
-      const isInline = !className;
-
-      if (isInline) {
-        return (
-          <code
-            className="bg-gray-800 px-1 py-0.5 rounded text-pink-400"
-            {...props}
-          >
-            {children}
-          </code>
-        );
-      }
-
-      return (
-        <code className={`${className || ""} hljs`} {...props}>
-          {children}
-        </code>
-      );
-    },
-    p: ({ children, ...props }) => (
-      <p className="my-2" {...props}>
-        {children}
-      </p>
-    ),
-    a: ({ children, ...props }) => (
-      <a
-        className="text-blue-400 hover:underline"
-        target="_blank"
-        rel="noopener noreferrer"
-        {...props}
-      >
-        {children}
-      </a>
-    ),
-    ul: ({ children, ...props }) => (
-      <ul className="list-disc pl-5 my-2" {...props}>
-        {children}
-      </ul>
-    ),
-    ol: ({ children, ...props }) => (
-      <ol className="list-decimal pl-5 my-2" {...props}>
-        {children}
-      </ol>
-    ),
-    li: ({ children, ...props }) => (
-      <li className="my-1" {...props}>
-        {children}
-      </li>
-    ),
-    h1: ({ children, ...props }) => (
-      <h1 className="text-xl font-bold my-3" {...props}>
-        {children}
-      </h1>
-    ),
-    h2: ({ children, ...props }) => (
-      <h2 className="text-lg font-bold my-3" {...props}>
-        {children}
-      </h2>
-    ),
-    h3: ({ children, ...props }) => (
-      <h3 className="text-md font-bold my-2" {...props}>
-        {children}
-      </h3>
-    ),
-    blockquote: ({ children, ...props }) => (
-      <blockquote
-        className="border-l-4 border-gray-500 pl-4 py-1 my-2 text-gray-400"
-        {...props}
-      >
-        {children}
-      </blockquote>
-    ),
-    table: ({ children, ...props }) => (
-      <div className="overflow-x-auto my-4">
-        <table className="min-w-full divide-y divide-gray-700" {...props}>
-          {children}
-        </table>
-      </div>
-    ),
-    thead: ({ children, ...props }) => (
-      <thead className="bg-gray-800" {...props}>
-        {children}
-      </thead>
-    ),
-    tbody: ({ children, ...props }) => (
-      <tbody className="divide-y divide-gray-700" {...props}>
-        {children}
-      </tbody>
-    ),
-    tr: ({ children, ...props }) => (
-      <tr className="hover:bg-gray-750" {...props}>
-        {children}
-      </tr>
-    ),
-    th: ({ children, ...props }) => (
-      <th
-        className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-        {...props}
-      >
-        {children}
-      </th>
-    ),
-    td: ({ children, ...props }) => (
-      <td className="px-3 py-2 whitespace-nowrap" {...props}>
-        {children}
-      </td>
-    ),
-  };
 
   return (
     <div

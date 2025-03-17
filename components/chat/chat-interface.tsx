@@ -79,7 +79,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
       };
       saveMessages();
     }
-  }, [status, thread]);
+  }, [status]);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
