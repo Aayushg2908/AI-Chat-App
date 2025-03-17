@@ -14,12 +14,6 @@ import {
   Edit,
   RefreshCw,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
 import TextareaAutosize from "react-textarea-autosize";
@@ -27,16 +21,9 @@ import { cn } from "@/lib/utils";
 import MessageContent from "./message-content";
 import { Thread } from "@prisma/client";
 import { editThread, saveThreadMessages } from "@/actions";
+import ModelSelector, { MODELS } from "./model-selector";
 
-const MODELS: { [key: string]: string } = {
-  "Gemini 1.5 Flash": "gemini-1.5-flash-latest",
-  "Gemini 1.5 Pro": "gemini-1.5-pro-latest",
-  "Gemini 2.0 Flash": "gemini-2.0-flash-001",
-  "Gemini 2.0 Pro": "gemini-2.0-pro-exp-02-05",
-  "Gemini 2.0 Flash Lite": "gemini-2.0-flash-lite-preview-02-05",
-};
-
-export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
+const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const [selectedModel, setSelectedModel] = useState<string>(
     "gemini-1.5-flash-latest"
   );
@@ -449,34 +436,11 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
             />
             <div className="flex items-center justify-between px-3 py-2">
               <div className="flex items-center">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex items-center gap-1 text-xs dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
-                      disabled={isLoading}
-                    >
-                      {Object.entries(MODELS).find(
-                        ([, value]) => value === selectedModel
-                      )?.[0] || "Gemini 1.5 Flash"}
-                      <ChevronDown className="size-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    {Object.entries(MODELS).map(([name, id]) => (
-                      <DropdownMenuItem
-                        key={id}
-                        onClick={() => setSelectedModel(id)}
-                        className={`cursor-pointer ${
-                          selectedModel === id ? "bg-accent" : ""
-                        }`}
-                      >
-                        {name}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <ModelSelector
+                  selectedModel={selectedModel}
+                  setSelectedModel={setSelectedModel}
+                  disabled={isLoading}
+                />
               </div>
               <div className="flex items-center">
                 <Button
