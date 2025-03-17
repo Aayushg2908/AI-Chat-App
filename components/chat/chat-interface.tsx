@@ -12,6 +12,7 @@ import {
   Copy,
   Check,
   Edit,
+  RefreshCw,
 } from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
@@ -165,6 +166,19 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     });
   };
 
+  const handleRetryMessage = (index: number, content: string) => {
+    try {
+      const previousMessages = messages.slice(0, index);
+      setMessages(previousMessages);
+      append({
+        role: "user",
+        content: content.trim(),
+      });
+    } catch (error) {
+      console.error("Failed to retry message:", error);
+    }
+  };
+
   const handleEditMessage = (index: number, content: string) => {
     setEditingMessageIndex(index);
     setEditedContent(content);
@@ -180,12 +194,9 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
 
     try {
       const previousMessages = messages.slice(0, index);
-
       setMessages(previousMessages);
-
       setEditingMessageIndex(null);
       setEditedContent("");
-
       append({
         role: "user",
         content: editedContent.trim(),
@@ -271,11 +282,23 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                             <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-1">
                               <Button
                                 onClick={() =>
+                                  handleRetryMessage(index, message.content)
+                                }
+                                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                variant="ghost"
+                                size="icon"
+                                title="Retry"
+                              >
+                                <RefreshCw className="size-2" />
+                              </Button>
+                              <Button
+                                onClick={() =>
                                   handleEditMessage(index, message.content)
                                 }
                                 className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
                                 variant="ghost"
                                 size="icon"
+                                title="Edit"
                               >
                                 <Edit className="size-2" />
                               </Button>
@@ -289,6 +312,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                                 className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
                                 variant="ghost"
                                 size="icon"
+                                title="Copy"
                               >
                                 {copiedMessageId === `user-message-${index}` ? (
                                   <Check className="size-2" />
