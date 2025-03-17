@@ -14,6 +14,12 @@ import {
   Edit,
   RefreshCw,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
 import TextareaAutosize from "react-textarea-autosize";
@@ -22,7 +28,19 @@ import MessageContent from "./message-content";
 import { Thread } from "@prisma/client";
 import { editThread, saveThreadMessages } from "@/actions";
 
+const MODELS: { [key: string]: string } = {
+  "Gemini 1.5 Flash": "gemini-1.5-flash-latest",
+  "Gemini 1.5 Pro": "gemini-1.5-pro-latest",
+  "Gemini 2.0 Flash": "gemini-2.0-flash-001",
+  "Gemini 2.0 Pro": "gemini-2.0-pro-exp-02-05",
+  "Gemini 2.0 Flash Lite": "gemini-2.0-flash-lite-preview-02-05",
+};
+
 export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
+  const [selectedModel, setSelectedModel] = useState<string>(
+    "gemini-1.5-flash-latest"
+  );
+
   const {
     messages,
     handleInputChange,
@@ -35,6 +53,9 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     append,
   } = useChat({
     api: "/api/chat",
+    body: {
+      model: selectedModel,
+    },
     onError: (error: Error) => {
       console.error("Chat error:", error);
     },
@@ -44,7 +65,7 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     if (thread) {
       setMessages(JSON.parse(thread.messages || "[]"));
     }
-  }, [thread, setMessages]);
+  }, []);
 
   useEffect(() => {
     if (status === "ready" && messages.length > 0) {
@@ -426,42 +447,74 @@ export const ChatInterface = ({ thread }: { thread: Thread | null }) => {
               minRows={2}
               disabled={isLoading}
             />
-            <div className="flex items-center justify-end px-3 py-2">
-              <Button
-                className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40 mr-1"
-                disabled={isLoading}
-                size="icon"
-                variant="ghost"
-                type="button"
-                onClick={() => handleFileUpload()}
-              >
-                <Paperclip className="size-3.5" />
-              </Button>
-              {status === "streaming" ? (
+            <div className="flex items-center justify-between px-3 py-2">
+              <div className="flex items-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-1 text-xs dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
+                      disabled={isLoading}
+                    >
+                      {Object.entries(MODELS).find(
+                        ([_, value]) => value === selectedModel
+                      )?.[0] || "Gemini 1.5 Flash"}
+                      <ChevronDown className="size-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {Object.entries(MODELS).map(([name, id]) => (
+                      <DropdownMenuItem
+                        key={id}
+                        onClick={() => setSelectedModel(id)}
+                        className={`cursor-pointer ${
+                          selectedModel === id ? "bg-accent" : ""
+                        }`}
+                      >
+                        {name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <div className="flex items-center">
                 <Button
+                  className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40 mr-1"
+                  disabled={isLoading}
+                  size="icon"
+                  variant="ghost"
                   type="button"
-                  className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
-                  onClick={() => stop()}
-                  size="icon"
-                  variant="ghost"
+                  onClick={() => handleFileUpload()}
                 >
-                  <CircleStop className="size-3.5" />
+                  <Paperclip className="size-3.5" />
                 </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
-                  disabled={!input.trim() || isLoading}
-                  size="icon"
-                  variant="ghost"
-                >
-                  {isLoading ? (
-                    <LoaderCircle className="size-3.5 animate-spin" />
-                  ) : (
-                    <SendHorizontal className="size-3.5" />
-                  )}
-                </Button>
-              )}
+                {status === "streaming" ? (
+                  <Button
+                    type="button"
+                    className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
+                    onClick={() => stop()}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    <CircleStop className="size-3.5" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
+                    disabled={!input.trim() || isLoading}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    {isLoading ? (
+                      <LoaderCircle className="size-3.5 animate-spin" />
+                    ) : (
+                      <SendHorizontal className="size-3.5" />
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
         </div>

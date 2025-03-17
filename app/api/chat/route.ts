@@ -8,8 +8,27 @@ export interface Message {
 
 export const maxDuration = 30;
 
+const MODELS = {
+  "gemini-1.5-flash-latest": google("gemini-1.5-flash-latest"),
+  "gemini-1.5-pro-latest": google("gemini-1.5-pro-latest"),
+  "gemini-2.0-flash-001": google("gemini-2.0-flash-001"),
+  "gemini-2.0-pro-exp-02-05": google("gemini-2.0-pro-exp-02-05"),
+  "gemini-2.0-flash-lite-preview-02-05": google(
+    "gemini-2.0-flash-lite-preview-02-05"
+  ),
+};
+
+type ModelKey = keyof typeof MODELS;
+
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages, model } = await req.json();
+
+  const isValidModel = (key: any): key is ModelKey =>
+    typeof key === "string" && Object.keys(MODELS).includes(key);
+
+  const modelToUse = isValidModel(model)
+    ? MODELS[model]
+    : MODELS["gemini-2.0-flash-lite-preview-02-05"];
 
   const systemMessage: Message = {
     role: "system",
@@ -69,13 +88,15 @@ export async function POST(req: Request) {
     Always ensure that variables in code examples (especially array indices like z[i]) are properly formatted for syntax highlighting.`,
   };
 
-  const hasSystemMessage = messages.some((msg: Message) => msg.role === "system");
+  const hasSystemMessage = messages.some(
+    (msg: Message) => msg.role === "system"
+  );
   const enhancedMessages = hasSystemMessage
     ? messages
     : [systemMessage, ...messages];
 
   const result = streamText({
-    model: google("gemini-2.0-flash-lite-preview-02-05"),
+    model: modelToUse,
     messages: enhancedMessages,
   });
 
