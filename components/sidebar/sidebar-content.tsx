@@ -36,6 +36,99 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
+const categorizeThreads = (threads: Thread[]) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const todayThreads: Thread[] = [];
+  const yesterdayThreads: Thread[] = [];
+  const previousThreads: Thread[] = [];
+
+  threads.forEach((thread) => {
+    if (!thread.messages) {
+      todayThreads.push(thread);
+      return;
+    }
+
+    const threadDate = new Date(thread.updatedAt);
+    threadDate.setHours(0, 0, 0, 0);
+
+    if (threadDate.getTime() === today.getTime()) {
+      todayThreads.push(thread);
+    } else if (threadDate.getTime() === yesterday.getTime()) {
+      yesterdayThreads.push(thread);
+    } else {
+      previousThreads.push(thread);
+    }
+  });
+
+  return { todayThreads, yesterdayThreads, previousThreads };
+};
+
+const ThreadItem = ({
+  thread,
+  threadId,
+  threadRefs,
+  onEdit,
+  onDelete,
+}: {
+  thread: Thread;
+  threadId: string;
+  threadRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
+  onEdit: (id: string, title: string) => void;
+  onDelete: (id: string) => void;
+}) => {
+  return (
+    <SidebarGroupContent
+      key={thread.id}
+      ref={(el) => {
+        if (el) threadRefs.current.set(thread.id, el);
+      }}
+      className={cn(
+        "relative group/thread px-3 py-2 rounded-md hover:bg-sidebar-accent transition-colors mb-2",
+        threadId === thread.id &&
+          "bg-sidebar-accent text-sidebar-accent-foreground"
+      )}
+    >
+      <div className="flex items-center justify-between w-full">
+        <Link
+          href={`/${thread.id}`}
+          className={cn(
+            "flex-1 truncate",
+            threadId === thread.id && "font-bold"
+          )}
+        >
+          {thread.title}
+        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="opacity-0 group-hover/thread:opacity-100 focus:opacity-100 transition-opacity">
+            <MoreHorizontal className="size-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => onEdit(thread.id, thread.title)}
+            >
+              <Pencil className="size-4 mr-1" />
+              Rename
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-red-500 focus:text-red-500 cursor-pointer"
+              onClick={() => onDelete(thread.id)}
+            >
+              <Trash2 className="size-4 mr-1" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </SidebarGroupContent>
+  );
+};
+
 const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
   const params = useParams();
   const threadId = params?.threadId as string;
@@ -45,6 +138,9 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
   const router = useRouter();
 
   const threadRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  const { todayThreads, yesterdayThreads, previousThreads } =
+    categorizeThreads(threads);
 
   useEffect(() => {
     if (threadId && threadRefs.current.has(threadId)) {
@@ -89,59 +185,69 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
     }
   };
 
+  const handleEditStart = (id: string, title: string) => {
+    setEditThreadId(id);
+    setEditThreadTitle(title);
+  };
+
   return (
     <>
-      <SidebarGroup>
-        {threads?.map((thread) => (
-          <SidebarGroupContent
-            key={thread.id}
-            ref={(el) => {
-              if (el) threadRefs.current.set(thread.id, el);
-            }}
-            className={cn(
-              "relative group/thread px-3 py-2 rounded-md hover:bg-sidebar-accent transition-colors mb-2",
-              threadId === thread.id &&
-                "bg-sidebar-accent text-sidebar-accent-foreground"
-            )}
-          >
-            <div className="flex items-center justify-between w-full">
-              <Link
-                href={`/${thread.id}`}
-                className={cn(
-                  "flex-1 truncate",
-                  threadId === thread.id && "font-bold"
-                )}
-              >
-                {thread.title}
-              </Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="opacity-0 group-hover/thread:opacity-100 focus:opacity-100 transition-opacity">
-                  <MoreHorizontal className="size-4" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setEditThreadId(thread.id);
-                      setEditThreadTitle(thread.title);
-                    }}
-                  >
-                    <Pencil className="size-4 mr-1" />
-                    Rename
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="text-red-500 focus:text-red-500 cursor-pointer"
-                    onClick={() => setDeleteThreadId(thread.id)}
-                  >
-                    <Trash2 className="size-4 mr-1" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </SidebarGroupContent>
-        ))}
-      </SidebarGroup>
+      <div className="mb-4">
+        <h3 className="text-sm font-medium text-gray-500 mb-2 px-3">Today</h3>
+        <SidebarGroup>
+          {todayThreads.map((thread) => (
+            <ThreadItem
+              key={thread.id}
+              thread={thread}
+              threadId={threadId}
+              threadRefs={threadRefs}
+              onEdit={handleEditStart}
+              onDelete={setDeleteThreadId}
+            />
+          ))}
+        </SidebarGroup>
+      </div>
+
+      {yesterdayThreads.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-sm font-medium text-gray-500 mb-2 px-3">
+            Yesterday
+          </h3>
+          <SidebarGroup>
+            {yesterdayThreads.map((thread) => (
+              <ThreadItem
+                key={thread.id}
+                thread={thread}
+                threadId={threadId}
+                threadRefs={threadRefs}
+                onEdit={handleEditStart}
+                onDelete={setDeleteThreadId}
+              />
+            ))}
+          </SidebarGroup>
+        </div>
+      )}
+
+      {previousThreads.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-sm font-medium text-gray-500 mb-2 px-3">
+            Previous
+          </h3>
+          <SidebarGroup>
+            {previousThreads.map((thread) => (
+              <ThreadItem
+                key={thread.id}
+                thread={thread}
+                threadId={threadId}
+                threadRefs={threadRefs}
+                onEdit={handleEditStart}
+                onDelete={setDeleteThreadId}
+              />
+            ))}
+          </SidebarGroup>
+        </div>
+      )}
+
       <AlertDialog
         open={deleteThreadId !== null}
         onOpenChange={() => setDeleteThreadId(null)}

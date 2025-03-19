@@ -106,9 +106,10 @@ export const getUserThreads = async () => {
       userId: session.user.id,
     },
     orderBy: {
-      createdAt: "desc",
+      updatedAt: "desc",
     },
   });
+
   return { success: "Threads fetched successfully", data: threads };
 };
 
