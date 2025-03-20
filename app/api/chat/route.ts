@@ -14,7 +14,9 @@ const getModels = (useSearch: boolean = false) => ({
   "gemini-2.0-flash-001": google("gemini-2.0-flash-001", {
     useSearchGrounding: useSearch,
   }),
-  "gemini-2.0-pro-exp-02-05": google("gemini-2.0-pro-exp-02-05"),
+  "gemini-2.0-pro-exp-02-05": google("gemini-2.0-pro-exp-02-05", {
+    useSearchGrounding: useSearch,
+  }),
   "gemini-2.0-flash-lite-preview-02-05": google(
     "gemini-2.0-flash-lite-preview-02-05"
   ),

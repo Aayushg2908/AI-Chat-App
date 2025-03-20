@@ -95,8 +95,18 @@ const MODELS: {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>,
+      <TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <Globe key="globe" className="size-3 text-green-500" />
+          </TooltipTrigger>
+          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+            Web Search
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>,
     ],
-    canSearch: false,
+    canSearch: true,
   },
   "Gemini 2.0 Flash Lite": {
     id: "gemini-2.0-flash-lite-preview-02-05",
@@ -211,7 +221,6 @@ const ModelSelector = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-2 p-1"
                 onClick={handleSearchToggle}
                 disabled={disabled || !canSearch}
               >
