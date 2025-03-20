@@ -6,6 +6,7 @@ import {
   Zap,
   FlaskConical,
   Clock,
+  GlobeIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -22,7 +23,12 @@ import {
 import React from "react";
 
 const MODELS: {
-  [key: string]: { id: string; description: string; icons: React.ReactNode[] };
+  [key: string]: {
+    id: string;
+    description: string;
+    icons: React.ReactNode[];
+    canSearch: boolean;
+  };
 } = {
   "Gemini 1.5 Flash": {
     id: "gemini-1.5-flash-latest",
@@ -39,6 +45,7 @@ const MODELS: {
         </Tooltip>
       </TooltipProvider>,
     ],
+    canSearch: false,
   },
   "Gemini 1.5 Pro": {
     id: "gemini-1.5-pro-latest",
@@ -55,6 +62,7 @@ const MODELS: {
         </Tooltip>
       </TooltipProvider>,
     ],
+    canSearch: false,
   },
   "Gemini 2.0 Flash": {
     id: "gemini-2.0-flash-001",
@@ -71,6 +79,7 @@ const MODELS: {
         </Tooltip>
       </TooltipProvider>,
     ],
+    canSearch: true,
   },
   "Gemini 2.0 Pro": {
     id: "gemini-2.0-pro-exp-02-05",
@@ -87,6 +96,7 @@ const MODELS: {
         </Tooltip>
       </TooltipProvider>,
     ],
+    canSearch: false,
   },
   "Gemini 2.0 Flash Lite": {
     id: "gemini-2.0-flash-lite-preview-02-05",
@@ -113,6 +123,7 @@ const MODELS: {
         </Tooltip>
       </TooltipProvider>,
     ],
+    canSearch: false,
   },
 };
 
@@ -120,12 +131,16 @@ interface ModelSelectorProps {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
   disabled?: boolean;
+  isSearchEnabled?: boolean;
+  setIsSearchEnabled?: (enabled: boolean) => void;
 }
 
 const ModelSelector = ({
   selectedModel,
   setSelectedModel,
   disabled = false,
+  isSearchEnabled = false,
+  setIsSearchEnabled,
 }: ModelSelectorProps) => {
   const selectedModelName =
     Object.entries(MODELS).find(([, { id }]) => id === selectedModel)?.[0] ||
@@ -133,53 +148,87 @@ const ModelSelector = ({
 
   const selectedModelDescription = MODELS[selectedModelName]?.description || "";
   const selectedModelIcons = MODELS[selectedModelName]?.icons || [];
+  const canSearch = MODELS[selectedModelName]?.canSearch || false;
+
+  const handleSearchToggle = () => {
+    if (setIsSearchEnabled && canSearch) {
+      setIsSearchEnabled(!isSearchEnabled);
+    }
+  };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-1 text-xs dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
-          disabled={disabled}
-        >
-          <span>{selectedModelName}</span>
-          <ChevronDown className="size-3 ml-1" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        {Object.entries(MODELS).map(([name, { id, description, icons }]) => (
-          <DropdownMenuItem
-            key={id}
-            onClick={() => setSelectedModel(id)}
-            className={`cursor-pointer flex items-center justify-between ${
-              selectedModel === id ? "bg-accent" : ""
-            }`}
+    <div className="flex items-center">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-1 text-xs dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
+            disabled={disabled}
           >
-            <div className="flex items-center">
-              <span>{name}</span>
-              <TooltipProvider>
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <Info className="size-3 ml-1 text-gray-400" />
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-                    {description}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex items-center space-x-1.5">
-              {icons.map((icon, index) => (
-                <React.Fragment key={`dropdown-icon-${id}-${index}`}>
-                  {icon}
-                </React.Fragment>
-              ))}
-            </div>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <span>{selectedModelName}</span>
+            <ChevronDown className="size-3 ml-1" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          {Object.entries(MODELS).map(([name, { id, description, icons }]) => (
+            <DropdownMenuItem
+              key={id}
+              onClick={() => setSelectedModel(id)}
+              className={`cursor-pointer flex items-center justify-between ${
+                selectedModel === id ? "bg-accent" : ""
+              }`}
+            >
+              <div className="flex items-center">
+                <span>{name}</span>
+                <TooltipProvider>
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <Info className="size-3 ml-1 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+                      {description}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex items-center space-x-1.5">
+                {icons.map((icon, index) => (
+                  <React.Fragment key={`dropdown-icon-${id}-${index}`}>
+                    {icon}
+                  </React.Fragment>
+                ))}
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {canSearch && (
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-2 p-1"
+                onClick={handleSearchToggle}
+                disabled={disabled || !canSearch}
+              >
+                <GlobeIcon
+                  className={`size-4 ${
+                    isSearchEnabled ? "text-blue-500" : "text-gray-400"
+                  }`}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+              {isSearchEnabled ? "Disable web search" : "Enable web search"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+    </div>
   );
 };
 

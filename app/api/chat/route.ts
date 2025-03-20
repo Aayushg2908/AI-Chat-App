@@ -8,20 +8,24 @@ export interface Message {
 
 export const maxDuration = 30;
 
-const MODELS = {
+const getModels = (useSearch: boolean = false) => ({
   "gemini-1.5-flash-latest": google("gemini-1.5-flash-latest"),
   "gemini-1.5-pro-latest": google("gemini-1.5-pro-latest"),
-  "gemini-2.0-flash-001": google("gemini-2.0-flash-001"),
+  "gemini-2.0-flash-001": google("gemini-2.0-flash-001", {
+    useSearchGrounding: useSearch,
+  }),
   "gemini-2.0-pro-exp-02-05": google("gemini-2.0-pro-exp-02-05"),
   "gemini-2.0-flash-lite-preview-02-05": google(
     "gemini-2.0-flash-lite-preview-02-05"
   ),
-};
+});
 
-type ModelKey = keyof typeof MODELS;
+type ModelKey = keyof ReturnType<typeof getModels>;
 
 export async function POST(req: Request) {
-  const { messages, model } = await req.json();
+  const { messages, model, search } = await req.json();
+
+  const MODELS = getModels(search === true);
 
   const isValidModel = (key: string): key is ModelKey =>
     typeof key === "string" && Object.keys(MODELS).includes(key);
@@ -33,6 +37,11 @@ export async function POST(req: Request) {
   const systemMessage: Message = {
     role: "system",
     content: `You are a helpful AI assistant that provides detailed and well-formatted responses.
+    ${
+      search
+        ? "You have access to web search capabilities to provide up-to-date information."
+        : ""
+    }
 
     When responding, use proper formatting to enhance readability:
 

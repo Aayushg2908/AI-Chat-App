@@ -27,6 +27,7 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const [selectedModel, setSelectedModel] = useState<string>(
     "gemini-1.5-flash-latest"
   );
+  const [isSearchEnabled, setIsSearchEnabled] = useState<boolean>(false);
 
   const {
     messages,
@@ -42,6 +43,7 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     api: "/api/chat",
     body: {
       model: selectedModel,
+      search: isSearchEnabled,
     },
     onError: (error: Error) => {
       console.error("Chat error:", error);
@@ -440,6 +442,8 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                   selectedModel={selectedModel}
                   setSelectedModel={setSelectedModel}
                   disabled={isLoading}
+                  isSearchEnabled={isSearchEnabled}
+                  setIsSearchEnabled={setIsSearchEnabled}
                 />
               </div>
               <div className="flex items-center">
