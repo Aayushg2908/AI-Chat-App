@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
+import { useChat, Message as UIMessage } from "@ai-sdk/react";
 import { KeyboardEvent, useRef, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import {
@@ -23,6 +23,32 @@ import { Thread } from "@prisma/client";
 import { editThread, saveThreadMessages } from "@/actions";
 import ModelSelector, { MODELS } from "./model-selector";
 
+interface Source {
+  id: string;
+  sourceType: string;
+  title: string;
+  url: string;
+}
+
+interface MessagePart {
+  type: string;
+  text?: string;
+  source?: Source;
+}
+
+interface ExtendedMessage {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  createdAt?: string;
+  parts?: MessagePart[];
+  sources?: Array<{
+    title?: string;
+    url: string;
+    snippet?: string;
+  }>;
+}
+
 const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const [selectedModel, setSelectedModel] = useState<string>(
     "gemini-1.5-flash-latest"
@@ -30,13 +56,13 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const [isSearchEnabled, setIsSearchEnabled] = useState<boolean>(false);
 
   const {
-    messages,
+    messages: chatMessages,
     handleInputChange,
     input,
     handleSubmit,
     isLoading,
     status,
-    setMessages,
+    setMessages: setChatMessages,
     stop,
     append,
   } = useChat({
@@ -49,6 +75,11 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
       console.error("Chat error:", error);
     },
   });
+
+  const messages = chatMessages as unknown as ExtendedMessage[];
+  const setMessages = setChatMessages as unknown as React.Dispatch<
+    React.SetStateAction<ExtendedMessage[]>
+  >;
 
   useEffect(() => {
     if (thread) {
@@ -242,133 +273,145 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
           >
             <div className="w-full max-w-5xl mx-auto px-4">
               <div className="w-full flex flex-col space-y-6 py-4">
-                {messages.map((message, index) => (
-                  <div
-                    key={`message-${index}-${message.role}`}
-                    className={cn(
-                      "w-full",
-                      message.role === "user" ? "flex justify-end" : ""
-                    )}
-                  >
-                    {message.role === "user" ? (
-                      <div className="flex flex-col items-end group w-full">
-                        {editingMessageIndex === index ? (
-                          <div className="flex flex-col w-full max-w-[80%]">
-                            <TextareaAutosize
-                              ref={editTextareaRef}
-                              value={editedContent}
-                              onChange={(e) => setEditedContent(e.target.value)}
-                              className="w-full bg-blue-600 text-white px-3 py-2 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
-                              minRows={2}
-                              maxRows={8}
-                            />
-                            <div className="flex justify-end mt-2 space-x-2">
-                              <Button
-                                onClick={handleCancelEdit}
-                                size="sm"
-                                variant="ghost"
-                                className="h-8 px-3 text-xs"
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                onClick={() => handleSaveEdit(index)}
-                                size="sm"
-                                className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700"
-                                variant="secondary"
-                              >
-                                Save
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="bg-blue-600 text-white px-3 py-2 rounded-2xl max-w-[80%]">
-                              <MessageContent
-                                content={message.content}
-                                isUserMessage={true}
+                {messages.map((message, index) => {
+                  return (
+                    <div
+                      key={`message-${index}-${message.role}`}
+                      className={cn(
+                        "w-full",
+                        message.role === "user" ? "flex justify-end" : ""
+                      )}
+                    >
+                      {message.role === "user" ? (
+                        <div className="flex flex-col items-end group w-full">
+                          {editingMessageIndex === index ? (
+                            <div className="flex flex-col w-full max-w-[80%]">
+                              <TextareaAutosize
+                                ref={editTextareaRef}
+                                value={editedContent}
+                                onChange={(e) =>
+                                  setEditedContent(e.target.value)
+                                }
+                                className="w-full bg-blue-600 text-white px-3 py-2 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                minRows={2}
+                                maxRows={8}
                               />
+                              <div className="flex justify-end mt-2 space-x-2">
+                                <Button
+                                  onClick={handleCancelEdit}
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 px-3 text-xs"
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  onClick={() => handleSaveEdit(index)}
+                                  size="sm"
+                                  className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700"
+                                  variant="secondary"
+                                >
+                                  Save
+                                </Button>
+                              </div>
                             </div>
-                            <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-1">
-                              <Button
-                                onClick={() =>
-                                  handleRetryMessage(index, message.content)
-                                }
-                                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
-                                variant="ghost"
-                                size="icon"
-                                title="Retry"
-                              >
-                                <RefreshCw className="size-2" />
-                              </Button>
-                              <Button
-                                onClick={() =>
-                                  handleEditMessage(index, message.content)
-                                }
-                                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
-                                variant="ghost"
-                                size="icon"
-                                title="Edit"
-                              >
-                                <Edit className="size-2" />
-                              </Button>
-                              <Button
-                                onClick={() =>
-                                  handleCopyMessage(
-                                    message.content,
-                                    `user-message-${index}`
-                                  )
-                                }
-                                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
-                                variant="ghost"
-                                size="icon"
-                                title="Copy"
-                              >
-                                {copiedMessageId === `user-message-${index}` ? (
-                                  <Check className="size-2" />
-                                ) : (
-                                  <Copy className="size-2" />
-                                )}
-                              </Button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="w-full max-w-full overflow-hidden">
-                        <MessageContent
-                          content={message.content}
-                          isUserMessage={false}
-                        />
-                        <div className="flex justify-end mt-2">
-                          <Button
-                            onClick={() =>
-                              handleCopyMessage(
-                                message.content,
-                                `message-${index}`
-                              )
-                            }
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 px-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                          >
-                            {copiedMessageId === `message-${index}` ? (
-                              <>
-                                <Check className="h-3.5 w-3.5 mr-1" />
-                                Copied
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="h-3.5 w-3.5 mr-1" />
-                                Copy response
-                              </>
-                            )}
-                          </Button>
+                          ) : (
+                            <>
+                              <div className="bg-blue-600 text-white px-3 py-2 rounded-2xl max-w-[80%]">
+                                <MessageContent
+                                  content={message.content}
+                                  isUserMessage={true}
+                                />
+                              </div>
+                              <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-1">
+                                <Button
+                                  onClick={() =>
+                                    handleRetryMessage(index, message.content)
+                                  }
+                                  className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                  variant="ghost"
+                                  size="icon"
+                                  title="Retry"
+                                >
+                                  <RefreshCw className="size-2" />
+                                </Button>
+                                <Button
+                                  onClick={() =>
+                                    handleEditMessage(index, message.content)
+                                  }
+                                  className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                  variant="ghost"
+                                  size="icon"
+                                  title="Edit"
+                                >
+                                  <Edit className="size-2" />
+                                </Button>
+                                <Button
+                                  onClick={() =>
+                                    handleCopyMessage(
+                                      message.content,
+                                      `user-message-${index}`
+                                    )
+                                  }
+                                  className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                  variant="ghost"
+                                  size="icon"
+                                  title="Copy"
+                                >
+                                  {copiedMessageId ===
+                                  `user-message-${index}` ? (
+                                    <Check className="size-2" />
+                                  ) : (
+                                    <Copy className="size-2" />
+                                  )}
+                                </Button>
+                              </div>
+                            </>
+                          )}
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      ) : (
+                        <div className="w-full max-w-full overflow-hidden">
+                          <MessageContent
+                            content={message.content}
+                            isUserMessage={false}
+                            sources={message.parts
+                              ?.filter((part) => part.type === "source")
+                              .map((part) => ({
+                                title: part.source?.title || "",
+                                url: part.source?.url || "",
+                                snippet: part.text,
+                              }))}
+                          />
+                          <div className="flex justify-end mt-2">
+                            <Button
+                              onClick={() =>
+                                handleCopyMessage(
+                                  message.content,
+                                  `message-${index}`
+                                )
+                              }
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 px-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                            >
+                              {copiedMessageId === `message-${index}` ? (
+                                <>
+                                  <Check className="h-3.5 w-3.5 mr-1" />
+                                  Copied
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="h-3.5 w-3.5 mr-1" />
+                                  Copy response
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
                 <div ref={messagesEndRef} className="h-4" />
                 {status === "submitted" && (
                   <div className="flex items-start space-x-2 animate-in fade-in">

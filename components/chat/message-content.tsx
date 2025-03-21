@@ -16,18 +16,30 @@ import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import type { Components } from "react-markdown";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, GlobeIcon } from "lucide-react";
 
 interface MessageContentProps {
   content: string;
   isUserMessage?: boolean;
+  sources?: Array<{
+    title?: string;
+    url: string;
+    snippet?: string;
+  }>;
 }
 
 export const MessageContent = ({
   content,
   isUserMessage = false,
+  sources,
 }: MessageContentProps) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedSourceIndex, setCopiedSourceIndex] = useState<number | null>(
+    null
+  );
+  const [expandedSourceIndex, setExpandedSourceIndex] = useState<number | null>(
+    null
+  );
   const codeBlocksRef = useRef<Map<number, HTMLElement>>(new Map());
 
   useEffect(() => {
@@ -528,11 +540,68 @@ export const MessageContent = ({
   CodeBlock.displayName = "CodeBlock";
 
   return (
-    <div
-      className={`text-base markdown-body ${
-        isUserMessage ? "user-message" : ""
-      }`}
-    >
+    <div className="prose dark:prose-invert prose-sm max-w-none break-words">
+      {sources && sources.length > 0 && !isUserMessage && (
+        <div className="mb-4 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <div className="bg-gray-100 dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+            <GlobeIcon className="size-4 mr-2 text-blue-500" />
+            Web sources ({sources.length})
+          </div>
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {sources.map((source, index) => (
+              <div key={index} className="px-4 py-3">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      {source.title || source.url}
+                    </a>
+                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(source.url);
+                      setCopiedSourceIndex(index);
+                      setTimeout(() => setCopiedSourceIndex(null), 2000);
+                    }}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 ml-2"
+                  >
+                    {copiedSourceIndex === index ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {source.snippet && (
+                  <div className="mt-2">
+                    <button
+                      onClick={() =>
+                        setExpandedSourceIndex(
+                          expandedSourceIndex === index ? null : index
+                        )
+                      }
+                      className="text-xs text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                    >
+                      {expandedSourceIndex === index
+                        ? "Show less"
+                        : "Show snippet"}
+                    </button>
+                    {expandedSourceIndex === index && (
+                      <div className="mt-2 text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-2 rounded">
+                        {source.snippet}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <ReactMarkdown
         remarkPlugins={[remarkMath, remarkGfm]}
         rehypePlugins={[

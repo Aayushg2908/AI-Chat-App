@@ -111,5 +111,7 @@ export async function POST(req: Request) {
     messages: enhancedMessages,
   });
 
-  return result.toDataStreamResponse();
+  return result.toDataStreamResponse({
+    sendSources: true,
+  });
 }
