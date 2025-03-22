@@ -7,6 +7,7 @@ import {
   FlaskConical,
   Clock,
   GlobeIcon,
+  ChevronUp,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -20,7 +21,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import React from "react";
+import React, { useState } from "react";
 
 const MODELS: {
   [key: string]: {
@@ -152,6 +153,7 @@ const ModelSelector = ({
   isSearchEnabled = false,
   setIsSearchEnabled,
 }: ModelSelectorProps) => {
+  const [isOpen, setIsOpen] = useState(false);
   const selectedModelName =
     Object.entries(MODELS).find(([, { id }]) => id === selectedModel)?.[0] ||
     "Gemini 1.5 Flash";
@@ -168,7 +170,7 @@ const ModelSelector = ({
 
   return (
     <div className="flex items-center">
-      <DropdownMenu>
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
@@ -177,7 +179,11 @@ const ModelSelector = ({
             disabled={disabled}
           >
             <span>{selectedModelName}</span>
-            <ChevronDown className="size-3 ml-1" />
+            {isOpen ? (
+              <ChevronDown className="size-3 ml-1" />
+            ) : (
+              <ChevronUp className="size-3 ml-1" />
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
