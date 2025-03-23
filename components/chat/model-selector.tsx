@@ -9,6 +9,8 @@ import {
   FileText,
   GlobeIcon,
   ChevronUp,
+  X,
+  Paperclip,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -22,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 const createTooltipIcon = (
   IconComponent: React.ElementType,
@@ -49,6 +51,7 @@ const MODELS: {
     description: string;
     icons: React.ReactNode[];
     canSearch: boolean;
+    canUploadFile: boolean;
   };
 } = {
   "Gemini 1.5 Flash": {
@@ -59,6 +62,7 @@ const MODELS: {
       createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: false,
+    canUploadFile: true,
   },
   "Gemini 1.5 Pro": {
     id: "gemini-1.5-pro-latest",
@@ -68,6 +72,7 @@ const MODELS: {
       createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: false,
+    canUploadFile: true,
   },
   "Gemini 2.0 Flash": {
     id: "gemini-2.0-flash-001",
@@ -77,6 +82,7 @@ const MODELS: {
       createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
+    canUploadFile: true,
   },
   "Gemini 2.0 Pro": {
     id: "gemini-2.0-pro-exp-02-05",
@@ -87,6 +93,7 @@ const MODELS: {
       createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
+    canUploadFile: true,
   },
   "Gemini 2.0 Flash Lite": {
     id: "gemini-2.0-flash-lite-preview-02-05",
@@ -96,6 +103,7 @@ const MODELS: {
       createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
     ],
     canSearch: false,
+    canUploadFile: false,
   },
 };
 
@@ -105,6 +113,9 @@ interface ModelSelectorProps {
   disabled?: boolean;
   isSearchEnabled?: boolean;
   setIsSearchEnabled?: (enabled: boolean) => void;
+  setFiles?: (files: FileList | undefined) => void;
+  selectedFile?: File | null;
+  setSelectedFile?: (file: File | null) => void;
 }
 
 const ModelSelector = ({
@@ -113,17 +124,47 @@ const ModelSelector = ({
   disabled = false,
   isSearchEnabled = false,
   setIsSearchEnabled,
+  setFiles,
+  selectedFile,
+  setSelectedFile,
 }: ModelSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const selectedModelName =
     Object.entries(MODELS).find(([, { id }]) => id === selectedModel)?.[0] ||
     "Gemini 1.5 Flash";
 
   const canSearch = MODELS[selectedModelName]?.canSearch || false;
+  const canUploadFile = MODELS[selectedModelName]?.canUploadFile || false;
 
   const handleSearchToggle = () => {
     if (setIsSearchEnabled && canSearch) {
       setIsSearchEnabled(!isSearchEnabled);
+    }
+  };
+
+  const handleFileUpload = () => {
+    if (canUploadFile && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (fileList && fileList.length > 0 && setFiles && setSelectedFile) {
+      setFiles(fileList);
+      setSelectedFile(fileList[0]);
+    }
+  };
+
+  const removeFile = () => {
+    if (setFiles && setSelectedFile) {
+      setFiles(undefined);
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -178,7 +219,6 @@ const ModelSelector = ({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-
       {canSearch && (
         <TooltipProvider>
           <Tooltip delayDuration={0}>
@@ -201,6 +241,62 @@ const ModelSelector = ({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+      )}
+      {canUploadFile && (
+        <>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*,.pdf"
+          />
+          {selectedFile ? (
+            <div className="relative">
+              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded p-1">
+                <div className="flex items-center max-w-[120px]">
+                  {selectedFile.type.startsWith("image/") ? (
+                    <img
+                      src={URL.createObjectURL(selectedFile)}
+                      alt="Preview"
+                      className="h-5 w-5 object-cover rounded mr-1"
+                    />
+                  ) : (
+                    <FileText className="h-5 w-5 mr-1 text-blue-500" />
+                  )}
+                  <span className="text-xs truncate">{selectedFile.name}</span>
+                </div>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-5 w-5 ml-1"
+                  onClick={removeFile}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <TooltipProvider>
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleFileUpload}
+                    disabled={disabled}
+                  >
+                    <Paperclip className="size-4 text-gray-400" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+                  Upload file
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </>
       )}
     </div>
   );
