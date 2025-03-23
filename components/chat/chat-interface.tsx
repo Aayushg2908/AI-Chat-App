@@ -13,6 +13,8 @@ import {
   Check,
   Edit,
   RefreshCw,
+  X,
+  File,
 } from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
@@ -54,6 +56,9 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     "gemini-1.5-flash-latest"
   );
   const [isSearchEnabled, setIsSearchEnabled] = useState<boolean>(false);
+  const [files, setFiles] = useState<FileList | undefined>(undefined);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     messages: chatMessages,
@@ -171,7 +176,9 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
         return;
       }
 
-      handleSubmit(e as React.FormEvent<HTMLFormElement>);
+      handleSubmit(e as React.FormEvent<HTMLFormElement>, {
+        experimental_attachments: files,
+      });
       inputRef.current?.focus();
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -179,15 +186,31 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   };
 
   const handleFileUpload = async () => {
-    console.log("handleFileUpload");
     try {
       if (!data?.user && !data?.user.id) {
         onOpen();
         return;
       }
-      console.log("File uploaded");
+
+      fileInputRef.current?.click();
     } catch (error) {
       console.error("Failed to upload file:", error);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (fileList && fileList.length > 0) {
+      setFiles(fileList);
+      setSelectedFile(fileList[0]);
+    }
+  };
+
+  const removeFile = () => {
+    setFiles(undefined);
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -489,17 +512,55 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                   setIsSearchEnabled={setIsSearchEnabled}
                 />
               </div>
-              <div className="flex items-center">
-                <Button
-                  className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40 mr-1"
-                  disabled={isLoading}
-                  size="icon"
-                  variant="ghost"
-                  type="button"
-                  onClick={() => handleFileUpload()}
-                >
-                  <Paperclip className="size-3.5" />
-                </Button>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept="image/*,.pdf"
+                />
+                {selectedFile ? (
+                  <div className="relative">
+                    <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded p-1">
+                      <div className="flex items-center max-w-[120px]">
+                        {selectedFile.type.startsWith("image/") ? (
+                          <img
+                            src={URL.createObjectURL(selectedFile)}
+                            alt="Preview"
+                            className="h-5 w-5 object-cover rounded mr-1"
+                          />
+                        ) : (
+                          <File className="h-5 w-5 mr-1 text-blue-500" />
+                        )}
+                        <span className="text-xs truncate">
+                          {selectedFile.name}
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        className="h-5 w-5 ml-1"
+                        onClick={removeFile}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
+                    disabled={isLoading}
+                    size="icon"
+                    variant="ghost"
+                    type="button"
+                    onClick={() => handleFileUpload()}
+                  >
+                    <Paperclip className="size-3.5" />
+                  </Button>
+                )}
+
                 {status === "streaming" ? (
                   <Button
                     type="button"
