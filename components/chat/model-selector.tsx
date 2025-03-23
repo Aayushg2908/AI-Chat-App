@@ -24,6 +24,25 @@ import {
 } from "../ui/tooltip";
 import React, { useState } from "react";
 
+const createTooltipIcon = (
+  IconComponent: React.ElementType,
+  description: string,
+  colorClass: string
+) => {
+  return (
+    <TooltipProvider key={description}>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          <IconComponent className={`size-3 ${colorClass}`} />
+        </TooltipTrigger>
+        <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+          {description}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
 const MODELS: {
   [key: string]: {
     id: string;
@@ -36,26 +55,8 @@ const MODELS: {
     id: "gemini-1.5-flash-latest",
     description: "Google's old Flash model.",
     icons: [
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Clock key="clock" className="size-3 text-amber-400" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            Old Model
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <FileText key="file-text" className="size-3 text-blue-400" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            File Upload
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
+      createTooltipIcon(Clock, "Old Model", "text-amber-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: false,
   },
@@ -63,26 +64,8 @@ const MODELS: {
     id: "gemini-1.5-pro-latest",
     description: "Google's old Pro model.",
     icons: [
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Clock key="clock" className="size-3 text-amber-400" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            Old Model
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <FileText key="file-text" className="size-3 text-blue-400" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            File Upload
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
+      createTooltipIcon(Clock, "Old Model", "text-amber-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: false,
   },
@@ -90,26 +73,8 @@ const MODELS: {
     id: "gemini-2.0-flash-001",
     description: "Google's latest Flash model.",
     icons: [
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Globe key="globe" className="size-3 text-green-500" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            Web Search
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <FileText key="file-text" className="size-3 text-blue-400" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            File Upload
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
   },
@@ -117,36 +82,9 @@ const MODELS: {
     id: "gemini-2.0-pro-exp-02-05",
     description: "Google's latest Experimental Pro model.",
     icons: [
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <FlaskConical key="flask" className="size-3 text-red-400" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            Experimental
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Globe key="globe" className="size-3 text-green-500" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            Web Search
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <FileText key="file-text" className="size-3 text-blue-400" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            File Upload
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
   },
@@ -154,26 +92,8 @@ const MODELS: {
     id: "gemini-2.0-flash-lite-preview-02-05",
     description: "Google's Experimental and Faster model.",
     icons: [
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Zap key="flash" className="size-3 text-yellow-500" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            Very Fast
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <FlaskConical key="flask" className="size-3 text-red-400" />
-          </TooltipTrigger>
-          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-            Experimental
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>,
+      createTooltipIcon(Zap, "Very Fast", "text-yellow-500"),
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
     ],
     canSearch: false,
   },
@@ -199,8 +119,6 @@ const ModelSelector = ({
     Object.entries(MODELS).find(([, { id }]) => id === selectedModel)?.[0] ||
     "Gemini 1.5 Flash";
 
-  const selectedModelDescription = MODELS[selectedModelName]?.description || "";
-  const selectedModelIcons = MODELS[selectedModelName]?.icons || [];
   const canSearch = MODELS[selectedModelName]?.canSearch || false;
 
   const handleSearchToggle = () => {
