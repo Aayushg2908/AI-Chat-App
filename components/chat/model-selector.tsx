@@ -6,6 +6,7 @@ import {
   Zap,
   FlaskConical,
   Clock,
+  FileText,
   GlobeIcon,
   ChevronUp,
 } from "lucide-react";
@@ -45,6 +46,16 @@ const MODELS: {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>,
+      <TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <FileText key="file-text" className="size-3 text-blue-400" />
+          </TooltipTrigger>
+          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+            File Upload
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>,
     ],
     canSearch: false,
   },
@@ -62,6 +73,16 @@ const MODELS: {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>,
+      <TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <FileText key="file-text" className="size-3 text-blue-400" />
+          </TooltipTrigger>
+          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+            File Upload
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>,
     ],
     canSearch: false,
   },
@@ -76,6 +97,16 @@ const MODELS: {
           </TooltipTrigger>
           <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
             Web Search
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>,
+      <TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <FileText key="file-text" className="size-3 text-blue-400" />
+          </TooltipTrigger>
+          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+            File Upload
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>,
@@ -103,6 +134,16 @@ const MODELS: {
           </TooltipTrigger>
           <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
             Web Search
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>,
+      <TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <FileText key="file-text" className="size-3 text-blue-400" />
+          </TooltipTrigger>
+          <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+            File Upload
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>,
