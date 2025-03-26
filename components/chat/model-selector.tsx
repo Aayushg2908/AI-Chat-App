@@ -105,6 +105,37 @@ const MODELS: {
     canSearch: false,
     canUploadFile: false,
   },
+  "GPT 3.5 Turbo": {
+    id: "gpt-3.5-turbo",
+    description: "OpenAI's Old Model",
+    icons: [createTooltipIcon(Clock, "Old Model", "text-amber-400")],
+    canSearch: false,
+    canUploadFile: false,
+  },
+  "GPT 4o mini": {
+    id: "gpt-4o-mini",
+    description: "OpenAI's small and cheap model.",
+    icons: [
+      createTooltipIcon(Clock, "Old Model", "text-amber-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+    ],
+    canSearch: false,
+    canUploadFile: false,
+  },
+  "GPT 4o": {
+    id: "gpt-4o",
+    description: "OpenAI's latest model.",
+    icons: [createTooltipIcon(FileText, "File Upload", "text-blue-400")],
+    canSearch: false,
+    canUploadFile: false,
+  },
+  "O3 mini": {
+    id: "o3-mini",
+    description: "OpenAI's latest reasoning model.",
+    icons: [],
+    canSearch: false,
+    canUploadFile: false,
+  },
 };
 
 interface ModelSelectorProps {
@@ -186,7 +217,7 @@ const ModelSelector = ({
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align="start" className="w-[250px]">
           {Object.entries(MODELS).map(([name, { id, description, icons }]) => (
             <DropdownMenuItem
               key={id}

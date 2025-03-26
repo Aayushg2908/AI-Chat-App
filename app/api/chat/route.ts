@@ -1,4 +1,5 @@
 import { google } from "@ai-sdk/google";
+import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
 
 export interface Message {
@@ -20,6 +21,10 @@ const getModels = (useSearch: boolean = false) => ({
   "gemini-2.0-flash-lite-preview-02-05": google(
     "gemini-2.0-flash-lite-preview-02-05"
   ),
+  "gpt-3.5-turbo": openai("gpt-3.5-turbo"),
+  "gpt-4o": openai("gpt-4o"),
+  "gpt-4o-mini": openai("gpt-4o-mini"),
+  "o3-mini": openai("o3-mini"),
 });
 
 type ModelKey = keyof ReturnType<typeof getModels>;
@@ -107,6 +112,7 @@ export async function POST(req: Request) {
     : [systemMessage, ...messages];
 
   const result = streamText({
+    // @ts-ignore
     model: modelToUse,
     messages: enhancedMessages,
   });
