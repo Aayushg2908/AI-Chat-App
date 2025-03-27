@@ -11,6 +11,7 @@ import {
   ChevronUp,
   X,
   Paperclip,
+  BrainIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -105,6 +106,15 @@ const MODELS: {
     canSearch: false,
     canUploadFile: false,
   },
+  "Gemini 2.0 Flash Thinking": {
+    id: "gemini-2.0-flash-thinking-exp-01-21",
+    description: "Google's latest Reasoning model.",
+    icons: [
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: false,
+  },
   "GPT 3.5 Turbo": {
     id: "gpt-3.5-turbo",
     description: "OpenAI's Old Model",
@@ -112,7 +122,7 @@ const MODELS: {
     canSearch: false,
     canUploadFile: false,
   },
-  "GPT 4o mini": {
+  "GPT 4o Mini": {
     id: "gpt-4o-mini",
     description: "OpenAI's small and cheap model.",
     icons: [
@@ -129,10 +139,12 @@ const MODELS: {
     canSearch: false,
     canUploadFile: false,
   },
-  "O3 mini": {
+  "O3 Mini": {
     id: "o3-mini",
-    description: "OpenAI's latest reasoning model.",
-    icons: [],
+    description: "OpenAI's latest Reasoning model.",
+    icons: [
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
     canSearch: false,
     canUploadFile: false,
   },

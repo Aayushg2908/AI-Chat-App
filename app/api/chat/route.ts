@@ -21,6 +21,9 @@ const getModels = (useSearch: boolean = false) => ({
   "gemini-2.0-flash-lite-preview-02-05": google(
     "gemini-2.0-flash-lite-preview-02-05"
   ),
+  "gemini-2.0-flash-thinking-exp-01-21": google(
+    "gemini-2.0-flash-thinking-exp-01-21"
+  ),
   "gpt-3.5-turbo": openai("gpt-3.5-turbo"),
   "gpt-4o": openai("gpt-4o"),
   "gpt-4o-mini": openai("gpt-4o-mini"),
@@ -119,5 +122,6 @@ export async function POST(req: Request) {
 
   return result.toDataStreamResponse({
     sendSources: true,
+    sendReasoning: true,
   });
 }
