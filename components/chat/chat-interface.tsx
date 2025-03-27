@@ -75,6 +75,8 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     onError: (error: Error) => {
       console.error("Chat error:", error);
     },
+    experimental_throttle:
+      selectedModel.includes("gpt") || selectedModel.includes("o3") ? 50 : 0,
   });
 
   const messages = chatMessages as unknown as ExtendedMessage[];
@@ -88,19 +90,31 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     }
   }, []);
 
+  const [shouldSaveMessages, setShouldSaveMessages] = useState(false);
+
   useEffect(() => {
     if (status === "ready" && messages.length > 0) {
-      if (messages.length === 2) {
-        if (!thread) return;
-        editThread(thread.id, messages[0].content);
-      }
-      const saveMessages = async () => {
-        if (!thread) return;
-        await saveThreadMessages(thread.id, JSON.stringify(messages));
-      };
-      saveMessages();
+      setShouldSaveMessages(true);
     }
-  }, [status]);
+  }, [status, messages.length]);
+
+  useEffect(() => {
+    if (!shouldSaveMessages) return;
+
+    const saveMessagesWithDebounce = setTimeout(async () => {
+      if (messages.length === 2 && thread) {
+        await editThread(thread.id, messages[0].content);
+      }
+
+      if (thread) {
+        await saveThreadMessages(thread.id, JSON.stringify(messages));
+      }
+
+      setShouldSaveMessages(false);
+    }, 300);
+
+    return () => clearTimeout(saveMessagesWithDebounce);
+  }, [shouldSaveMessages, messages, thread]);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
