@@ -1,7 +1,7 @@
 "use client";
 
-import { useChat, Message as UIMessage } from "@ai-sdk/react";
-import { KeyboardEvent, useRef, useEffect, useState } from "react";
+import { useChat } from "@ai-sdk/react";
+import { useRef, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import {
   CircleStop,
@@ -12,7 +12,6 @@ import {
   Check,
   Edit,
   RefreshCw,
-  X,
 } from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
@@ -21,7 +20,7 @@ import { cn } from "@/lib/utils";
 import MessageContent from "./message-content";
 import { Thread } from "@prisma/client";
 import { editThread, saveThreadMessages } from "@/actions";
-import ModelSelector, { MODELS } from "./model-selector";
+import ModelSelector from "./model-selector";
 
 interface Source {
   id: string;
