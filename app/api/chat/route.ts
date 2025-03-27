@@ -10,9 +10,7 @@ export interface Message {
 export const maxDuration = 30;
 
 const getModels = (useSearch: boolean = false) => ({
-  "gemini-1.5-flash-latest": google("gemini-1.5-flash-latest"),
-  "gemini-1.5-pro-latest": google("gemini-1.5-pro-latest"),
-  "gemini-2.0-flash-001": google("gemini-2.0-flash-001", {
+  "gemini-2.0-flash-exp": google("gemini-2.0-flash-exp", {
     useSearchGrounding: useSearch,
   }),
   "gemini-2.0-pro-exp-02-05": google("gemini-2.0-pro-exp-02-05", {
@@ -24,7 +22,6 @@ const getModels = (useSearch: boolean = false) => ({
   "gemini-2.0-flash-thinking-exp-01-21": google(
     "gemini-2.0-flash-thinking-exp-01-21"
   ),
-  "gpt-3.5-turbo": openai("gpt-3.5-turbo"),
   "gpt-4o": openai("gpt-4o"),
   "gpt-4o-mini": openai("gpt-4o-mini"),
   "o3-mini": openai("o3-mini"),

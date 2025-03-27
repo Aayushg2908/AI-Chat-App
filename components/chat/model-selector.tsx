@@ -55,28 +55,8 @@ const MODELS: {
     canUploadFile: boolean;
   };
 } = {
-  "Gemini 1.5 Flash": {
-    id: "gemini-1.5-flash-latest",
-    description: "Google's old Flash model.",
-    icons: [
-      createTooltipIcon(Clock, "Old Model", "text-amber-400"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
-    ],
-    canSearch: false,
-    canUploadFile: true,
-  },
-  "Gemini 1.5 Pro": {
-    id: "gemini-1.5-pro-latest",
-    description: "Google's old Pro model.",
-    icons: [
-      createTooltipIcon(Clock, "Old Model", "text-amber-400"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
-    ],
-    canSearch: false,
-    canUploadFile: true,
-  },
   "Gemini 2.0 Flash": {
-    id: "gemini-2.0-flash-001",
+    id: "gemini-2.0-flash-exp",
     description: "Google's latest Flash model.",
     icons: [
       createTooltipIcon(Globe, "Web Search", "text-green-500"),
@@ -112,13 +92,6 @@ const MODELS: {
     icons: [
       createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
     ],
-    canSearch: false,
-    canUploadFile: false,
-  },
-  "GPT 3.5 Turbo": {
-    id: "gpt-3.5-turbo",
-    description: "OpenAI's Old Model",
-    icons: [createTooltipIcon(Clock, "Old Model", "text-amber-400")],
     canSearch: false,
     canUploadFile: false,
   },
@@ -176,7 +149,7 @@ const ModelSelector = ({
 
   const selectedModelName =
     Object.entries(MODELS).find(([, { id }]) => id === selectedModel)?.[0] ||
-    "Gemini 1.5 Flash";
+    "Gemini 2.0 Flash";
 
   const canSearch = MODELS[selectedModelName]?.canSearch || false;
   const canUploadFile = MODELS[selectedModelName]?.canUploadFile || false;
