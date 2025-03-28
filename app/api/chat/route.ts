@@ -9,7 +9,7 @@ export interface Message {
 
 export const maxDuration = 30;
 
-const getModels = (useSearch: boolean = false) => ({
+const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
   "gemini-2.0-flash-exp": google("gemini-2.0-flash-exp", {
     useSearchGrounding: useSearch,
   }),
@@ -24,15 +24,17 @@ const getModels = (useSearch: boolean = false) => ({
   ),
   "gpt-4o": openai("gpt-4o"),
   "gpt-4o-mini": openai("gpt-4o-mini"),
-  "o3-mini": openai("o3-mini"),
+  "o3-mini": openai("o3-mini", {
+    reasoningEffort: effortLevel as "low" | "medium" | "high",
+  }),
 });
 
 type ModelKey = keyof ReturnType<typeof getModels>;
 
 export async function POST(req: Request) {
-  const { messages, model, search } = await req.json();
+  const { messages, model, search, effortLevel } = await req.json();
 
-  const MODELS = getModels(search === true);
+  const MODELS = getModels(search === true, effortLevel);
 
   const isValidModel = (key: string): key is ModelKey =>
     typeof key === "string" && Object.keys(MODELS).includes(key);

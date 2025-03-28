@@ -132,6 +132,8 @@ interface ModelSelectorProps {
   setFiles?: (files: FileList | undefined) => void;
   selectedFile?: File | null;
   setSelectedFile?: (file: File | null) => void;
+  effortLevel?: string;
+  setEffortLevel?: (level: string) => void;
 }
 
 const ModelSelector = ({
@@ -143,6 +145,8 @@ const ModelSelector = ({
   setFiles,
   selectedFile,
   setSelectedFile,
+  effortLevel = "low",
+  setEffortLevel,
 }: ModelSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -181,6 +185,12 @@ const ModelSelector = ({
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+    }
+  };
+
+  const handleEffortLevelChange = (level: string) => {
+    if (setEffortLevel) {
+      setEffortLevel(level);
     }
   };
 
@@ -313,6 +323,34 @@ const ModelSelector = ({
             </TooltipProvider>
           )}
         </>
+      )}
+      {selectedModel === "o3-mini" && setEffortLevel && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-1 text-xs dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors ml-2"
+              disabled={disabled}
+            >
+              <span>Effort: {effortLevel}</span>
+              <ChevronUp className="size-3 ml-1" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-[150px]">
+            {["low", "medium", "high"].map((level) => (
+              <DropdownMenuItem
+                key={level}
+                onClick={() => handleEffortLevelChange(level)}
+                className={`cursor-pointer ${
+                  effortLevel === level ? "bg-accent" : ""
+                }`}
+              >
+                <span className="capitalize">{level}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
     </div>
   );

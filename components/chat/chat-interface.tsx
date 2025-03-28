@@ -55,6 +55,7 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const [isSearchEnabled, setIsSearchEnabled] = useState<boolean>(false);
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [effortLevel, setEffortLevel] = useState<string>("low");
 
   const {
     messages: chatMessages,
@@ -66,11 +67,13 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     setMessages: setChatMessages,
     stop,
     append,
+    error,
   } = useChat({
     api: "/api/chat",
     body: {
       model: selectedModel,
       search: isSearchEnabled,
+      effortLevel,
     },
     onError: (error: Error) => {
       console.error("Chat error:", error);
@@ -492,6 +495,8 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                   setFiles={setFiles}
                   selectedFile={selectedFile}
                   setSelectedFile={setSelectedFile}
+                  effortLevel={effortLevel}
+                  setEffortLevel={setEffortLevel}
                 />
               </div>
               <div className="flex items-center space-x-2">
