@@ -113,7 +113,7 @@ const MODELS: {
     canUploadFile: false,
   },
   "O3 Mini": {
-    id: "o3-mini",
+    id: "o3-mini-2025-01-31",
     description: "OpenAI's latest Reasoning model.",
     icons: [
       createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
@@ -324,7 +324,7 @@ const ModelSelector = ({
           )}
         </>
       )}
-      {selectedModel === "o3-mini" && setEffortLevel && (
+      {selectedModel === "o3-mini-2025-01-31" && setEffortLevel && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

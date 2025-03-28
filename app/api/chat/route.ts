@@ -24,7 +24,7 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
   ),
   "gpt-4o": openai("gpt-4o"),
   "gpt-4o-mini": openai("gpt-4o-mini"),
-  "o3-mini": openai("o3-mini", {
+  "o3-mini-2025-01-31": openai("o3-mini-2025-01-31", {
     reasoningEffort: effortLevel as "low" | "medium" | "high",
   }),
 });
