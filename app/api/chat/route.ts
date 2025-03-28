@@ -25,8 +25,10 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
       useSearchGrounding: useSearch,
     }
   ),
-  "gpt-4o": openai("gpt-4o"),
-  "gpt-4o-mini": openai("gpt-4o-mini"),
+  "gpt-4o": useSearch ? openai.responses("gpt-4o") : openai("gpt-4o"),
+  "gpt-4o-mini": useSearch
+    ? openai.responses("gpt-4o-mini")
+    : openai("gpt-4o-mini"),
   "o3-mini-2025-01-31": openai("o3-mini-2025-01-31", {
     reasoningEffort: effortLevel as "low" | "medium" | "high",
   }),
@@ -120,6 +122,13 @@ export async function POST(req: Request) {
     // @ts-ignore
     model: modelToUse,
     messages: enhancedMessages,
+    ...(search && model.startsWith("gpt")
+      ? {
+          tools: {
+            web_search_preview: openai.tools.webSearchPreview(),
+          },
+        }
+      : {}),
   });
 
   return result.toDataStreamResponse({

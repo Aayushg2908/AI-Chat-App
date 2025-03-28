@@ -104,16 +104,20 @@ const MODELS: {
     description: "OpenAI's small and cheap model.",
     icons: [
       createTooltipIcon(Clock, "Old Model", "text-amber-400"),
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
       createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
-    canSearch: false,
+    canSearch: true,
     canUploadFile: true,
   },
   "GPT 4o": {
     id: "gpt-4o",
     description: "OpenAI's latest model.",
-    icons: [createTooltipIcon(FileText, "File Upload", "text-blue-400")],
-    canSearch: false,
+    icons: [
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+    ],
+    canSearch: true,
     canUploadFile: true,
   },
   "O3 Mini": {
