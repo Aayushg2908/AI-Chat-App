@@ -56,7 +56,7 @@ const MODELS: {
   };
 } = {
   "Gemini 2.0 Flash": {
-    id: "gemini-2.0-flash-exp",
+    id: "gemini-2.0-flash-001",
     description: "Google's latest Flash model.",
     icons: [
       createTooltipIcon(Globe, "Web Search", "text-green-500"),
@@ -82,18 +82,22 @@ const MODELS: {
     icons: [
       createTooltipIcon(Zap, "Very Fast", "text-yellow-500"),
       createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: false,
-    canUploadFile: false,
+    canUploadFile: true,
   },
   "Gemini 2.0 Flash Thinking": {
     id: "gemini-2.0-flash-thinking-exp-01-21",
     description: "Google's latest Reasoning model.",
     icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
       createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
     ],
-    canSearch: false,
-    canUploadFile: false,
+    canSearch: true,
+    canUploadFile: true,
   },
   "GPT 4o Mini": {
     id: "gpt-4o-mini",
@@ -103,14 +107,14 @@ const MODELS: {
       createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: false,
-    canUploadFile: false,
+    canUploadFile: true,
   },
   "GPT 4o": {
     id: "gpt-4o",
     description: "OpenAI's latest model.",
     icons: [createTooltipIcon(FileText, "File Upload", "text-blue-400")],
     canSearch: false,
-    canUploadFile: false,
+    canUploadFile: true,
   },
   "O3 Mini": {
     id: "o3-mini-2025-01-31",
@@ -119,7 +123,7 @@ const MODELS: {
       createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
     ],
     canSearch: false,
-    canUploadFile: false,
+    canUploadFile: true,
   },
 };
 
@@ -212,7 +216,7 @@ const ModelSelector = ({
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-[250px]">
+        <DropdownMenuContent align="start" className="w-[300px]">
           {Object.entries(MODELS).map(([name, { id, description, icons }]) => (
             <DropdownMenuItem
               key={id}

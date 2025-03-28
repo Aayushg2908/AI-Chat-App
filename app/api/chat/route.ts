@@ -10,7 +10,7 @@ export interface Message {
 export const maxDuration = 30;
 
 const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
-  "gemini-2.0-flash-exp": google("gemini-2.0-flash-exp", {
+  "gemini-2.0-flash-001": google("gemini-2.0-flash-001", {
     useSearchGrounding: useSearch,
   }),
   "gemini-2.0-pro-exp-02-05": google("gemini-2.0-pro-exp-02-05", {
