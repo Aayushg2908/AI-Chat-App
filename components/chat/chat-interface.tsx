@@ -67,7 +67,6 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     setMessages: setChatMessages,
     stop,
     append,
-    error,
   } = useChat({
     api: "/api/chat",
     body: {

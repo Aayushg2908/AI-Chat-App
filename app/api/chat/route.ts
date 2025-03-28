@@ -1,6 +1,6 @@
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { LanguageModelV1, streamText } from "ai";
 
 export interface Message {
   role: string;
@@ -119,8 +119,7 @@ export async function POST(req: Request) {
     : [systemMessage, ...messages];
 
   const result = streamText({
-    // @ts-ignore
-    model: modelToUse,
+    model: modelToUse as unknown as LanguageModelV1,
     messages: enhancedMessages,
     ...(search && model.startsWith("gpt")
       ? {
