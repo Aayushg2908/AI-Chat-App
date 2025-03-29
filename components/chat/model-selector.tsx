@@ -10,8 +10,8 @@ import {
   GlobeIcon,
   ChevronUp,
   X,
-  Paperclip,
   BrainIcon,
+  FileUpIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -321,7 +321,7 @@ const ModelSelector = ({
                     onClick={handleFileUpload}
                     disabled={disabled}
                   >
-                    <Paperclip className="size-4 text-gray-400" />
+                    <FileUpIcon className="size-4 text-gray-400" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">

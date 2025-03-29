@@ -43,13 +43,14 @@ const categorizeThreads = (threads: Thread[]) => {
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
+  const newChatThreads: Thread[] = [];
   const todayThreads: Thread[] = [];
   const yesterdayThreads: Thread[] = [];
   const previousThreads: Thread[] = [];
 
   threads.forEach((thread) => {
     if (!thread.messages) {
-      todayThreads.push(thread);
+      newChatThreads.push(thread);
       return;
     }
 
@@ -65,7 +66,23 @@ const categorizeThreads = (threads: Thread[]) => {
     }
   });
 
-  return { todayThreads, yesterdayThreads, previousThreads };
+  todayThreads.sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  );
+  yesterdayThreads.sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  );
+  previousThreads.sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  );
+
+  const sortedTodayThreads = [...newChatThreads, ...todayThreads];
+
+  return {
+    todayThreads: sortedTodayThreads,
+    yesterdayThreads,
+    previousThreads,
+  };
 };
 
 const ThreadItem = ({
