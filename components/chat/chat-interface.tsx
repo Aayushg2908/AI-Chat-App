@@ -57,6 +57,9 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [effortLevel, setEffortLevel] = useState<string>("low");
+  const [contextItems, setContextItems] = useState<
+    Array<{ id: string; text: string }>
+  >([]);
 
   const {
     messages: chatMessages,
@@ -74,6 +77,7 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
       model: selectedModel,
       search: isSearchEnabled,
       effortLevel,
+      context: contextItems.map((item) => item.text).join("\n"),
     },
     onError: (error: Error) => {
       console.error("Chat error:", error);
@@ -256,6 +260,147 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     setEditedContent("");
   };
 
+  const addToContext = () => {
+    const selectedText = window.getSelection()?.toString();
+    if (selectedText && selectedText.trim()) {
+      const newContextItem = {
+        id: `context-${Date.now()}`,
+        text: selectedText.trim(),
+      };
+      setContextItems((prev) => [...prev, newContextItem]);
+
+      const floatingButton = document.getElementById("floating-context-button");
+      if (floatingButton) {
+        floatingButton.style.display = "none";
+      }
+
+      window.getSelection()?.removeAllRanges();
+    }
+  };
+
+  const removeFromContext = (id: string) => {
+    setContextItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const clearAllContext = () => {
+    setContextItems([]);
+  };
+
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const selection = window.getSelection();
+
+      if (selection && !selection.isCollapsed) {
+        let isWithinAIMessage = false;
+        let node = selection.anchorNode;
+
+        while (node && node !== document.body) {
+          if (node.parentElement?.closest('[data-message-role="assistant"]')) {
+            isWithinAIMessage = true;
+            break;
+          }
+          node = node.parentNode;
+        }
+
+        if (isWithinAIMessage) {
+          const range = selection.getRangeAt(0);
+          const rect = range.getBoundingClientRect();
+
+          let floatingButton = document.getElementById(
+            "floating-context-button"
+          );
+          if (!floatingButton) {
+            floatingButton = document.createElement("button");
+            floatingButton.id = "floating-context-button";
+            floatingButton.className =
+              "fixed z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-1.5 text-xs shadow-lg transition-all flex items-center gap-1";
+            floatingButton.innerHTML =
+              '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg> Add to context';
+            floatingButton.onclick = addToContext;
+            floatingButton.setAttribute(
+              "aria-label",
+              "Add selected text to context"
+            );
+            document.body.appendChild(floatingButton);
+          }
+
+          floatingButton.style.display = "flex";
+
+          const buttonWidth = 120;
+          const buttonHeight = 28;
+
+          const selectionCoords = getSelectionCoordinates();
+
+          let leftPosition = selectionCoords.x - buttonWidth / 2;
+          let topPosition = selectionCoords.y - buttonHeight - 10;
+
+          const windowWidth = window.innerWidth;
+          const windowHeight = window.innerHeight;
+
+          if (leftPosition < 10) leftPosition = 10;
+          if (leftPosition > windowWidth - buttonWidth - 10)
+            leftPosition = windowWidth - buttonWidth - 10;
+
+          if (topPosition < 10) {
+            topPosition = selectionCoords.y + 25;
+          }
+
+          floatingButton.style.top = `${topPosition}px`;
+          floatingButton.style.left = `${leftPosition}px`;
+        } else {
+          const floatingButton = document.getElementById(
+            "floating-context-button"
+          );
+          if (floatingButton) {
+            floatingButton.style.display = "none";
+          }
+        }
+      } else {
+        const floatingButton = document.getElementById(
+          "floating-context-button"
+        );
+        if (floatingButton) {
+          floatingButton.style.display = "none";
+        }
+      }
+    };
+
+    document.addEventListener("selectionchange", handleSelectionChange);
+
+    return () => {
+      document.removeEventListener("selectionchange", handleSelectionChange);
+      const floatingButton = document.getElementById("floating-context-button");
+      if (floatingButton) {
+        document.body.removeChild(floatingButton);
+      }
+    };
+  }, []);
+
+  const getSelectionCoordinates = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) {
+      return { x: 0, y: 0 };
+    }
+
+    const range = selection.getRangeAt(0);
+    const rects = range.getClientRects();
+
+    if (rects.length === 0) {
+      const rect = range.getBoundingClientRect();
+      return {
+        x: window.scrollX + rect.left + rect.width / 2,
+        y: window.scrollY + rect.top,
+      };
+    }
+
+    const firstRect = rects[0];
+
+    return {
+      x: window.scrollX + firstRect.left + firstRect.width / 2,
+      y: window.scrollY + firstRect.top,
+    };
+  };
+
   return (
     <div className="flex flex-col h-full relative">
       <div className="flex-1 overflow-hidden">
@@ -372,7 +517,10 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                           )}
                         </div>
                       ) : (
-                        <div className="w-full max-w-full overflow-hidden">
+                        <div
+                          className="w-full max-w-full overflow-hidden"
+                          data-message-role="assistant"
+                        >
                           <MessageContent
                             content={message.content}
                             isUserMessage={false}
@@ -458,6 +606,40 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
           </div>
         )}
         <div className="max-w-3xl mx-auto mt-2 w-full">
+          {contextItems.length > 0 && (
+            <div className="mb-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center mb-1.5">
+                <div className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                  Context:
+                </div>
+                <Button
+                  onClick={clearAllContext}
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                >
+                  Clear all
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {contextItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center bg-gray-200 dark:bg-gray-700 rounded-md px-2 py-1 text-xs group hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <span className="truncate max-w-[300px]">{item.text}</span>
+                    <button
+                      onClick={() => removeFromContext(item.id)}
+                      className="ml-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 opacity-70 group-hover:opacity-100"
+                      aria-label="Remove context item"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <form
             onSubmit={handleSend}
             className="flex flex-col dark:bg-[#1e1e1e] bg-[#f7f6f6] rounded-lg overflow-hidden"
