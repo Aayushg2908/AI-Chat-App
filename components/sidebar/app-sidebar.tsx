@@ -9,8 +9,13 @@ import SidebarHeaderComponent from "./sidebar-header";
 import { getUserThreads } from "@/actions";
 import { Thread } from "@prisma/client";
 import SidebarContentComponent from "./sidebar-content";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export async function AppSidebar() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const response = await getUserThreads();
   let threads: Thread[] = [];
   if (response.success) {
@@ -26,7 +31,7 @@ export async function AppSidebar() {
         <SidebarContentComponent threads={threads} />
       </SidebarContent>
       <SidebarFooter className="border border-t">
-        <SidebarFooterComponent />
+        <SidebarFooterComponent session={session} />
       </SidebarFooter>
     </Sidebar>
   );
