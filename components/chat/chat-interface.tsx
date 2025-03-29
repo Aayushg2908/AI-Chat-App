@@ -50,7 +50,8 @@ interface ExtendedMessage {
 
 const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const [selectedModel, setSelectedModel] = useState<string>(
-    "gemini-1.5-flash-latest"
+    localStorage.getItem(`model:${thread?.id}`) ||
+      "gemini-2.0-flash-lite-preview-02-05"
   );
   const [isSearchEnabled, setIsSearchEnabled] = useState<boolean>(false);
   const [files, setFiles] = useState<FileList | undefined>(undefined);
@@ -486,6 +487,7 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
             <div className="flex items-center justify-between px-3 py-2">
               <div className="flex items-center">
                 <ModelSelector
+                  threadId={thread?.id}
                   selectedModel={selectedModel}
                   setSelectedModel={setSelectedModel}
                   disabled={isLoading}
