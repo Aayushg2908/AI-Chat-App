@@ -31,7 +31,7 @@ export async function AppSidebar() {
         <SidebarContentComponent threads={threads} />
       </SidebarContent>
       <SidebarFooter className="border border-t">
-        <SidebarFooterComponent session={session} />
+        <SidebarFooterComponent session={session?.user} />
       </SidebarFooter>
     </Sidebar>
   );

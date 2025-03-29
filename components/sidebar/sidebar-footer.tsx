@@ -24,13 +24,14 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useLoginModal } from "@/hooks/use-login-modal";
+import { User } from "better-auth";
 
-const SidebarFooterComponent = ({ session }: { session: any }) => {
+const SidebarFooterComponent = ({ session }: { session: User | undefined }) => {
   const { setTheme } = useTheme();
   const router = useRouter();
   const { onOpen } = useLoginModal();
 
-  if (!session?.user.id) {
+  if (!session?.id) {
     return (
       <div className="flex items-center justify-between">
         <div className="text-lg font-semibold ml-2">Login</div>
@@ -46,15 +47,15 @@ const SidebarFooterComponent = ({ session }: { session: any }) => {
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-x-1">
         <Image
-          src={session.user.image!}
+          src={session.image!}
           alt="Profile"
           width={32}
           height={32}
           className="rounded-full"
         />
         <div className="flex flex-col justify-center">
-          <div className="font-semibold">{session.user.name}</div>
-          <div className="text-xs">{session.user.email}</div>
+          <div className="font-semibold">{session.name}</div>
+          <div className="text-xs">{session.email}</div>
         </div>
       </div>
       <DropdownMenu>
