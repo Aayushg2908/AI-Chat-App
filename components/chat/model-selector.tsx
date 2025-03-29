@@ -132,7 +132,7 @@ const MODELS: {
       createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
     ],
     canSearch: false,
-    canUploadFile: true,
+    canUploadFile: false,
   },
 };
 

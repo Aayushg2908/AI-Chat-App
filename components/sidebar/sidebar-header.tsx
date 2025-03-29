@@ -106,7 +106,7 @@ const SidebarHeaderComponent = ({ threads }: { threads: Thread[] }) => {
                 }}
               >
                 <MessageCircleMore className="size-5" />
-                <span>{thread.title}</span>
+                <span className="truncate">{thread.title}</span>
               </CommandItem>
             ))}
           </CommandGroup>
