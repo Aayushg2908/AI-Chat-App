@@ -37,7 +37,7 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
 type ModelKey = keyof ReturnType<typeof getModels>;
 
 export async function POST(req: Request) {
-  const { messages, model, search, effortLevel } = await req.json();
+  const { messages, model, search, effortLevel, context } = await req.json();
 
   const MODELS = getModels(search === true, effortLevel);
 
@@ -54,6 +54,11 @@ export async function POST(req: Request) {
     ${
       search
         ? "You have access to web search capabilities to provide up-to-date information."
+        : ""
+    }
+    ${
+      context
+        ? `\n\nThe user has specifically selected the following content for you to focus on:\n${context}`
         : ""
     }
 
