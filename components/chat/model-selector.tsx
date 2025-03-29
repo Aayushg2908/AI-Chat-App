@@ -1,6 +1,5 @@
 import { Button } from "../ui/button";
 import {
-  ChevronDown,
   Globe,
   Info,
   Zap,
@@ -8,16 +7,20 @@ import {
   Clock,
   FileText,
   GlobeIcon,
-  ChevronUp,
   X,
   BrainIcon,
   FileUpIcon,
+  Sparkles,
+  ChevronUpIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuGroup,
 } from "../ui/dropdown-menu";
 import {
   Tooltip,
@@ -26,6 +29,8 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import React, { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 const createTooltipIcon = (
   IconComponent: React.ElementType,
@@ -196,11 +201,12 @@ const ModelSelector = ({
     }
   };
 
-  const handleEffortLevelChange = (level: string) => {
-    if (setEffortLevel) {
-      setEffortLevel(level);
-    }
-  };
+  const geminiModels = Object.entries(MODELS).filter(([, { id }]) =>
+    id.includes("gemini")
+  );
+  const gptModels = Object.entries(MODELS).filter(
+    ([, { id }]) => id.includes("gpt") || id.includes("o3")
+  );
 
   return (
     <div className="flex items-center">
@@ -209,48 +215,123 @@ const ModelSelector = ({
           <Button
             variant="ghost"
             size="sm"
-            className="flex items-center gap-1 text-xs dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs transition-all duration-200",
+              "dark:text-gray-300 text-gray-700",
+              "hover:dark:text-white hover:text-gray-950",
+              "dark:hover:bg-zinc-800 hover:bg-zinc-100",
+              "border dark:border-zinc-800 border-zinc-200",
+              isOpen && "dark:bg-zinc-800 bg-zinc-100"
+            )}
             disabled={disabled}
           >
-            <span>{selectedModelName}</span>
-            {isOpen ? (
-              <ChevronDown className="size-3 ml-1" />
-            ) : (
-              <ChevronUp className="size-3 ml-1" />
-            )}
+            <Sparkles className="size-3.5 text-blue-500 mr-0.5" />
+            <span className="font-medium">{selectedModelName}</span>
+            <motion.div
+              animate={{ rotate: isOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="ml-0.5"
+            >
+              <ChevronUpIcon className="size-3" />
+            </motion.div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-[300px]">
-          {Object.entries(MODELS).map(([name, { id, description, icons }]) => (
-            <DropdownMenuItem
-              key={id}
-              onClick={() => setSelectedModel(id)}
-              className={`cursor-pointer flex items-center justify-between ${
-                selectedModel === id ? "bg-accent" : ""
-              }`}
-            >
-              <div className="flex items-center">
-                <span>{name}</span>
-                <TooltipProvider>
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <Info className="size-3 ml-1 text-gray-400" />
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-                      {description}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div className="flex items-center space-x-1.5">
-                {icons.map((icon, index) => (
-                  <React.Fragment key={`dropdown-icon-${id}-${index}`}>
-                    {icon}
-                  </React.Fragment>
-                ))}
-              </div>
-            </DropdownMenuItem>
-          ))}
+        <DropdownMenuContent
+          align="start"
+          className="w-[300px] p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg"
+          sideOffset={5}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
+              Google Models
+            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              {geminiModels.map(([name, { id, description, icons }]) => (
+                <DropdownMenuItem
+                  key={id}
+                  onClick={() => setSelectedModel(id)}
+                  className={cn(
+                    "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
+                    "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                    selectedModel === id && "dark:bg-zinc-800 bg-zinc-100"
+                  )}
+                >
+                  <div className="flex items-center">
+                    <div className="flex items-center">
+                      <span className="text-sm">{name}</span>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip delayDuration={0}>
+                        <TooltipTrigger asChild>
+                          <Info className="size-3 ml-1.5 text-gray-400" />
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
+                        >
+                          {description}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    {icons.map((icon, index) => (
+                      <React.Fragment key={`dropdown-icon-${id}-${index}`}>
+                        {icon}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
+            <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
+              OpenAI Models
+            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              {gptModels.map(([name, { id, description, icons }]) => (
+                <DropdownMenuItem
+                  key={id}
+                  onClick={() => setSelectedModel(id)}
+                  className={cn(
+                    "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
+                    "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                    selectedModel === id && "dark:bg-zinc-800 bg-zinc-100"
+                  )}
+                >
+                  <div className="flex items-center">
+                    <div className="flex items-center">
+                      <span className="text-sm">{name}</span>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip delayDuration={0}>
+                        <TooltipTrigger asChild>
+                          <Info className="size-3 ml-1.5 text-gray-400" />
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
+                        >
+                          {description}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    {icons.map((icon, index) => (
+                      <React.Fragment key={`dropdown-icon-${id}-${index}`}>
+                        {icon}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+          </motion.div>
         </DropdownMenuContent>
       </DropdownMenu>
       {canSearch && (
@@ -259,18 +340,28 @@ const ModelSelector = ({
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
+                className={cn(
+                  "ml-1.5 p-1.5 rounded-full transition-all duration-200",
+                  isSearchEnabled
+                    ? "text-red-500 dark:bg-red-500/10 bg-red-100"
+                    : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                )}
                 onClick={handleSearchToggle}
                 disabled={disabled || !canSearch}
               >
-                <GlobeIcon
-                  className={`size-4 ${
-                    isSearchEnabled ? "text-blue-500" : "text-gray-400"
-                  }`}
-                />
+                <motion.div
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  <GlobeIcon className="size-4" />
+                </motion.div>
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+            <TooltipContent
+              side="top"
+              className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-xs p-2 dark:text-white text-black"
+            >
               {isSearchEnabled ? "Disable web search" : "Enable web search"}
             </TooltipContent>
           </Tooltip>
@@ -283,20 +374,24 @@ const ModelSelector = ({
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"
-            accept="image/*,.pdf"
+            accept="image/*,.pdf,.txt,.csv,.md,.json,.js,.py,.html,.css,.tsx,.jsx,.ts"
           />
           {selectedFile ? (
-            <div className="relative">
-              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded p-1">
+            <div className="relative ml-1.5">
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center dark:bg-zinc-800 bg-zinc-100 rounded-full px-2 py-1 border dark:border-zinc-700 border-zinc-200"
+              >
                 <div className="flex items-center max-w-[120px]">
                   {selectedFile.type.startsWith("image/") ? (
                     <img
                       src={URL.createObjectURL(selectedFile)}
                       alt="Preview"
-                      className="h-5 w-5 object-cover rounded mr-1"
+                      className="h-5 w-5 object-cover rounded-full mr-1.5"
                     />
                   ) : (
-                    <FileText className="h-5 w-5 mr-1 text-blue-500" />
+                    <FileText className="h-4 w-4 mr-1.5 text-red-500" />
                   )}
                   <span className="text-xs truncate">{selectedFile.name}</span>
                 </div>
@@ -304,12 +399,17 @@ const ModelSelector = ({
                   type="button"
                   size="icon"
                   variant="ghost"
-                  className="h-5 w-5 ml-1"
+                  className="h-5 w-5 ml-1 rounded-full hover:dark:bg-zinc-700 hover:bg-zinc-200"
                   onClick={removeFile}
                 >
-                  <X className="h-3 w-3" />
+                  <motion.div
+                    whileHover={{ rotate: 90 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X className="h-3 w-3" />
+                  </motion.div>
                 </Button>
-              </div>
+              </motion.div>
             </div>
           ) : (
             <TooltipProvider>
@@ -317,14 +417,23 @@ const ModelSelector = ({
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
+                    className="ml-1.5 p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                     onClick={handleFileUpload}
                     disabled={disabled}
                   >
-                    <FileUpIcon className="size-4 text-gray-400" />
+                    <motion.div
+                      whileTap={{ scale: 0.9 }}
+                      transition={{ duration: 0.1 }}
+                    >
+                      <FileUpIcon className="size-4" />
+                    </motion.div>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
+                <TooltipContent
+                  side="top"
+                  className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-xs p-2 dark:text-white text-black"
+                >
                   Upload file
                 </TooltipContent>
               </Tooltip>
@@ -338,25 +447,46 @@ const ModelSelector = ({
             <Button
               variant="ghost"
               size="sm"
-              className="flex items-center gap-1 text-xs dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors ml-2"
+              className={cn(
+                "flex items-center gap-1.5 ml-1.5 px-2.5 py-1.5 rounded-md text-xs transition-all duration-200",
+                "dark:text-gray-300 text-gray-700",
+                "hover:dark:text-white hover:text-gray-950",
+                "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                "border dark:border-zinc-800 border-zinc-200"
+              )}
               disabled={disabled}
             >
-              <span>Effort: {effortLevel}</span>
-              <ChevronUp className="size-3 ml-1" />
+              <BrainIcon className="size-3.5 text-violet-500 mr-0.5" />
+              <span className="font-medium capitalize">
+                Effort: {effortLevel}
+              </span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-[150px]">
-            {["low", "medium", "high"].map((level) => (
-              <DropdownMenuItem
-                key={level}
-                onClick={() => handleEffortLevelChange(level)}
-                className={`cursor-pointer ${
-                  effortLevel === level ? "bg-accent" : ""
-                }`}
-              >
-                <span className="capitalize">{level}</span>
-              </DropdownMenuItem>
-            ))}
+          <DropdownMenuContent
+            align="start"
+            className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              {["low", "medium", "high"].map((level) => (
+                <DropdownMenuItem
+                  key={level}
+                  onClick={() => {
+                    if (setEffortLevel) setEffortLevel(level);
+                  }}
+                  className={cn(
+                    "cursor-pointer flex items-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
+                    "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                    effortLevel === level && "dark:bg-zinc-800 bg-zinc-100"
+                  )}
+                >
+                  <span className="capitalize">{level}</span>
+                </DropdownMenuItem>
+              ))}
+            </motion.div>
           </DropdownMenuContent>
         </DropdownMenu>
       )}
@@ -365,4 +495,5 @@ const ModelSelector = ({
 };
 
 export { MODELS };
+
 export default ModelSelector;
