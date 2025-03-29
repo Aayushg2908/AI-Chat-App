@@ -21,6 +21,7 @@ import MessageContent from "./message-content";
 import { Thread } from "@prisma/client";
 import { editThread, saveThreadMessages } from "@/actions";
 import ModelSelector from "./model-selector";
+import { toast } from "sonner";
 
 interface Source {
   id: string;
@@ -263,11 +264,35 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const addToContext = () => {
     const selectedText = window.getSelection()?.toString();
     if (selectedText && selectedText.trim()) {
+      if (contextItems.length >= 4) {
+        toast.error(
+          "Maximum of 4 context items allowed. Remove some items before adding more."
+        );
+
+        const floatingButton = document.getElementById(
+          "floating-context-button"
+        );
+        if (floatingButton) {
+          floatingButton.style.display = "none";
+        }
+
+        window.getSelection()?.removeAllRanges();
+        return;
+      }
+
       const newContextItem = {
         id: `context-${Date.now()}`,
         text: selectedText.trim(),
       };
-      setContextItems((prev) => [...prev, newContextItem]);
+      setContextItems((prev) => {
+        if (prev.length >= 4) {
+          toast.error(
+            "Maximum of 4 context items allowed. Remove some items before adding more."
+          );
+          return prev;
+        }
+        return [...prev, newContextItem];
+      });
 
       const floatingButton = document.getElementById("floating-context-button");
       if (floatingButton) {
