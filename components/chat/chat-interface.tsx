@@ -200,6 +200,7 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
       inputRef.current?.focus();
       setFiles(undefined);
       setSelectedFile(null);
+      setContextItems([]);
     } catch (error) {
       console.error("Failed to send message:", error);
     }
