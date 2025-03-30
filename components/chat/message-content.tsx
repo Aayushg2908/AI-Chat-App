@@ -103,60 +103,9 @@ export const MessageContent = React.memo(
           .math-inline .katex { color: #f56565 !important; }
           .math-display .katex { color: #ed8936 !important; }
           
-          /* Code highlighting colors */
-          code .hljs-keyword { color: #c678dd !important; }  /* purple */
-          code .hljs-built_in { color: #e6c07b !important; } /* yellow-ish */
-          code .hljs-type { color: #e6c07b !important; }     /* yellow-ish */
-          code .hljs-literal { color: #56b6c2 !important; }  /* cyan */
-          code .hljs-number { color: #d19a66 !important; }   /* orange */
-          code .hljs-regexp { color: #98c379 !important; }   /* green */
-          code .hljs-string { color: #98c379 !important; }   /* green */
-          code .hljs-subst { color: #e6c07b !important; }    /* yellow-ish */
-          code .hljs-symbol { color: #56b6c2 !important; }   /* cyan */
-          code .hljs-class { color: #e6c07b !important; }    /* yellow-ish */
-          code .hljs-function { color: #61afef !important; } /* blue */
-          code .hljs-title { color: #61afef !important; }    /* blue */
-          code .hljs-params { color: #d19a66 !important; }   /* orange */
-          code .hljs-comment { color: #7f848e !important; font-style: italic; } /* gray */
-          code .hljs-doctag { color: #c678dd !important; }   /* purple */
-          code .hljs-meta { color: #7f848e !important; }     /* gray */
-          code .hljs-section { color: #e06c75 !important; }  /* red */
-          code .hljs-tag { color: #e06c75 !important; }      /* red */
-          code .hljs-name { color: #e06c75 !important; }     /* red */
-          code .hljs-attr { color: #d19a66 !important; }     /* orange */
-          code .hljs-attribute { color: #98c379 !important; }/* green */
-          code .hljs-variable { color: #e06c75 !important; } /* red */
-          code .hljs-template-variable { color: #e06c75 !important; } /* red */
-          code .hljs-selector-tag { color: #c678dd !important; } /* purple */
-          code .hljs-selector-id { color: #61afef !important; }  /* blue */
-          code .hljs-selector-class { color: #d19a66 !important; } /* orange */
-          code .hljs-selector-attr { color: #c678dd !important; } /* purple */
-          code .hljs-selector-pseudo { color: #56b6c2 !important; } /* cyan */
-          code .hljs-addition { color: #98c379 !important; background: rgba(152, 195, 121, 0.1); } /* green */
-          code .hljs-deletion { color: #e06c75 !important; background: rgba(224, 108, 117, 0.1); } /* red */
-          code .hljs-emphasis { font-style: italic; }
-          code .hljs-strong { font-weight: bold; }
-          
-          /* Adjust styles for user messages */
-          .user-message .markdown-body a { color: #90cdf4 !important; }
-          .user-message .markdown-body code:not([class*="language-"]) { 
-            background-color: rgba(0, 0, 0, 0.2) !important; 
-            color: #fbd38d !important;
-          }
-          .user-message .markdown-body pre {
-            background-color: rgba(0, 0, 0, 0.3) !important;
-            border-color: rgba(0, 0, 0, 0.2) !important;
-          }
-          
-          /* Code block wrapper */
-          .code-block-wrapper {
-            position: relative;
-            width: 100%;
-            margin: 1rem 0;
-          }
-          
+          /* Base code styling */
           .code-block {
-            background-color: #282c34 !important;
+            background-color: #1e2127 !important;
             border-radius: 6px !important;
             margin: 0 !important;
             position: relative;
@@ -164,12 +113,12 @@ export const MessageContent = React.memo(
           }
           
           .code-header {
-            background-color: #21252b;
+            background-color: #191b20;
             color: #abb2bf;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 0.85rem;
-            padding: 0.5rem 1rem;
-            border-bottom: 1px solid #181a1f;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #13151a;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -179,10 +128,30 @@ export const MessageContent = React.memo(
             overflow-x: auto;
           }
           
+          /* Custom scrollbar for code blocks */
+          .code-content::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+          }
+          
+          .code-content::-webkit-scrollbar-track {
+            background: #1e2127;
+          }
+          
+          .code-content::-webkit-scrollbar-thumb {
+            background: #3a3f4b;
+            border-radius: 3px;
+          }
+          
+          .code-content::-webkit-scrollbar-thumb:hover {
+            background: #4b5263;
+          }
+          
           .code-main {
             padding: 1rem;
             overflow-x: auto;
             width: 100%;
+            background-color: #1e2127;
           }
           
           .code-main pre {
@@ -195,11 +164,12 @@ export const MessageContent = React.memo(
           
           .code-main code {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             line-height: 1.5;
             background-color: transparent !important;
             padding: 0 !important;
             white-space: pre !important;
+            color: #f8f8f2 !important;
           }
           
           /* Code copy button */
@@ -207,11 +177,11 @@ export const MessageContent = React.memo(
             position: absolute;
             top: 8px;
             right: 8px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.08);
             color: #abb2bf;
             border: none;
             border-radius: 4px;
-            padding: 4px;
+            padding: 5px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -221,8 +191,164 @@ export const MessageContent = React.memo(
           }
           
           .code-copy-button:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.15);
             color: white;
+          }
+          
+          /* Dracula theme syntax highlighting - simplified and focused on the elements in the image */
+          code .hljs-keyword,
+          code span.keyword,
+          code .keyword {
+            color: #ff79c6 !important;
+          }
+          
+          code .hljs-built_in,
+          code span.built_in,
+          code .built_in {
+            color: #8be9fd !important;
+          }
+          
+          code .hljs-type,
+          code span.type,
+          code .type {
+            color: #8be9fd !important;
+          }
+          
+          code .hljs-literal,
+          code span.literal,
+          code .literal,
+          code span.null {
+            color: #bd93f9 !important;
+          }
+          
+          code .hljs-number,
+          code span.number,
+          code .number {
+            color: #bd93f9 !important;
+          }
+          
+          code .hljs-string,
+          code span.string,
+          code .string {
+            color: #50fa7b !important;
+          }
+          
+          code .hljs-comment,
+          code span.comment,
+          code .comment {
+            color: #6272a4 !important;
+          }
+          
+          code .hljs-operator,
+          code span.operator,
+          code .operator {
+            color: #ff79c6 !important;
+          }
+          
+          code .hljs-punctuation,
+          code span.punctuation,
+          code .punctuation {
+            color: #f8f8f2 !important;
+          }
+          
+          code .hljs-variable,
+          code span.variable,
+          code .variable {
+            color: #f8f8f2 !important;
+          }
+          
+          code .hljs-function,
+          code span.function,
+          code .function {
+            color: #50fa7b !important;
+          }
+          
+          /* Specific TypeScript/React elements as seen in the image */
+          code span.const,
+          code .const {
+            color: #ff79c6 !important;
+          }
+          
+          code span.hook,
+          code .hook,
+          code span[class*="useState"],
+          code span[class*="useEffect"],
+          code span[class*="useRef"] {
+            color: #50fa7b !important;
+          }
+          
+          code span.component,
+          code .component {
+            color: #8be9fd !important;
+          }
+          
+          /* Direct element styling to override any library defaults */
+          .code-block code .token.keyword,
+          .code-block code .token.class-name,
+          .code-block code .token.selector,
+          .code-block code .token.tag,
+          .code-block code .token.operator {
+            color: #ff79c6 !important;
+          }
+          
+          .code-block code .token.function,
+          .code-block code .token.function-name,
+          .code-block code .token.attr-name,
+          .code-block code .token.method {
+            color: #50fa7b !important;
+          }
+          
+          .code-block code .token.string,
+          .code-block code .token.attr-value,
+          .code-block code .token.url {
+            color: #50fa7b !important;
+          }
+          
+          .code-block code .token.number,
+          .code-block code .token.boolean,
+          .code-block code .token.constant {
+            color: #bd93f9 !important;
+          }
+          
+          .code-block code .token.comment {
+            color: #6272a4 !important;
+          }
+          
+          .code-block code .token.punctuation {
+            color: #f8f8f2 !important;
+          }
+          
+          /* Specific overrides for elements in the image */
+          .code-block code .token.keyword + .token.function,
+          .code-block code .token.keyword + .token.class-name {
+            color: #8be9fd !important;
+          }
+          
+          /* Force specific colors for common elements */
+          .code-block code .token.parameter {
+            color: #ffb86c !important;
+          }
+          
+          .code-block code .token.property {
+            color: #50fa7b !important;
+          }
+          
+          /* Ensure React hooks are properly colored */
+          .code-block code span[class*="useState"],
+          .code-block code span[class*="useEffect"],
+          .code-block code span[class*="useRef"] {
+            color: #50fa7b !important;
+          }
+          
+          /* Adjust styles for user messages */
+          .user-message .markdown-body a { color: #90cdf4 !important; }
+          .user-message .markdown-body code:not([class*="language-"]) { 
+            background-color: rgba(0, 0, 0, 0.2) !important; 
+            color: #fbd38d !important;
+          }
+          .user-message .markdown-body pre {
+            background-color: rgba(0, 0, 0, 0.3) !important;
+            border-color: rgba(0, 0, 0, 0.2) !important;
           }
           
           /* Fix for code overflow */
