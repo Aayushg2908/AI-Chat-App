@@ -12,6 +12,8 @@ import {
   Check,
   Edit,
   RefreshCw,
+  Mic,
+  MicOff,
 } from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
@@ -28,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import useSpeechToText from "react-hook-speech-to-text";
 
 interface Source {
   id: string;
@@ -164,6 +167,48 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   );
   const [editedContent, setEditedContent] = useState<string>("");
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const {
+    error: speechError,
+    interimResult,
+    isRecording,
+    results,
+    startSpeechToText,
+    stopSpeechToText,
+  } = useSpeechToText({
+    continuous: true,
+    useLegacyResults: false,
+    timeout: 10000,
+  });
+
+  useEffect(() => {
+    if (results.length > 0) {
+      const latestResult = results[results.length - 1];
+      handleInputChange({
+        // @ts-ignore
+        target: { value: latestResult.transcript },
+      } as React.ChangeEvent<HTMLTextAreaElement>);
+    }
+  }, [results]);
+
+  useEffect(() => {
+    if (interimResult && isRecording) {
+      handleInputChange({
+        target: { value: interimResult },
+      } as React.ChangeEvent<HTMLTextAreaElement>);
+    }
+  }, [interimResult]);
+
+  const toggleMicrophone = () => {
+    if (isRecording) {
+      stopSpeechToText();
+    } else {
+      startSpeechToText();
+      if (speechError) {
+        toast.error("Speech recognition not available in this browser");
+      }
+    }
+  };
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -751,19 +796,45 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                     <CircleStop className="size-3.5" />
                   </Button>
                 ) : (
-                  <Button
-                    type="submit"
-                    className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
-                    disabled={!input.trim() || isLoading}
-                    size="icon"
-                    variant="ghost"
-                  >
-                    {isLoading ? (
-                      <LoaderCircle className="size-3.5 animate-spin" />
-                    ) : (
-                      <SendHorizontal className="size-3.5" />
-                    )}
-                  </Button>
+                  <>
+                    <TooltipComponent
+                      description={
+                        isRecording ? "Stop recording" : "Start voice input"
+                      }
+                    >
+                      <Button
+                        type="button"
+                        className={`transition-colors ${
+                          isRecording
+                            ? "text-red-500 hover:text-red-600"
+                            : "dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950"
+                        }`}
+                        onClick={toggleMicrophone}
+                        size="icon"
+                        variant="ghost"
+                        disabled={isLoading}
+                      >
+                        {isRecording ? (
+                          <MicOff className="size-3.5" />
+                        ) : (
+                          <Mic className="size-3.5" />
+                        )}
+                      </Button>
+                    </TooltipComponent>
+                    <Button
+                      type="submit"
+                      className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
+                      disabled={!input.trim() || isLoading}
+                      size="icon"
+                      variant="ghost"
+                    >
+                      {isLoading ? (
+                        <LoaderCircle className="size-3.5 animate-spin" />
+                      ) : (
+                        <SendHorizontal className="size-3.5" />
+                      )}
+                    </Button>
+                  </>
                 )}
               </div>
             </div>

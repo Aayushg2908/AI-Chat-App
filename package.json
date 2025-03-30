@@ -34,6 +34,7 @@
     "nextjs-toploader": "^3.7.15",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-speech-to-text": "^0.8.0",
     "react-markdown": "^10.1.0",
     "react-textarea-autosize": "^8.5.7",
     "rehype-highlight": "^7.0.2",
