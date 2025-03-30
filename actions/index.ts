@@ -55,8 +55,6 @@ export const saveThreadMessages = async (
     return { error: "Unauthorized" };
   }
 
-  console.log("Saving messages for thread:", threadId);
-
   await db.thread.update({
     where: {
       id: threadId,

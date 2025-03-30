@@ -134,6 +134,22 @@ const MODELS: {
     canSearch: false,
     canUploadFile: false,
   },
+  "Deepseek V3": {
+    id: "deepseek-chat",
+    description: "Deepseek's latest Chat model.",
+    icons: [createTooltipIcon(FileText, "File Upload", "text-blue-400")],
+    canSearch: false,
+    canUploadFile: true,
+  },
+  "Deepseek R1": {
+    id: "deepseek-reasoner",
+    description: "Deepseek's latest Reasoning model.",
+    icons: [
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: false,
+  },
 };
 
 interface ModelSelectorProps {
@@ -208,6 +224,9 @@ const ModelSelector = ({
   );
   const gptModels = Object.entries(MODELS).filter(
     ([, { id }]) => id.includes("gpt") || id.includes("o3")
+  );
+  const deepseekModels = Object.entries(MODELS).filter(([, { id }]) =>
+    id.includes("deepseek")
   );
 
   return (
@@ -299,6 +318,52 @@ const ModelSelector = ({
             </DropdownMenuLabel>
             <DropdownMenuGroup>
               {gptModels.map(([name, { id, description, icons }]) => (
+                <DropdownMenuItem
+                  key={id}
+                  onClick={() => {
+                    setSelectedModel(id);
+                    localStorage.setItem(`model:${threadId}`, id);
+                  }}
+                  className={cn(
+                    "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
+                    "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                    selectedModel === id && "dark:bg-zinc-800 bg-zinc-100"
+                  )}
+                >
+                  <div className="flex items-center">
+                    <div className="flex items-center">
+                      <span className="text-sm">{name}</span>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip delayDuration={0}>
+                        <TooltipTrigger asChild>
+                          <Info className="size-3 ml-1.5 text-gray-400" />
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
+                        >
+                          {description}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    {icons.map((icon, index) => (
+                      <React.Fragment key={`dropdown-icon-${id}-${index}`}>
+                        {icon}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
+            <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
+              Deepseek Models
+            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              {deepseekModels.map(([name, { id, description, icons }]) => (
                 <DropdownMenuItem
                   key={id}
                   onClick={() => {
