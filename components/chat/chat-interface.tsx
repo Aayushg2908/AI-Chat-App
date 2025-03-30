@@ -185,7 +185,7 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
     if (results.length > 0) {
       const latestResult = results[results.length - 1];
       handleInputChange({
-        // @ts-ignore
+        // @ts-expect-error: transcript exists just type issue
         target: { value: latestResult.transcript },
       } as React.ChangeEvent<HTMLTextAreaElement>);
     }
@@ -402,9 +402,6 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
         }
 
         if (isWithinAIMessage) {
-          const range = selection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
-
           let floatingButton = document.getElementById(
             "floating-context-button"
           );
@@ -434,7 +431,6 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
           let topPosition = selectionCoords.y - buttonHeight - 10;
 
           const windowWidth = window.innerWidth;
-          const windowHeight = window.innerHeight;
 
           if (leftPosition < 10) leftPosition = 10;
           if (leftPosition > windowWidth - buttonWidth - 10)
