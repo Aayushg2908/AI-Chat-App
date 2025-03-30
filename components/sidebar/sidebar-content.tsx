@@ -112,7 +112,6 @@ const ThreadItem = ({
     >
       <div className="flex items-center justify-between w-full">
         <Link
-          prefetch={true}
           href={`/${thread.id}`}
           className={cn(
             "flex-1 truncate",
