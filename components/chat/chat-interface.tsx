@@ -130,23 +130,55 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   }, []);
 
   const [shouldSaveMessages, setShouldSaveMessages] = useState(false);
+  const [messagesChanged, setMessagesChanged] = useState(false);
+
+  const originalMessagesRef = useRef<string>("");
 
   useEffect(() => {
-    if (status === "ready" && messages.length > 0) {
-      setShouldSaveMessages(true);
+    if (thread) {
+      originalMessagesRef.current = thread.messages || "[]";
     }
-  }, [status, messages.length]);
+  }, [thread]);
+
+  const initialLoadRef = useRef(true);
+
+  useEffect(() => {
+    if (initialLoadRef.current) {
+      initialLoadRef.current = false;
+      return;
+    }
+
+    const currentMessagesString = JSON.stringify(messages);
+    if (
+      currentMessagesString !== originalMessagesRef.current &&
+      messages.length > 0
+    ) {
+      setMessagesChanged(true);
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (status === "ready" && messagesChanged) {
+      setShouldSaveMessages(true);
+      setMessagesChanged(false);
+    }
+  }, [status, messagesChanged]);
 
   useEffect(() => {
     if (!shouldSaveMessages) return;
 
     const saveMessagesWithDebounce = setTimeout(async () => {
-      if (messages.length === 2 && thread) {
-        await editThread(thread.id, messages[0].content);
-      }
+      const currentMessagesString = JSON.stringify(messages);
 
-      if (thread) {
-        await saveThreadMessages(thread.id, JSON.stringify(messages));
+      if (currentMessagesString !== originalMessagesRef.current) {
+        if (messages.length === 2 && thread) {
+          await editThread(thread.id, messages[0].content);
+        }
+
+        if (thread) {
+          await saveThreadMessages(thread.id, currentMessagesString);
+          originalMessagesRef.current = currentMessagesString;
+        }
       }
 
       setShouldSaveMessages(false);
