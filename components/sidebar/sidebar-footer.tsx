@@ -64,7 +64,11 @@ const SidebarFooterComponent = ({ session }: { session: User | undefined }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-[150px]">
           <DropdownMenuItem asChild className="cursor-pointer">
-            <Link href="/settings" className="flex items-center gap-2">
+            <Link
+              prefetch={true}
+              href="/settings"
+              className="flex items-center gap-2"
+            >
               <SettingsIcon className="size-4" />
               Settings
             </Link>

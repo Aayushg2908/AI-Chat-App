@@ -721,20 +721,20 @@ export const MessageContent = React.memo(
                   </pre>
                 </div>
               </div>
+              <button
+                className="code-copy-button"
+                onClick={() => copyToClipboard(index)}
+                aria-label="Copy code"
+                title="Copy code"
+                type="button"
+              >
+                {isCopied ? (
+                  <Check className="h-4 w-4 text-green-400" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </button>
             </div>
-            <button
-              className="code-copy-button"
-              onClick={() => copyToClipboard(index)}
-              aria-label="Copy code"
-              title="Copy code"
-              type="button"
-            >
-              {isCopied ? (
-                <Check className="h-4 w-4 text-green-400" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-            </button>
           </div>
         );
       }
