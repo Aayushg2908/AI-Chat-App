@@ -22,6 +22,12 @@ import { Thread } from "@prisma/client";
 import { editThread, saveThreadMessages } from "@/actions";
 import ModelSelector from "./model-selector";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 interface Source {
   id: string;
@@ -48,6 +54,28 @@ interface ExtendedMessage {
     snippet?: string;
   }>;
 }
+
+const TooltipComponent = ({
+  children,
+  description,
+}: {
+  children: React.ReactNode;
+  description: string;
+}) => {
+  return (
+    <TooltipProvider>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs"
+        >
+          {description}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 const ChatInterface = ({ thread }: { thread: Thread | null }) => {
   const [selectedModel, setSelectedModel] = useState<string>(
@@ -497,47 +525,50 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                                 />
                               </div>
                               <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-1">
-                                <Button
-                                  onClick={() =>
-                                    handleRetryMessage(index, message.content)
-                                  }
-                                  className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Retry"
-                                >
-                                  <RefreshCw className="size-2" />
-                                </Button>
-                                <Button
-                                  onClick={() =>
-                                    handleEditMessage(index, message.content)
-                                  }
-                                  className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Edit"
-                                >
-                                  <Edit className="size-2" />
-                                </Button>
-                                <Button
-                                  onClick={() =>
-                                    handleCopyMessage(
-                                      message.content,
-                                      `user-message-${index}`
-                                    )
-                                  }
-                                  className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Copy"
-                                >
-                                  {copiedMessageId ===
-                                  `user-message-${index}` ? (
-                                    <Check className="size-2" />
-                                  ) : (
-                                    <Copy className="size-2" />
-                                  )}
-                                </Button>
+                                <TooltipComponent description="Retry">
+                                  <Button
+                                    onClick={() =>
+                                      handleRetryMessage(index, message.content)
+                                    }
+                                    className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                    variant="ghost"
+                                    size="icon"
+                                  >
+                                    <RefreshCw className="size-2" />
+                                  </Button>
+                                </TooltipComponent>
+                                <TooltipComponent description="Edit">
+                                  <Button
+                                    onClick={() =>
+                                      handleEditMessage(index, message.content)
+                                    }
+                                    className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                    variant="ghost"
+                                    size="icon"
+                                  >
+                                    <Edit className="size-2" />
+                                  </Button>
+                                </TooltipComponent>
+                                <TooltipComponent description="Copy">
+                                  <Button
+                                    onClick={() =>
+                                      handleCopyMessage(
+                                        message.content,
+                                        `user-message-${index}`
+                                      )
+                                    }
+                                    className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                    variant="ghost"
+                                    size="icon"
+                                  >
+                                    {copiedMessageId ===
+                                    `user-message-${index}` ? (
+                                      <Check className="size-2" />
+                                    ) : (
+                                      <Copy className="size-2" />
+                                    )}
+                                  </Button>
+                                </TooltipComponent>
                               </div>
                             </>
                           )}
