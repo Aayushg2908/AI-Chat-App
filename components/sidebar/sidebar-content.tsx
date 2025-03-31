@@ -43,12 +43,18 @@ const categorizeThreads = (threads: Thread[]) => {
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
+  const pinnedThreads: Thread[] = [];
   const newChatThreads: Thread[] = [];
   const todayThreads: Thread[] = [];
   const yesterdayThreads: Thread[] = [];
   const previousThreads: Thread[] = [];
 
   threads.forEach((thread) => {
+    if (thread.pinned) {
+      pinnedThreads.push(thread);
+      return;
+    }
+
     if (!thread.messages) {
       newChatThreads.push(thread);
       return;
@@ -66,6 +72,10 @@ const categorizeThreads = (threads: Thread[]) => {
     }
   });
 
+  pinnedThreads.sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  );
+
   todayThreads.sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
@@ -79,6 +89,7 @@ const categorizeThreads = (threads: Thread[]) => {
   const sortedTodayThreads = [...newChatThreads, ...todayThreads];
 
   return {
+    pinnedThreads,
     todayThreads: sortedTodayThreads,
     yesterdayThreads,
     previousThreads,
@@ -182,7 +193,7 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
 
   const threadRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-  const { todayThreads, yesterdayThreads, previousThreads } =
+  const { pinnedThreads, todayThreads, yesterdayThreads, previousThreads } =
     categorizeThreads(threads);
 
   useEffect(() => {
@@ -235,10 +246,11 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
 
   const handlePin = async (id: string) => {
     try {
-      const response = await pinThread(id);
-      if (response.success) {
-        toast.success("Thread pinned successfully");
-      }
+      toast.promise(pinThread(id), {
+        loading: "Pinning thread...",
+        success: "Thread pinned successfully",
+        error: "Failed to pin thread",
+      });
     } catch (e) {
       console.error(e);
       toast.error("Failed to pin thread");
@@ -247,10 +259,11 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
 
   const handleUnpin = async (id: string) => {
     try {
-      const response = await unpinThread(id);
-      if (response.success) {
-        toast.success("Thread unpinned successfully");
-      }
+      toast.promise(unpinThread(id), {
+        loading: "Unpinning thread...",
+        success: "Thread unpinned successfully",
+        error: "Failed to unpin thread",
+      });
     } catch (e) {
       console.error(e);
       toast.error("Failed to unpin thread");
@@ -259,6 +272,28 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
 
   return (
     <>
+      {pinnedThreads.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-sm font-medium text-gray-500 mb-2 px-3 flex items-center">
+            <Pin className="size-3 mr-1" /> Pinned
+          </h3>
+          <SidebarGroup>
+            {pinnedThreads.map((thread) => (
+              <ThreadItem
+                key={thread.id}
+                thread={thread}
+                threadId={threadId}
+                threadRefs={threadRefs}
+                onEdit={handleEditStart}
+                onDelete={setDeleteThreadId}
+                handlePin={handlePin}
+                handleUnpin={handleUnpin}
+              />
+            ))}
+          </SidebarGroup>
+        </div>
+      )}
+
       <div className="mb-4">
         <h3 className="text-sm font-medium text-gray-500 mb-2 px-3">Today</h3>
         <SidebarGroup>
