@@ -160,14 +160,14 @@ const ThreadItem = ({
               transition={{ duration: 0.15 }}
             >
               <DropdownMenuItem
-                className="cursor-pointer flex items-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
                 onClick={() => onEdit(thread.id, thread.title)}
               >
                 <Pencil className="size-4 mr-2" />
                 Rename
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="cursor-pointer flex items-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
                 onClick={async () => {
                   if (thread.pinned) {
                     await handleUnpin(thread.id);
@@ -189,7 +189,7 @@ const ThreadItem = ({
                 )}
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="cursor-pointer flex items-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100 text-red-500 focus:text-red-500"
+                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100 text-red-500 focus:text-red-500"
                 onClick={() => onDelete(thread.id)}
               >
                 <Trash2 className="size-4 mr-2" />
@@ -235,9 +235,12 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
         toast.error("Thread title cannot be empty");
         return;
       }
-      await editThread(editThreadId, editThreadTitle);
+      toast.promise(editThread(editThreadId, editThreadTitle), {
+        loading: "Renaming thread...",
+        success: "Thread renamed successfully",
+        error: "Failed to rename thread",
+      });
       setEditThreadId(null);
-      toast.success("Thread renamed successfully");
     } catch (e) {
       console.error(e);
       toast.error("Failed to rename thread");
@@ -247,9 +250,12 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
   const handleDelete = async () => {
     if (!deleteThreadId) return;
     try {
-      await deleteThread(deleteThreadId);
+      toast.promise(deleteThread(deleteThreadId), {
+        loading: "Deleting thread...",
+        success: "Thread deleted successfully",
+        error: "Failed to delete thread",
+      });
       setDeleteThreadId(null);
-      toast.success("Thread deleted successfully");
       if (deleteThreadId === threadId) {
         router.push("/");
       }
