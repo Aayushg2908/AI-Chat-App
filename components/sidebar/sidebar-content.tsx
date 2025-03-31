@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { Thread } from "@prisma/client";
 import { useParams, useRouter } from "next/navigation";
-import { MoreHorizontal, Pencil, Pin, Trash2 } from "lucide-react";
+import {
+  MoreHorizontal,
+  Pencil,
+  Pin,
+  Trash2,
+  ChevronUpIcon,
+  PinOff,
+} from "lucide-react";
 import { SidebarGroup, SidebarGroupContent } from "../ui/sidebar";
 import {
   DropdownMenu,
@@ -15,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { deleteThread, editThread, pinThread, unpinThread } from "@/actions";
+import { motion } from "framer-motion";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -113,6 +121,8 @@ const ThreadItem = ({
   handlePin: (id: string) => Promise<void>;
   handleUnpin: (id: string) => Promise<void>;
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <SidebarGroupContent
       key={thread.id}
@@ -135,47 +145,57 @@ const ThreadItem = ({
         >
           {thread.title}
         </Link>
-        <DropdownMenu>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger className="opacity-0 group-hover/thread:opacity-100 focus:opacity-100 transition-opacity">
             <MoreHorizontal className="size-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => onEdit(thread.id, thread.title)}
+          <DropdownMenuContent
+            align="start"
+            className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg"
+            sideOffset={5}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.15 }}
             >
-              <Pencil className="size-4 mr-1" />
-              Rename
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={async () => {
-                if (thread.pinned) {
-                  await handleUnpin(thread.id);
-                } else {
-                  await handlePin(thread.id);
-                }
-              }}
-            >
-              {thread.pinned ? (
-                <>
-                  <Pin className="size-4 mr-1" />
-                  Unpin
-                </>
-              ) : (
-                <>
-                  <Pin className="size-4 mr-1" />
-                  Pin
-                </>
-              )}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-red-500 focus:text-red-500 cursor-pointer"
-              onClick={() => onDelete(thread.id)}
-            >
-              <Trash2 className="size-4 mr-1" />
-              Delete
-            </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                onClick={() => onEdit(thread.id, thread.title)}
+              >
+                <Pencil className="size-4 mr-2" />
+                Rename
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                onClick={async () => {
+                  if (thread.pinned) {
+                    await handleUnpin(thread.id);
+                  } else {
+                    await handlePin(thread.id);
+                  }
+                }}
+              >
+                {thread.pinned ? (
+                  <>
+                    <PinOff className="size-4 mr-2" />
+                    Unpin
+                  </>
+                ) : (
+                  <>
+                    <Pin className="size-4 mr-2" />
+                    Pin
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100 text-red-500 focus:text-red-500"
+                onClick={() => onDelete(thread.id)}
+              >
+                <Trash2 className="size-4 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </motion.div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
