@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Thread } from "@prisma/client";
 import { useParams, useRouter } from "next/navigation";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Pin, Trash2 } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent } from "../ui/sidebar";
 import {
   DropdownMenu,
@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
-import { deleteThread, editThread } from "@/actions";
+import { deleteThread, editThread, pinThread, unpinThread } from "@/actions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -91,12 +91,16 @@ const ThreadItem = ({
   threadRefs,
   onEdit,
   onDelete,
+  handlePin,
+  handleUnpin,
 }: {
   thread: Thread;
   threadId: string;
   threadRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
   onEdit: (id: string, title: string) => void;
   onDelete: (id: string) => void;
+  handlePin: (id: string) => Promise<void>;
+  handleUnpin: (id: string) => Promise<void>;
 }) => {
   return (
     <SidebarGroupContent
@@ -131,6 +135,28 @@ const ThreadItem = ({
             >
               <Pencil className="size-4 mr-1" />
               Rename
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={async () => {
+                if (thread.pinned) {
+                  await handleUnpin(thread.id);
+                } else {
+                  await handlePin(thread.id);
+                }
+              }}
+            >
+              {thread.pinned ? (
+                <>
+                  <Pin className="size-4 mr-1" />
+                  Unpin
+                </>
+              ) : (
+                <>
+                  <Pin className="size-4 mr-1" />
+                  Pin
+                </>
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-red-500 focus:text-red-500 cursor-pointer"
@@ -207,6 +233,30 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
     setEditThreadTitle(title);
   };
 
+  const handlePin = async (id: string) => {
+    try {
+      const response = await pinThread(id);
+      if (response.success) {
+        toast.success("Thread pinned successfully");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to pin thread");
+    }
+  };
+
+  const handleUnpin = async (id: string) => {
+    try {
+      const response = await unpinThread(id);
+      if (response.success) {
+        toast.success("Thread unpinned successfully");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to unpin thread");
+    }
+  };
+
   return (
     <>
       <div className="mb-4">
@@ -220,6 +270,8 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
               threadRefs={threadRefs}
               onEdit={handleEditStart}
               onDelete={setDeleteThreadId}
+              handlePin={handlePin}
+              handleUnpin={handleUnpin}
             />
           ))}
         </SidebarGroup>
@@ -239,6 +291,8 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
                 threadRefs={threadRefs}
                 onEdit={handleEditStart}
                 onDelete={setDeleteThreadId}
+                handlePin={handlePin}
+                handleUnpin={handleUnpin}
               />
             ))}
           </SidebarGroup>
@@ -259,6 +313,8 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
                 threadRefs={threadRefs}
                 onEdit={handleEditStart}
                 onDelete={setDeleteThreadId}
+                handlePin={handlePin}
+                handleUnpin={handleUnpin}
               />
             ))}
           </SidebarGroup>

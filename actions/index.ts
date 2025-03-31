@@ -153,3 +153,47 @@ export const editThread = async (threadId: string, title: string) => {
 
   return { success: "Thread updated successfully" };
 };
+
+export const pinThread = async (threadId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  await db.thread.update({
+    where: {
+      id: threadId,
+      userId: session.user.id,
+    },
+    data: {
+      pinned: true,
+    },
+  });
+  revalidatePath("/");
+
+  return { success: "Thread pinned successfully" };
+};
+
+export const unpinThread = async (threadId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  await db.thread.update({
+    where: {
+      id: threadId,
+      userId: session.user.id,
+    },
+    data: {
+      pinned: false,
+    },
+  });
+  revalidatePath("/");
+
+  return { success: "Thread unpinned successfully" };
+};
