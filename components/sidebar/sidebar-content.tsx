@@ -10,6 +10,7 @@ import {
   Trash2,
   ChevronUpIcon,
   PinOff,
+  FileDown,
 } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent } from "../ui/sidebar";
 import {
@@ -43,6 +44,7 @@ import {
 } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { exportThreadAsPDF } from "@/lib/utils";
 
 const categorizeThreads = (threads: Thread[]) => {
   const today = new Date();
@@ -164,7 +166,7 @@ const ThreadItem = ({
                 onClick={() => onEdit(thread.id, thread.title)}
               >
                 <Pencil className="size-4 mr-2" />
-                Rename
+                Rename Thread
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
@@ -179,21 +181,28 @@ const ThreadItem = ({
                 {thread.pinned ? (
                   <>
                     <PinOff className="size-4 mr-2" />
-                    Unpin
+                    Unpin Thread
                   </>
                 ) : (
                   <>
                     <Pin className="size-4 mr-2" />
-                    Pin
+                    Pin Thread
                   </>
                 )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                onClick={() => exportThreadAsPDF(thread)}
+              >
+                <FileDown className="size-4 mr-2" />
+                Export as PDF
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100 text-red-500 focus:text-red-500"
                 onClick={() => onDelete(thread.id)}
               >
                 <Trash2 className="size-4 mr-2" />
-                Delete
+                Delete Thread
               </DropdownMenuItem>
             </motion.div>
           </DropdownMenuContent>
