@@ -26,7 +26,7 @@ function renderMarkdownText(
   const lines = pdf.splitTextToSize(text, maxWidth);
 
   for (let i = 0; i < lines.length; i++) {
-    let line = lines[i];
+    const line = lines[i];
     currentY = processMarkdownLine(
       pdf,
       line,
@@ -48,13 +48,13 @@ function processMarkdownLine(
   maxWidth: number,
   lineHeight: number
 ): number {
-  let segments: {
+  const segments: {
     text: string;
     isBold: boolean;
     isItalic: boolean;
   }[] = [];
 
-  let boldRegex = /\*\*(.*?)\*\*/g;
+  const boldRegex = /\*\*(.*?)\*\*/g;
   let boldMatch;
   let lastBoldEnd = 0;
 
@@ -92,7 +92,7 @@ function processMarkdownLine(
     });
   }
 
-  let processedSegments: typeof segments = [];
+  const processedSegments: typeof segments = [];
 
   for (const segment of segments) {
     if (segment.isBold) {
@@ -100,10 +100,10 @@ function processMarkdownLine(
       continue;
     }
 
-    let italicRegex = /\*(.*?)\*/g;
+    const italicRegex = /\*(.*?)\*/g;
     let italicMatch;
     let lastItalicEnd = 0;
-    let text = segment.text;
+    const text = segment.text;
     let foundItalic = false;
 
     while ((italicMatch = italicRegex.exec(text)) !== null) {

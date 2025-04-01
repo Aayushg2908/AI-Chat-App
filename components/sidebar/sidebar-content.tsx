@@ -8,7 +8,6 @@ import {
   Pencil,
   Pin,
   Trash2,
-  ChevronUpIcon,
   PinOff,
   FileDown,
 } from "lucide-react";
