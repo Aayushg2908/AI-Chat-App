@@ -70,6 +70,7 @@ model Thread {
   title    String
   messages String?
   pinned   Boolean @default(false)
+  shareId  String  @unique @default(cuid())
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

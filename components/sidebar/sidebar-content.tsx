@@ -10,6 +10,7 @@ import {
   Trash2,
   PinOff,
   FileDown,
+  Share2,
 } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent } from "../ui/sidebar";
 import {
@@ -20,7 +21,7 @@ import {
 } from "../ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { deleteThread, editThread, pinThread, unpinThread } from "@/actions";
 import { motion } from "framer-motion";
 import {
@@ -44,6 +45,7 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { exportThreadAsPDF } from "@/lib/utils";
+import { Check, Copy } from "lucide-react";
 
 const categorizeThreads = (threads: Thread[]) => {
   const today = new Date();
@@ -113,6 +115,7 @@ const ThreadItem = ({
   onDelete,
   handlePin,
   handleUnpin,
+  handleShare,
 }: {
   thread: Thread;
   threadId: string;
@@ -121,6 +124,7 @@ const ThreadItem = ({
   onDelete: (id: string) => void;
   handlePin: (id: string) => Promise<void>;
   handleUnpin: (id: string) => Promise<void>;
+  handleShare: (id: string) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -191,6 +195,13 @@ const ThreadItem = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                onClick={() => handleShare(thread.shareId)}
+              >
+                <Share2 className="size-4 mr-2" />
+                Share Thread
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
                 onClick={() => exportThreadAsPDF(thread)}
               >
                 <FileDown className="size-4 mr-2" />
@@ -217,6 +228,7 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
   const [deleteThreadId, setDeleteThreadId] = useState<string | null>(null);
   const [editThreadId, setEditThreadId] = useState<string | null>(null);
   const [editThreadTitle, setEditThreadTitle] = useState("");
+  const [shareThreadId, setShareThreadId] = useState<string | null>(null);
   const router = useRouter();
 
   const threadRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -322,6 +334,7 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
                 onDelete={setDeleteThreadId}
                 handlePin={handlePin}
                 handleUnpin={handleUnpin}
+                handleShare={setShareThreadId}
               />
             ))}
           </SidebarGroup>
@@ -341,6 +354,7 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
               onDelete={setDeleteThreadId}
               handlePin={handlePin}
               handleUnpin={handleUnpin}
+              handleShare={setShareThreadId}
             />
           ))}
         </SidebarGroup>
@@ -362,6 +376,7 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
                 onDelete={setDeleteThreadId}
                 handlePin={handlePin}
                 handleUnpin={handleUnpin}
+                handleShare={setShareThreadId}
               />
             ))}
           </SidebarGroup>
@@ -384,6 +399,7 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
                 onDelete={setDeleteThreadId}
                 handlePin={handlePin}
                 handleUnpin={handleUnpin}
+                handleShare={setShareThreadId}
               />
             ))}
           </SidebarGroup>
@@ -441,7 +457,54 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog
+        open={shareThreadId !== null}
+        onOpenChange={() => setShareThreadId(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Thread</DialogTitle>
+            <DialogDescription>Share your thread with others</DialogDescription>
+          </DialogHeader>
+          {shareThreadId && (
+            <div className="flex items-center space-x-2 mt-2">
+              <div className="flex-1 relative">
+                <Input
+                  value={`${window.location.origin}/share/${shareThreadId}`}
+                  readOnly
+                  className="pr-10"
+                />
+              </div>
+              <CopyButton
+                textToCopy={`${window.location.origin}/share/${shareThreadId}`}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
+  );
+};
+
+const CopyButton = ({ textToCopy }: { textToCopy: string }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast.success("Link copied to clipboard");
+  }, [textToCopy]);
+
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={handleCopy}
+      className="flex-shrink-0"
+    >
+      {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+    </Button>
   );
 };
 
