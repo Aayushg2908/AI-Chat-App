@@ -67,7 +67,7 @@ const SidebarHeaderComponent = ({ threads }: { threads: Thread[] }) => {
                 <SearchIcon className="size-5 cursor-pointer" />
               </TooltipTrigger>
               <TooltipContent className="bg-zinc-800 text-white">
-                Search
+                Search (Ctrl+K)
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
