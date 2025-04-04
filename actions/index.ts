@@ -140,6 +140,16 @@ export const editThread = async (threadId: string, title: string) => {
     return { error: "Unauthorized" };
   }
 
+  const existingThread = await db.thread.findUnique({
+    where: {
+      id: threadId,
+      userId: session.user.id,
+    },
+  });
+  if (!existingThread) {
+    return { error: "Thread not found" };
+  }
+
   await db.thread.update({
     where: {
       id: threadId,
@@ -147,6 +157,7 @@ export const editThread = async (threadId: string, title: string) => {
     },
     data: {
       title,
+      updatedAt: existingThread.updatedAt,
     },
   });
   revalidatePath("/");
@@ -162,6 +173,16 @@ export const pinThread = async (threadId: string) => {
     return { error: "Unauthorized" };
   }
 
+  const existingThread = await db.thread.findUnique({
+    where: {
+      id: threadId,
+      userId: session.user.id,
+    },
+  });
+  if (!existingThread) {
+    return { error: "Thread not found" };
+  }
+
   await db.thread.update({
     where: {
       id: threadId,
@@ -169,6 +190,7 @@ export const pinThread = async (threadId: string) => {
     },
     data: {
       pinned: true,
+      updatedAt: existingThread.updatedAt,
     },
   });
   revalidatePath("/");
@@ -184,6 +206,16 @@ export const unpinThread = async (threadId: string) => {
     return { error: "Unauthorized" };
   }
 
+  const existingThread = await db.thread.findUnique({
+    where: {
+      id: threadId,
+      userId: session.user.id,
+    },
+  });
+  if (!existingThread) {
+    return { error: "Thread not found" };
+  }
+
   await db.thread.update({
     where: {
       id: threadId,
@@ -191,6 +223,7 @@ export const unpinThread = async (threadId: string) => {
     },
     data: {
       pinned: false,
+      updatedAt: existingThread.updatedAt,
     },
   });
   revalidatePath("/");
@@ -209,6 +242,16 @@ export const updateSharedThreadVisibility = async (
     return { error: "Unauthorized" };
   }
 
+  const existingThread = await db.thread.findUnique({
+    where: {
+      id: threadId,
+      userId: session.user.id,
+    },
+  });
+  if (!existingThread) {
+    return { error: "Thread not found" };
+  }
+
   await db.thread.update({
     where: {
       id: threadId,
@@ -216,6 +259,7 @@ export const updateSharedThreadVisibility = async (
     },
     data: {
       requireAuth,
+      updatedAt: existingThread.updatedAt,
     },
   });
   revalidatePath("/");
