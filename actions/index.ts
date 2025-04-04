@@ -197,3 +197,28 @@ export const unpinThread = async (threadId: string) => {
 
   return { success: "Thread unpinned successfully" };
 };
+
+export const updateSharedThreadVisibility = async (
+  threadId: string,
+  requireAuth: boolean
+) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  await db.thread.update({
+    where: {
+      id: threadId,
+      userId: session.user.id,
+    },
+    data: {
+      requireAuth,
+    },
+  });
+  revalidatePath("/");
+
+  return { success: "Thread visibility updated successfully" };
+};

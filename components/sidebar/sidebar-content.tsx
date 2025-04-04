@@ -22,7 +22,13 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { deleteThread, editThread, pinThread, unpinThread } from "@/actions";
+import {
+  deleteThread,
+  editThread,
+  pinThread,
+  unpinThread,
+  updateSharedThreadVisibility,
+} from "@/actions";
 import { motion } from "framer-motion";
 import {
   AlertDialog,
@@ -46,6 +52,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { exportThreadAsPDF } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
+import { Switch } from "../ui/switch";
 
 const categorizeThreads = (threads: Thread[]) => {
   const today = new Date();
@@ -115,7 +122,6 @@ const ThreadItem = ({
   onDelete,
   handlePin,
   handleUnpin,
-  handleShare,
 }: {
   thread: Thread;
   threadId: string;
@@ -124,101 +130,145 @@ const ThreadItem = ({
   onDelete: (id: string) => void;
   handlePin: (id: string) => Promise<void>;
   handleUnpin: (id: string) => Promise<void>;
-  handleShare: (id: string) => void;
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [shareThreadId, setShareThreadId] = useState<string | null>(null);
+
+  const handleRequireAuthChange = async (requireAuth: boolean) => {
+    try {
+      toast.promise(updateSharedThreadVisibility(shareThreadId!, requireAuth), {
+        loading: "Updating shared thread visibility...",
+        success: "Shared thread visibility updated successfully",
+        error: "Failed to update shared thread visibility",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update shared thread visibility");
+    }
+  };
 
   return (
-    <SidebarGroupContent
-      key={thread.id}
-      ref={(el) => {
-        if (el) threadRefs.current.set(thread.id, el);
-      }}
-      className={cn(
-        "relative group/thread px-3 py-2 rounded-md hover:bg-sidebar-accent transition-colors mb-2",
-        threadId === thread.id &&
-          "bg-sidebar-accent text-sidebar-accent-foreground"
-      )}
-    >
-      <div className="flex items-center justify-between w-full">
-        <Link
-          href={`/${thread.id}`}
-          className={cn(
-            "flex-1 truncate",
-            threadId === thread.id && "font-bold"
-          )}
-        >
-          {thread.title}
-        </Link>
-        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger className="opacity-0 group-hover/thread:opacity-100 focus:opacity-100 transition-opacity">
-            <MoreHorizontal className="size-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg"
-            sideOffset={5}
+    <>
+      <SidebarGroupContent
+        key={thread.id}
+        ref={(el) => {
+          if (el) threadRefs.current.set(thread.id, el);
+        }}
+        className={cn(
+          "relative group/thread px-3 py-2 rounded-md hover:bg-sidebar-accent transition-colors mb-2",
+          threadId === thread.id &&
+            "bg-sidebar-accent text-sidebar-accent-foreground"
+        )}
+      >
+        <div className="flex items-center justify-between w-full">
+          <Link
+            href={`/${thread.id}`}
+            className={cn(
+              "flex-1 truncate",
+              threadId === thread.id && "font-bold"
+            )}
           >
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.15 }}
+            {thread.title}
+          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="opacity-0 group-hover/thread:opacity-100 focus:opacity-100 transition-opacity">
+              <MoreHorizontal className="size-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg"
+              sideOffset={5}
             >
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
-                onClick={() => onEdit(thread.id, thread.title)}
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.15 }}
               >
-                <Pencil className="size-4 mr-2" />
-                Rename Thread
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
-                onClick={async () => {
-                  if (thread.pinned) {
-                    await handleUnpin(thread.id);
-                  } else {
-                    await handlePin(thread.id);
-                  }
-                }}
-              >
-                {thread.pinned ? (
-                  <>
-                    <PinOff className="size-4 mr-2" />
-                    Unpin Thread
-                  </>
-                ) : (
-                  <>
-                    <Pin className="size-4 mr-2" />
-                    Pin Thread
-                  </>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
-                onClick={() => handleShare(thread.shareId)}
-              >
-                <Share2 className="size-4 mr-2" />
-                Share Thread
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
-                onClick={() => exportThreadAsPDF(thread)}
-              >
-                <FileDown className="size-4 mr-2" />
-                Export as PDF
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100 text-red-500 focus:text-red-500"
-                onClick={() => onDelete(thread.id)}
-              >
-                <Trash2 className="size-4 mr-2" />
-                Delete Thread
-              </DropdownMenuItem>
-            </motion.div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </SidebarGroupContent>
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                  onClick={() => onEdit(thread.id, thread.title)}
+                >
+                  <Pencil className="size-4 mr-2" />
+                  Rename Thread
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                  onClick={async () => {
+                    if (thread.pinned) {
+                      await handleUnpin(thread.id);
+                    } else {
+                      await handlePin(thread.id);
+                    }
+                  }}
+                >
+                  {thread.pinned ? (
+                    <>
+                      <PinOff className="size-4 mr-2" />
+                      Unpin Thread
+                    </>
+                  ) : (
+                    <>
+                      <Pin className="size-4 mr-2" />
+                      Pin Thread
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                  onClick={() => setShareThreadId(thread.id)}
+                >
+                  <Share2 className="size-4 mr-2" />
+                  Share Thread
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                  onClick={() => exportThreadAsPDF(thread)}
+                >
+                  <FileDown className="size-4 mr-2" />
+                  Export as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100 text-red-500 focus:text-red-500"
+                  onClick={() => onDelete(thread.id)}
+                >
+                  <Trash2 className="size-4 mr-2" />
+                  Delete Thread
+                </DropdownMenuItem>
+              </motion.div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </SidebarGroupContent>
+      <Dialog
+        open={shareThreadId !== null}
+        onOpenChange={() => setShareThreadId(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Thread</DialogTitle>
+            <DialogDescription>Share your thread with others</DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2 mt-2">
+            <div className="flex-1 relative">
+              <Input
+                value={`${window.location.origin}/shared/${thread.shareId}`}
+                readOnly
+                className="pr-10"
+              />
+            </div>
+            <CopyButton
+              textToCopy={`${window.location.origin}/shared/${thread.shareId}`}
+            />
+          </div>
+          <div className="flex items-center mt-2 space-x-3">
+            <span>Is login required to view this thread?</span>
+            <Switch
+              checked={thread.requireAuth}
+              onCheckedChange={handleRequireAuthChange}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
@@ -228,7 +278,6 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
   const [deleteThreadId, setDeleteThreadId] = useState<string | null>(null);
   const [editThreadId, setEditThreadId] = useState<string | null>(null);
   const [editThreadTitle, setEditThreadTitle] = useState("");
-  const [shareThreadId, setShareThreadId] = useState<string | null>(null);
   const router = useRouter();
 
   const threadRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -334,7 +383,6 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
                 onDelete={setDeleteThreadId}
                 handlePin={handlePin}
                 handleUnpin={handleUnpin}
-                handleShare={setShareThreadId}
               />
             ))}
           </SidebarGroup>
@@ -354,7 +402,6 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
               onDelete={setDeleteThreadId}
               handlePin={handlePin}
               handleUnpin={handleUnpin}
-              handleShare={setShareThreadId}
             />
           ))}
         </SidebarGroup>
@@ -376,7 +423,6 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
                 onDelete={setDeleteThreadId}
                 handlePin={handlePin}
                 handleUnpin={handleUnpin}
-                handleShare={setShareThreadId}
               />
             ))}
           </SidebarGroup>
@@ -399,7 +445,6 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
                 onDelete={setDeleteThreadId}
                 handlePin={handlePin}
                 handleUnpin={handleUnpin}
-                handleShare={setShareThreadId}
               />
             ))}
           </SidebarGroup>
@@ -455,31 +500,6 @@ const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
             </Button>
             <Button onClick={handleEdit}>Save</Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        open={shareThreadId !== null}
-        onOpenChange={() => setShareThreadId(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Share Thread</DialogTitle>
-            <DialogDescription>Share your thread with others</DialogDescription>
-          </DialogHeader>
-          {shareThreadId && (
-            <div className="flex items-center space-x-2 mt-2">
-              <div className="flex-1 relative">
-                <Input
-                  value={`${window.location.origin}/share/${shareThreadId}`}
-                  readOnly
-                  className="pr-10"
-                />
-              </div>
-              <CopyButton
-                textToCopy={`${window.location.origin}/share/${shareThreadId}`}
-              />
-            </div>
-          )}
         </DialogContent>
       </Dialog>
     </>
