@@ -11,23 +11,19 @@ import { Button } from "@/components/ui/button";
 import { useState, type SVGProps } from "react";
 import { signIn } from "@/lib/auth-client";
 import { useLoginModal } from "@/hooks/use-login-modal";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const LoginModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { isOpen, onClose } = useLoginModal();
-  const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogin = async (provider: "google" | "github") => {
     try {
       setIsLoading(true);
       await signIn.social({
         provider,
-        fetchOptions: {
-          onSuccess: () => {
-            router.push("/");
-          },
-        },
+        callbackURL: pathname,
       });
     } catch (error) {
       console.error("Login failed:", error);

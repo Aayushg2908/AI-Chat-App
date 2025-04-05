@@ -1,6 +1,8 @@
 import { getThreadFromShareId } from "@/actions";
-import ChatComponent from "@/components/chat";
 import { notFound } from "next/navigation";
+import SharedPage from "./shared-page";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 const SharedThreadPage = async ({
   params,
@@ -12,8 +14,11 @@ const SharedThreadPage = async ({
   if (!thread) {
     return notFound();
   }
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  return <ChatComponent thread={thread} isEditable={false} />;
+  return <SharedPage thread={thread} user={session?.user} />;
 };
 
 export default SharedThreadPage;

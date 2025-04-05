@@ -105,6 +105,7 @@ const SidebarFooterComponent = ({ session }: { session: User | undefined }) => {
                 fetchOptions: {
                   onSuccess: () => {
                     router.push("/");
+                    window.location.reload();
                   },
                 },
               })

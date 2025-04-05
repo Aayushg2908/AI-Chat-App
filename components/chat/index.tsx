@@ -1,7 +1,7 @@
 import ChatInterface from "./chat-interface";
 import { Thread } from "@prisma/client";
 
-const ChatComponent = async ({
+const ChatComponent = ({
   thread,
   isEditable,
 }: {
