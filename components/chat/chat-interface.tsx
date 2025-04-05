@@ -80,7 +80,13 @@ const TooltipComponent = ({
   );
 };
 
-const ChatInterface = ({ thread }: { thread: Thread | null }) => {
+const ChatInterface = ({
+  thread,
+  isEditable,
+}: {
+  thread: Thread | null;
+  isEditable: boolean;
+}) => {
   const [selectedModel, setSelectedModel] = useState<string>(
     localStorage.getItem(`model:${thread?.id}`) ||
       "gemini-2.0-flash-lite-preview-02-05"
@@ -597,52 +603,60 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
                                   isUserMessage={true}
                                 />
                               </div>
-                              <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-1">
-                                <TooltipComponent description="Retry">
-                                  <Button
-                                    onClick={() =>
-                                      handleRetryMessage(index, message.content)
-                                    }
-                                    className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
-                                    variant="ghost"
-                                    size="icon"
-                                  >
-                                    <RefreshCw className="size-2" />
-                                  </Button>
-                                </TooltipComponent>
-                                <TooltipComponent description="Edit">
-                                  <Button
-                                    onClick={() =>
-                                      handleEditMessage(index, message.content)
-                                    }
-                                    className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
-                                    variant="ghost"
-                                    size="icon"
-                                  >
-                                    <Edit className="size-2" />
-                                  </Button>
-                                </TooltipComponent>
-                                <TooltipComponent description="Copy">
-                                  <Button
-                                    onClick={() =>
-                                      handleCopyMessage(
-                                        message.content,
-                                        `user-message-${index}`
-                                      )
-                                    }
-                                    className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
-                                    variant="ghost"
-                                    size="icon"
-                                  >
-                                    {copiedMessageId ===
-                                    `user-message-${index}` ? (
-                                      <Check className="size-2" />
-                                    ) : (
-                                      <Copy className="size-2" />
-                                    )}
-                                  </Button>
-                                </TooltipComponent>
-                              </div>
+                              {isEditable && (
+                                <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-1">
+                                  <TooltipComponent description="Retry">
+                                    <Button
+                                      onClick={() =>
+                                        handleRetryMessage(
+                                          index,
+                                          message.content
+                                        )
+                                      }
+                                      className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                      variant="ghost"
+                                      size="icon"
+                                    >
+                                      <RefreshCw className="size-2" />
+                                    </Button>
+                                  </TooltipComponent>
+                                  <TooltipComponent description="Edit">
+                                    <Button
+                                      onClick={() =>
+                                        handleEditMessage(
+                                          index,
+                                          message.content
+                                        )
+                                      }
+                                      className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                      variant="ghost"
+                                      size="icon"
+                                    >
+                                      <Edit className="size-2" />
+                                    </Button>
+                                  </TooltipComponent>
+                                  <TooltipComponent description="Copy">
+                                    <Button
+                                      onClick={() =>
+                                        handleCopyMessage(
+                                          message.content,
+                                          `user-message-${index}`
+                                        )
+                                      }
+                                      className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                      variant="ghost"
+                                      size="icon"
+                                    >
+                                      {copiedMessageId ===
+                                      `user-message-${index}` ? (
+                                        <Check className="size-2" />
+                                      ) : (
+                                        <Copy className="size-2" />
+                                      )}
+                                    </Button>
+                                  </TooltipComponent>
+                                </div>
+                              )}
                             </>
                           )}
                         </div>
@@ -735,139 +749,143 @@ const ChatInterface = ({ thread }: { thread: Thread | null }) => {
             </Button>
           </div>
         )}
-        <div className="max-w-3xl mx-auto mt-2 w-full">
-          {contextItems.length > 0 && (
-            <div className="mb-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex justify-between items-center mb-1.5">
-                <div className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                  Context:
-                </div>
-                <Button
-                  onClick={clearAllContext}
-                  size="sm"
-                  variant="ghost"
-                  className="h-6 px-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                >
-                  Clear all
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {contextItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center bg-gray-200 dark:bg-gray-700 rounded-md px-2 py-1 text-xs group hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    <span className="truncate max-w-[300px]">{item.text}</span>
-                    <button
-                      onClick={() => removeFromContext(item.id)}
-                      className="ml-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 opacity-70 group-hover:opacity-100"
-                      aria-label="Remove context item"
-                    >
-                      ×
-                    </button>
+        {isEditable && (
+          <div className="max-w-3xl mx-auto mt-2 w-full">
+            {contextItems.length > 0 && (
+              <div className="mb-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex justify-between items-center mb-1.5">
+                  <div className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                    Context:
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-          <form
-            onSubmit={handleSend}
-            className="flex flex-col dark:bg-[#1e1e1e] bg-[#f7f6f6] rounded-lg overflow-hidden"
-          >
-            <TextareaAutosize
-              ref={inputRef}
-              value={input}
-              onChange={handleInputChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              placeholder={
-                isLoading ? "Sending message..." : "Type your message here..."
-              }
-              className={`w-full scrollbar-hide resize-none bg-transparent dark:text-gray-300 text-gray-700 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
-                isLoading
-                  ? "dark:placeholder-gray-600 placeholder-gray-500"
-                  : ""
-              }`}
-              maxRows={8}
-              minRows={2}
-              disabled={isLoading}
-            />
-            <div className="flex items-center justify-between px-3 py-2">
-              <div className="flex items-center">
-                <ModelSelector
-                  threadId={thread?.id}
-                  selectedModel={selectedModel}
-                  setSelectedModel={setSelectedModel}
-                  disabled={isLoading}
-                  isSearchEnabled={isSearchEnabled}
-                  setIsSearchEnabled={setIsSearchEnabled}
-                  setFiles={setFiles}
-                  selectedFile={selectedFile}
-                  setSelectedFile={setSelectedFile}
-                  effortLevel={effortLevel}
-                  setEffortLevel={setEffortLevel}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                {status === "streaming" ? (
                   <Button
-                    type="button"
-                    className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
-                    onClick={() => stop()}
-                    size="icon"
+                    onClick={clearAllContext}
+                    size="sm"
                     variant="ghost"
+                    className="h-6 px-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                   >
-                    <CircleStop className="size-3.5" />
+                    Clear all
                   </Button>
-                ) : (
-                  <>
-                    <TooltipComponent
-                      description={
-                        isRecording ? "Stop recording" : "Start voice input"
-                      }
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {contextItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center bg-gray-200 dark:bg-gray-700 rounded-md px-2 py-1 text-xs group hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                     >
-                      <Button
-                        type="button"
-                        className={`transition-colors ${
-                          isRecording
-                            ? "text-red-500 hover:text-red-600"
-                            : "dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950"
-                        }`}
-                        onClick={toggleMicrophone}
-                        size="icon"
-                        variant="ghost"
-                        disabled={isLoading}
+                      <span className="truncate max-w-[300px]">
+                        {item.text}
+                      </span>
+                      <button
+                        onClick={() => removeFromContext(item.id)}
+                        className="ml-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 opacity-70 group-hover:opacity-100"
+                        aria-label="Remove context item"
                       >
-                        {isRecording ? (
-                          <MicOff className="size-3.5" />
-                        ) : (
-                          <Mic className="size-3.5" />
-                        )}
-                      </Button>
-                    </TooltipComponent>
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <form
+              onSubmit={handleSend}
+              className="flex flex-col dark:bg-[#1e1e1e] bg-[#f7f6f6] rounded-lg overflow-hidden"
+            >
+              <TextareaAutosize
+                ref={inputRef}
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                placeholder={
+                  isLoading ? "Sending message..." : "Type your message here..."
+                }
+                className={`w-full scrollbar-hide resize-none bg-transparent dark:text-gray-300 text-gray-700 px-3 py-2.5 focus:outline-none placeholder-gray-500 text-sm transition-colors ${
+                  isLoading
+                    ? "dark:placeholder-gray-600 placeholder-gray-500"
+                    : ""
+                }`}
+                maxRows={8}
+                minRows={2}
+                disabled={isLoading}
+              />
+              <div className="flex items-center justify-between px-3 py-2">
+                <div className="flex items-center">
+                  <ModelSelector
+                    threadId={thread?.id}
+                    selectedModel={selectedModel}
+                    setSelectedModel={setSelectedModel}
+                    disabled={isLoading}
+                    isSearchEnabled={isSearchEnabled}
+                    setIsSearchEnabled={setIsSearchEnabled}
+                    setFiles={setFiles}
+                    selectedFile={selectedFile}
+                    setSelectedFile={setSelectedFile}
+                    effortLevel={effortLevel}
+                    setEffortLevel={setEffortLevel}
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  {status === "streaming" ? (
                     <Button
-                      type="submit"
-                      className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
-                      disabled={!input.trim() || isLoading}
+                      type="button"
+                      className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors"
+                      onClick={() => stop()}
                       size="icon"
                       variant="ghost"
                     >
-                      {isLoading ? (
-                        <LoaderCircle className="size-3.5 animate-spin" />
-                      ) : (
-                        <SendHorizontal className="size-3.5" />
-                      )}
+                      <CircleStop className="size-3.5" />
                     </Button>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <TooltipComponent
+                        description={
+                          isRecording ? "Stop recording" : "Start voice input"
+                        }
+                      >
+                        <Button
+                          type="button"
+                          className={`transition-colors ${
+                            isRecording
+                              ? "text-red-500 hover:text-red-600"
+                              : "dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950"
+                          }`}
+                          onClick={toggleMicrophone}
+                          size="icon"
+                          variant="ghost"
+                          disabled={isLoading}
+                        >
+                          {isRecording ? (
+                            <MicOff className="size-3.5" />
+                          ) : (
+                            <Mic className="size-3.5" />
+                          )}
+                        </Button>
+                      </TooltipComponent>
+                      <Button
+                        type="submit"
+                        className="dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950 transition-colors disabled:opacity-40"
+                        disabled={!input.trim() || isLoading}
+                        size="icon"
+                        variant="ghost"
+                      >
+                        {isLoading ? (
+                          <LoaderCircle className="size-3.5 animate-spin" />
+                        ) : (
+                          <SendHorizontal className="size-3.5" />
+                        )}
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          </form>
-        </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );

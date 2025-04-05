@@ -4,5 +4,5 @@ import { handleUserRedirect } from "@/actions";
 export default async function Home() {
   await handleUserRedirect();
 
-  return <ChatComponent />;
+  return <ChatComponent thread={null} isEditable={true} />;
 }

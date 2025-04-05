@@ -1,3 +1,4 @@
+import { getUserThread } from "@/actions";
 import ChatComponent from "@/components/chat";
 
 const ThreadPage = async ({
@@ -6,7 +7,13 @@ const ThreadPage = async ({
   params: Promise<{ threadId: string }>;
 }) => {
   const { threadId } = await params;
-  return <ChatComponent threadId={threadId} />;
+  let thread = null;
+  const response = await getUserThread(threadId);
+  if (response.success) {
+    thread = response.data;
+  }
+
+  return <ChatComponent thread={thread} isEditable={true} />;
 };
 
 export default ThreadPage;

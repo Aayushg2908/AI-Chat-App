@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export const getThread = async (threadId: string) => {
+export const getUserThread = async (threadId: string) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -265,4 +265,13 @@ export const updateSharedThreadVisibility = async (
   revalidatePath("/");
 
   return { success: "Thread visibility updated successfully" };
+};
+
+export const getThreadFromShareId = async (shareId: string) => {
+  const thread = await db.thread.findUnique({
+    where: {
+      shareId,
+    },
+  });
+  return thread;
 };

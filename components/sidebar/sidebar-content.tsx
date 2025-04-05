@@ -250,13 +250,13 @@ const ThreadItem = ({
           <div className="flex items-center space-x-2 mt-2">
             <div className="flex-1 relative">
               <Input
-                value={`${window.location.origin}/shared/${thread.shareId}`}
+                value={`${window.location.origin}/share/${thread.shareId}`}
                 readOnly
                 className="pr-10"
               />
             </div>
             <CopyButton
-              textToCopy={`${window.location.origin}/shared/${thread.shareId}`}
+              textToCopy={`${window.location.origin}/share/${thread.shareId}`}
             />
           </div>
           <div className="flex items-center mt-2 space-x-3">
