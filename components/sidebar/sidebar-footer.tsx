@@ -36,7 +36,11 @@ const SidebarFooterComponent = ({ session }: { session: User | undefined }) => {
       <div className="flex items-center justify-between">
         <div className="text-lg font-semibold ml-2">Login</div>
         <LogInIcon
-          onClick={() => onOpen()}
+          onClick={() =>
+            onOpen(
+              "Sign in to your account to access your chat history, settings and much more."
+            )
+          }
           className="size-5 cursor-pointer mr-2"
         />
       </div>

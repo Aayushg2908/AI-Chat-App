@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 
 const LoginModal = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { isOpen, onClose } = useLoginModal();
+  const { isOpen, onClose, description } = useLoginModal();
   const pathname = usePathname();
 
   const handleLogin = async (provider: "google" | "github") => {
@@ -37,10 +37,7 @@ const LoginModal = () => {
       <DialogContent className="w-[370px]">
         <DialogHeader>
           <DialogTitle>Sign In to ALLIN1</DialogTitle>
-          <DialogDescription>
-            Sign in to your account to access your chat history, settings and
-            much more.
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2 mt-4">
           <Button
