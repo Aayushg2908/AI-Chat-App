@@ -275,3 +275,34 @@ export const getThreadFromShareId = async (shareId: string) => {
   });
   return thread;
 };
+
+export const cloneSharedThread = async (threadId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  const thread = await db.thread.findUnique({
+    where: {
+      id: threadId,
+    },
+  });
+  if (!thread) {
+    return { error: "Thread not found" };
+  }
+  if (thread.userId === session.user.id) {
+    return { error: "You cannot clone your own thread" };
+  }
+
+  const newThread = await db.thread.create({
+    data: {
+      userId: session.user.id,
+      title: thread.title,
+      messages: thread.messages,
+    },
+  });
+
+  return { success: "Thread cloned successfully", threadId: newThread.id };
+};

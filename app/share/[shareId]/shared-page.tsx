@@ -1,14 +1,16 @@
 "use client";
 
+import { cloneSharedThread } from "@/actions";
 import ChatComponent from "@/components/chat";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { cn } from "@/lib/utils";
 import { Thread } from "@prisma/client";
 import { User } from "better-auth";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const SharedPage = ({
@@ -19,6 +21,8 @@ const SharedPage = ({
   user: User | undefined;
 }) => {
   const { isOpen, onOpen } = useLoginModal();
+  const [isCloning, setIsCloning] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (thread.requireAuth && !user) {
@@ -32,10 +36,19 @@ const SharedPage = ({
 
   const handleCloneThread = async () => {
     try {
-      console.log("Cloned this Thread.");
+      setIsCloning(true);
+      const response = await cloneSharedThread(thread.id);
+      if (response.error) {
+        toast.error(response.error);
+      } else if (response.success) {
+        toast.success(response.success);
+        router.push(`/${response.threadId}`);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to clone this Thread.");
+    } finally {
+      setIsCloning(false);
     }
   };
 
@@ -56,8 +69,10 @@ const SharedPage = ({
         <Button
           onClick={handleCloneThread}
           className="bg-blue-600 text-white hover:bg-blue-700"
+          disabled={isCloning}
         >
-          Clone this Thread
+          {isCloning && <Loader2Icon className="size-4 animate-spin" />}
+          {isCloning ? "Cloning..." : "Clone this Thread"}
         </Button>
       </header>
       <ChatComponent thread={thread} isEditable={false} />
