@@ -306,3 +306,23 @@ export const cloneSharedThread = async (threadId: string) => {
 
   return { success: "Thread cloned successfully", threadId: newThread.id };
 };
+
+export const branchThread = async (title: string, messages: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  const newThread = await db.thread.create({
+    data: {
+      userId: session.user.id,
+      title,
+      messages,
+    },
+  });
+  revalidatePath("/");
+
+  return { success: "Thread cloned successfully", threadId: newThread.id };
+};

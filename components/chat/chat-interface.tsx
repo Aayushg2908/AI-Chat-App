@@ -14,6 +14,7 @@ import {
   RefreshCw,
   Mic,
   MicOff,
+  GitBranch,
 } from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
@@ -21,7 +22,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { cn } from "@/lib/utils";
 import MessageContent from "./message-content";
 import { Thread } from "@prisma/client";
-import { editThread, saveThreadMessages } from "@/actions";
+import { branchThread, editThread, saveThreadMessages } from "@/actions";
 import ModelSelector from "./model-selector";
 import { toast } from "sonner";
 import {
@@ -31,6 +32,7 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import useSpeechToText from "react-hook-speech-to-text";
+import { useRouter } from "next/navigation";
 
 interface Source {
   id: string;
@@ -98,6 +100,7 @@ const ChatInterface = ({
   const [contextItems, setContextItems] = useState<
     Array<{ id: string; text: string }>
   >([]);
+  const router = useRouter();
 
   const {
     messages: chatMessages,
@@ -375,6 +378,32 @@ const ChatInterface = ({
     setEditedContent("");
   };
 
+  const handleBranchMessage = async (
+    index: number,
+    title: string | undefined
+  ) => {
+    try {
+      const previousMessages = messages.slice(0, index + 2);
+      toast.promise(branchThread(title!, JSON.stringify(previousMessages)), {
+        loading: "Branching thread...",
+        success: (
+          data:
+            | { error: string; success?: undefined; threadId?: undefined }
+            | { success: string; threadId: string; error?: undefined }
+        ) => {
+          if (data.success) {
+            router.push(`/${data.threadId}`);
+            return "Thread branched successfully";
+          }
+          return "Failed to branch thread";
+        },
+      });
+    } catch (error) {
+      console.error("Failed to branch message:", error);
+      toast.error("Failed to branch thread");
+    }
+  };
+
   const addToContext = () => {
     const selectedText = window.getSelection()?.toString();
     if (selectedText && selectedText.trim()) {
@@ -635,6 +664,21 @@ const ChatInterface = ({
                                       size="icon"
                                     >
                                       <Edit className="size-2" />
+                                    </Button>
+                                  </TooltipComponent>
+                                  <TooltipComponent description="Branch">
+                                    <Button
+                                      onClick={() =>
+                                        handleBranchMessage(
+                                          index,
+                                          thread?.title
+                                        )
+                                      }
+                                      className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg"
+                                      variant="ghost"
+                                      size="icon"
+                                    >
+                                      <GitBranch className="size-2" />
                                     </Button>
                                   </TooltipComponent>
                                   <TooltipComponent description="Copy">
