@@ -1,6 +1,5 @@
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
-import { deepseek } from "@ai-sdk/deepseek";
 import { LanguageModelV1, streamText } from "ai";
 
 export interface Message {
@@ -32,12 +31,6 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
     : openai("gpt-4o-mini"),
   "o3-mini-2025-01-31": openai("o3-mini-2025-01-31", {
     reasoningEffort: effortLevel as "low" | "medium" | "high",
-  }),
-  "deepseek-chat": deepseek("deepseek-chat", {
-    simulateStreaming: true,
-  }),
-  "deepseek-reasoner": deepseek("deepseek-reasoner", {
-    simulateStreaming: true,
   }),
 });
 
