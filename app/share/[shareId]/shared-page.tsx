@@ -37,13 +37,20 @@ const SharedPage = ({
   const handleCloneThread = async () => {
     try {
       setIsCloning(true);
-      const response = await cloneSharedThread(thread.id);
-      if (response.error) {
-        toast.error(response.error);
-      } else if (response.success) {
-        toast.success(response.success);
-        router.push(`/${response.threadId}`);
-      }
+      toast.promise(cloneSharedThread(thread.id), {
+        loading: "Cloning thread...",
+        success: (
+          data:
+            | { error: string; success?: undefined; threadId?: undefined }
+            | { success: string; threadId: string; error?: undefined }
+        ) => {
+          if (data.success) {
+            router.push(`/${data.threadId}`);
+            return "Thread cloned successfully";
+          }
+          return "Failed to clone thread";
+        },
+      });
     } catch (error) {
       console.error(error);
       toast.error("Failed to clone this Thread.");
