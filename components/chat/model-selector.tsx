@@ -51,7 +51,7 @@ const createTooltipIcon = (
   );
 };
 
-const MODELS: {
+export const MODELS: {
   [key: string]: {
     id: string;
     description: string;
@@ -501,7 +501,5 @@ const ModelSelector = ({
     </div>
   );
 };
-
-export { MODELS };
 
 export default ModelSelector;

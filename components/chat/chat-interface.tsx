@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import MessageContent from "./message-content";
 import { Thread } from "@prisma/client";
 import { branchThread, editThread, saveThreadMessages } from "@/actions";
-import ModelSelector from "./model-selector";
+import ModelSelector, { MODELS } from "./model-selector";
 import { toast } from "sonner";
 import {
   Tooltip,
@@ -58,6 +58,7 @@ interface ExtendedMessage {
     url: string;
     snippet?: string;
   }>;
+  modelName?: string;
 }
 
 const TooltipComponent = ({
@@ -177,7 +178,21 @@ const ChatInterface = ({
     if (!shouldSaveMessages) return;
 
     const saveMessagesWithDebounce = setTimeout(async () => {
-      const currentMessagesString = JSON.stringify(messages);
+      const updatedMessages = [...messages];
+      const lastAssistantIndex = updatedMessages
+        .map((msg, index) => ({ msg, index }))
+        .filter((item) => item.msg.role === "assistant")
+        .pop()?.index;
+
+      if (lastAssistantIndex !== undefined) {
+        updatedMessages[lastAssistantIndex] = {
+          ...updatedMessages[lastAssistantIndex],
+          modelName: selectedModel,
+        };
+        setMessages(updatedMessages);
+      }
+
+      const currentMessagesString = JSON.stringify(updatedMessages);
 
       if (currentMessagesString !== originalMessagesRef.current) {
         if (messages.length === 2 && thread) {
@@ -194,7 +209,7 @@ const ChatInterface = ({
     }, 300);
 
     return () => clearTimeout(saveMessagesWithDebounce);
-  }, [shouldSaveMessages, messages, thread]);
+  }, [shouldSaveMessages, messages, thread, selectedModel]);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -565,6 +580,15 @@ const ChatInterface = ({
     };
   };
 
+  const getDisplayModelName = (modelId: string) => {
+    for (const [name, details] of Object.entries(MODELS)) {
+      if (details.id === modelId) {
+        return name;
+      }
+    }
+    return modelId;
+  };
+
   return (
     <div className="flex flex-col h-full relative">
       <div className="flex-1 overflow-hidden">
@@ -722,7 +746,13 @@ const ChatInterface = ({
                                 snippet: part.text,
                               }))}
                           />
-                          <div className="flex justify-end mt-2">
+                          <div className="flex justify-end mt-2 items-center">
+                            {message.role === "assistant" &&
+                              message.modelName && (
+                                <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">
+                                  {getDisplayModelName(message.modelName)}
+                                </span>
+                              )}
                             <Button
                               onClick={() =>
                                 handleCopyMessage(
