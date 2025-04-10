@@ -1,5 +1,6 @@
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
+import { groq } from "@ai-sdk/groq";
 import { LanguageModelV1, streamText } from "ai";
 
 export interface Message {
@@ -32,6 +33,13 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
   "o3-mini-2025-01-31": openai("o3-mini-2025-01-31", {
     reasoningEffort: effortLevel as "low" | "medium" | "high",
   }),
+  "deepseek-r1-distill-llama-70b": groq("deepseek-r1-distill-llama-70b"),
+  "deepseek-r1-distill-qwen-32b": groq("deepseek-r1-distill-qwen-32b"),
+  "qwen-2.5-32b": groq("qwen-2.5-32b"),
+  "qwen-qwq-32b": groq("qwen-qwq-32b"),
+  "meta-llama/llama-4-scout-17b-16e-instruct": groq(
+    "meta-llama/llama-4-scout-17b-16e-instruct"
+  ),
 });
 
 type ModelKey = keyof ReturnType<typeof getModels>;

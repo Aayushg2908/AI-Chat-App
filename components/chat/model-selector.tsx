@@ -134,6 +134,53 @@ export const MODELS: {
     canSearch: false,
     canUploadFile: false,
   },
+  "Deepseek R1 (llama distilled)": {
+    id: "deepseek-r1-distill-llama-70b",
+    description: "Llama Distilled Deepseek model hosted on Groq",
+    icons: [
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: false,
+  },
+  "Deepseek R1 (qwen distilled)": {
+    id: "deepseek-r1-distill-qwen-32b",
+    description: "Qwen Distilled Deepseek model hosted on Groq",
+    icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: false,
+  },
+  "Qwen 2.5": {
+    id: "qwen-2.5-32b",
+    description: "Qwen 2.5 model hosted on Groq",
+    icons: [createTooltipIcon(FlaskConical, "Experimental", "text-red-400")],
+    canSearch: false,
+    canUploadFile: false,
+  },
+  "Qwen QWQ": {
+    id: "qwen-qwq-32b",
+    description: "Qwen QWQ model hosted on Groq",
+    icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: false,
+  },
+  "Llama 4 Scout": {
+    id: "meta-llama/llama-4-scout-17b-16e-instruct",
+    description: "Llama 4 Scout model hosted on Groq",
+    icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: true,
+  },
 };
 
 interface ModelSelectorProps {
