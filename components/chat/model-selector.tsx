@@ -261,8 +261,22 @@ const ModelSelector = ({
       !id.includes("gemini") && !id.includes("gpt") && !id.includes("o3")
   );
 
-  const allModels = [...geminiModels, ...gptModels, ...groqModels];
+  const modelGroups = [
+    {
+      name: "Google Models",
+      models: geminiModels,
+    },
+    {
+      name: "OpenAI Models",
+      models: gptModels,
+    },
+    {
+      name: "Groq Models",
+      models: groqModels,
+    },
+  ];
 
+  const allModels = [...geminiModels, ...gptModels, ...groqModels];
   const visibleModels = allModels.filter(([, { id }]) =>
     selectedModels.includes(id)
   );
@@ -437,212 +451,83 @@ const ModelSelector = ({
                     </span>
                   </div>
                   <DropdownMenuSeparator className="my-1 dark:bg-zinc-800 bg-zinc-200" />
-                  <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
-                    Google Models
-                  </DropdownMenuLabel>
-                  <DropdownMenuGroup>
-                    {geminiModels.map(([name, { id, description, icons }]) => (
-                      <DropdownMenuItem
-                        key={id}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                        className={cn(
-                          "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
-                          "hover:dark:bg-zinc-800 hover:bg-zinc-100"
-                        )}
-                      >
-                        <div className="flex items-center">
-                          <div className="flex items-center">
-                            <span className="text-sm">{name}</span>
-                          </div>
-                          <TooltipProvider>
-                            <Tooltip delayDuration={0}>
-                              <TooltipTrigger asChild>
-                                <Info className="size-3 ml-1.5 text-gray-400" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="right"
-                                className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
-                              >
-                                {description}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <div className="flex items-center space-x-1.5">
-                          {icons.map((icon, index) => (
-                            <React.Fragment
-                              key={`dropdown-icon-${id}-${index}`}
-                            >
-                              {icon}
-                            </React.Fragment>
-                          ))}
-                          <div
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleModelSelection(id);
-                            }}
-                            className="ml-2 relative inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                            style={{
-                              backgroundColor: selectedModels.includes(id)
-                                ? "#145de3"
-                                : "#6b7280",
-                            }}
-                          >
-                            <span
-                              className="pointer-events-none inline-block h-[16px] w-[16px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out"
-                              style={{
-                                transform: selectedModels.includes(id)
-                                  ? "translateX(16px)"
-                                  : "translateX(0)",
+                  {modelGroups.map((group, groupIndex) => (
+                    <React.Fragment key={`model-group-${groupIndex}`}>
+                      <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
+                        {group.name}
+                      </DropdownMenuLabel>
+                      <DropdownMenuGroup>
+                        {group.models.map(
+                          ([name, { id, description, icons }]) => (
+                            <DropdownMenuItem
+                              key={id}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
                               }}
-                            />
-                          </div>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
-                  <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
-                    OpenAI Models
-                  </DropdownMenuLabel>
-                  <DropdownMenuGroup>
-                    {gptModels.map(([name, { id, description, icons }]) => (
-                      <DropdownMenuItem
-                        key={id}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                        className={cn(
-                          "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
-                          "hover:dark:bg-zinc-800 hover:bg-zinc-100"
-                        )}
-                      >
-                        <div className="flex items-center">
-                          <div className="flex items-center">
-                            <span className="text-sm">{name}</span>
-                          </div>
-                          <TooltipProvider>
-                            <Tooltip delayDuration={0}>
-                              <TooltipTrigger asChild>
-                                <Info className="size-3 ml-1.5 text-gray-400" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="right"
-                                className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
-                              >
-                                {description}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <div className="flex items-center space-x-1.5">
-                          {icons.map((icon, index) => (
-                            <React.Fragment
-                              key={`dropdown-icon-${id}-${index}`}
+                              className={cn(
+                                "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
+                                "hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                              )}
                             >
-                              {icon}
-                            </React.Fragment>
-                          ))}
-                          <div
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleModelSelection(id);
-                            }}
-                            className="ml-2 relative inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                            style={{
-                              backgroundColor: selectedModels.includes(id)
-                                ? "#145de3"
-                                : "#6b7280",
-                            }}
-                          >
-                            <span
-                              className="pointer-events-none inline-block h-[16px] w-[16px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out"
-                              style={{
-                                transform: selectedModels.includes(id)
-                                  ? "translateX(16px)"
-                                  : "translateX(0)",
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
-                  <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
-                    Groq Models
-                  </DropdownMenuLabel>
-                  <DropdownMenuGroup>
-                    {groqModels.map(([name, { id, description, icons }]) => (
-                      <DropdownMenuItem
-                        key={id}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                        className={cn(
-                          "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
-                          "hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                              <div className="flex items-center">
+                                <div className="flex items-center">
+                                  <span className="text-sm">{name}</span>
+                                </div>
+                                <TooltipProvider>
+                                  <Tooltip delayDuration={0}>
+                                    <TooltipTrigger asChild>
+                                      <Info className="size-3 ml-1.5 text-gray-400" />
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                      side="right"
+                                      className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
+                                    >
+                                      {description}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                              <div className="flex items-center space-x-1.5">
+                                {icons.map((icon, index) => (
+                                  <React.Fragment
+                                    key={`dropdown-icon-${id}-${index}`}
+                                  >
+                                    {icon}
+                                  </React.Fragment>
+                                ))}
+                                <div
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    toggleModelSelection(id);
+                                  }}
+                                  className="ml-2 relative inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                  style={{
+                                    backgroundColor: selectedModels.includes(id)
+                                      ? "#145de3"
+                                      : "#6b7280",
+                                  }}
+                                >
+                                  <span
+                                    className="pointer-events-none inline-block h-[16px] w-[16px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out"
+                                    style={{
+                                      transform: selectedModels.includes(id)
+                                        ? "translateX(16px)"
+                                        : "translateX(0)",
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </DropdownMenuItem>
+                          )
                         )}
-                      >
-                        <div className="flex items-center">
-                          <div className="flex items-center">
-                            <span className="text-sm">{name}</span>
-                          </div>
-                          <TooltipProvider>
-                            <Tooltip delayDuration={0}>
-                              <TooltipTrigger asChild>
-                                <Info className="size-3 ml-1.5 text-gray-400" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="right"
-                                className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
-                              >
-                                {description}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <div className="flex items-center space-x-1.5">
-                          {icons.map((icon, index) => (
-                            <React.Fragment
-                              key={`dropdown-icon-${id}-${index}`}
-                            >
-                              {icon}
-                            </React.Fragment>
-                          ))}
-                          <div
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleModelSelection(id);
-                            }}
-                            className="ml-2 relative inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                            style={{
-                              backgroundColor: selectedModels.includes(id)
-                                ? "#145de3"
-                                : "#6b7280",
-                            }}
-                          >
-                            <span
-                              className="pointer-events-none inline-block h-[16px] w-[16px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out"
-                              style={{
-                                transform: selectedModels.includes(id)
-                                  ? "translateX(16px)"
-                                  : "translateX(0)",
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
+                      </DropdownMenuGroup>
+                      {groupIndex < modelGroups.length - 1 && (
+                        <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
+                      )}
+                    </React.Fragment>
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
