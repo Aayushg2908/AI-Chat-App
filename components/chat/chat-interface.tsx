@@ -124,8 +124,7 @@ const ChatInterface = ({
     onError: (error: Error) => {
       console.error("Chat error:", error);
     },
-    experimental_throttle:
-      selectedModel.includes("gpt") || selectedModel.includes("o3") ? 50 : 0,
+    experimental_throttle: !selectedModel.includes("gemini") ? 50 : 0,
   });
 
   const messages = chatMessages as unknown as ExtendedMessage[];
