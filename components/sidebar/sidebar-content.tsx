@@ -11,6 +11,7 @@ import {
   PinOff,
   FileDown,
   Share2,
+  RefreshCw,
 } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent } from "../ui/sidebar";
 import {
@@ -259,12 +260,30 @@ const ThreadItem = ({
               textToCopy={`${window.location.origin}/share/${thread.shareId}`}
             />
           </div>
+          <div className="flex items-center mt-2">
+            <span className="text-sm">Regenerate share link</span>
+            <Button variant="outline" size="icon" className="ml-2">
+              <RefreshCw className="size-4" />
+            </Button>
+          </div>
           <div className="flex items-center mt-2 space-x-3">
             <span>Is login required to view this thread?</span>
-            <Switch
-              checked={thread.requireAuth}
-              onCheckedChange={handleRequireAuthChange}
-            />
+            <div
+              onClick={() => handleRequireAuthChange(!thread.requireAuth)}
+              className="ml-2 relative inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              style={{
+                backgroundColor: thread.requireAuth ? "#145de3" : "#6b7280",
+              }}
+            >
+              <span
+                className="pointer-events-none inline-block h-[16px] w-[16px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out"
+                style={{
+                  transform: thread.requireAuth
+                    ? "translateX(16px)"
+                    : "translateX(0)",
+                }}
+              />
+            </div>
           </div>
         </DialogContent>
       </Dialog>
