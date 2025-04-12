@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { Button } from "../ui/button";
 import {
   CircleStop,
@@ -213,6 +213,7 @@ const ChatInterface = ({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { onOpen } = useLoginModal();
   const { data } = useSession();
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -588,6 +589,36 @@ const ChatInterface = ({
     return modelId;
   };
 
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const modelInfo = Object.values(MODELS).find(
+        (model) => model.id === selectedModel
+      );
+
+      if (!modelInfo?.canUploadFile) {
+        toast.error("The selected model doesn't support file uploads");
+        return;
+      }
+
+      const droppedFiles = e.dataTransfer.files;
+
+      if (droppedFiles && droppedFiles.length > 0) {
+        setFiles(droppedFiles);
+        setSelectedFile(droppedFiles[0]);
+        toast.success(`File "${droppedFiles[0].name}" added successfully`);
+      }
+    },
+    [selectedModel]
+  );
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
   return (
     <div className="flex flex-col h-full relative">
       <div className="flex-1 overflow-hidden">
@@ -876,7 +907,24 @@ const ChatInterface = ({
             <form
               onSubmit={handleSend}
               className="flex flex-col dark:bg-[#1e1e1e] bg-[#f7f6f6] rounded-lg overflow-hidden"
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
             >
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={(e) => {
+                  const fileList = e.target.files;
+                  if (fileList && fileList.length > 0) {
+                    setFiles(fileList);
+                    setSelectedFile(fileList[0]);
+                    toast.success(
+                      `File "${fileList[0].name}" added successfully`
+                    );
+                  }
+                }}
+                className="hidden"
+              />
               <TextareaAutosize
                 ref={inputRef}
                 value={input}

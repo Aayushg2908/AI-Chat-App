@@ -33,7 +33,6 @@ import {
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Switch } from "../ui/switch";
 
 const createTooltipIcon = (
   IconComponent: React.ElementType,
