@@ -27,6 +27,7 @@ import {
   deleteThread,
   editThread,
   pinThread,
+  regenerateShareLink,
   unpinThread,
   updateSharedThreadVisibility,
 } from "@/actions";
@@ -53,7 +54,6 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { exportThreadAsPDF } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
-import { Switch } from "../ui/switch";
 
 const categorizeThreads = (threads: Thread[]) => {
   const today = new Date();
@@ -133,6 +133,8 @@ const ThreadItem = ({
   handleUnpin: (id: string) => Promise<void>;
 }) => {
   const [shareThreadId, setShareThreadId] = useState<string | null>(null);
+  useState(false);
+  const [regeneratingShareLink, setRegeneratingShareLink] = useState(false);
 
   const handleRequireAuthChange = async (requireAuth: boolean) => {
     try {
@@ -144,6 +146,23 @@ const ThreadItem = ({
     } catch (error) {
       console.error(error);
       toast.error("Failed to update shared thread visibility");
+    }
+  };
+
+  const handleRegenerateShareLink = async () => {
+    try {
+      setRegeneratingShareLink(true);
+      const response = await regenerateShareLink(shareThreadId!);
+      if (response.error) {
+        toast.error(response.error);
+      } else if (response.success) {
+        toast.success("Share link regenerated successfully");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to regenerate share link");
+    } finally {
+      setRegeneratingShareLink(false);
     }
   };
 
@@ -262,8 +281,18 @@ const ThreadItem = ({
           </div>
           <div className="flex items-center mt-2">
             <span className="text-sm">Regenerate share link</span>
-            <Button variant="outline" size="icon" className="ml-2">
-              <RefreshCw className="size-4" />
+            <Button
+              variant="outline"
+              size="icon"
+              className="ml-2"
+              onClick={handleRegenerateShareLink}
+              disabled={regeneratingShareLink}
+            >
+              <RefreshCw
+                className={`size-4 ${
+                  regeneratingShareLink ? "animate-spin" : ""
+                }`}
+              />
             </Button>
           </div>
           <div className="flex items-center mt-2 space-x-3">

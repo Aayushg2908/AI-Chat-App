@@ -326,3 +326,35 @@ export const branchThread = async (title: string, messages: string) => {
 
   return { success: "Thread cloned successfully", threadId: newThread.id };
 };
+
+export const regenerateShareLink = async (shareThreadId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  const thread = await db.thread.findUnique({
+    where: {
+      id: shareThreadId,
+    },
+  });
+  if (!thread) {
+    return { error: "Thread not found" };
+  }
+
+  await db.thread.update({
+    where: {
+      id: shareThreadId,
+      userId: session.user.id,
+    },
+    data: {
+      shareId: crypto.randomUUID(),
+      updatedAt: thread.updatedAt,
+    },
+  });
+  revalidatePath("/");
+
+  return { success: "Share link regenerated successfully" };
+};
