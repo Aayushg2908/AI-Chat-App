@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Thread } from "@prisma/client";
 import { useParams, useRouter } from "next/navigation";
 import {
   MoreHorizontal,
@@ -54,19 +53,20 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { exportThreadAsPDF } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
+import { ThreadType } from "@/db/schema";
 
-const categorizeThreads = (threads: Thread[]) => {
+const categorizeThreads = (threads: ThreadType[]) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  const pinnedThreads: Thread[] = [];
-  const newChatThreads: Thread[] = [];
-  const todayThreads: Thread[] = [];
-  const yesterdayThreads: Thread[] = [];
-  const previousThreads: Thread[] = [];
+  const pinnedThreads: ThreadType[] = [];
+  const newChatThreads: ThreadType[] = [];
+  const todayThreads: ThreadType[] = [];
+  const yesterdayThreads: ThreadType[] = [];
+  const previousThreads: ThreadType[] = [];
 
   threads.forEach((thread) => {
     if (thread.pinned) {
@@ -124,7 +124,7 @@ const ThreadItem = ({
   handlePin,
   handleUnpin,
 }: {
-  thread: Thread;
+  thread: ThreadType;
   threadId: string;
   threadRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
   onEdit: (id: string, title: string) => void;
@@ -320,7 +320,7 @@ const ThreadItem = ({
   );
 };
 
-const SidebarContentComponent = ({ threads }: { threads: Thread[] }) => {
+const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
   const params = useParams();
   const threadId = params?.threadId as string;
   const [deleteThreadId, setDeleteThreadId] = useState<string | null>(null);

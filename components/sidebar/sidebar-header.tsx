@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Thread } from "@prisma/client";
 import {
   CommandDialog,
   CommandEmpty,
@@ -24,8 +23,9 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
+import { ThreadType } from "@/db/schema";
 
-const SidebarHeaderComponent = ({ threads }: { threads: Thread[] }) => {
+const SidebarHeaderComponent = ({ threads }: { threads: ThreadType[] }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);

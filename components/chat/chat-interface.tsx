@@ -21,7 +21,6 @@ import { useSession } from "@/lib/auth-client";
 import TextareaAutosize from "react-textarea-autosize";
 import { cn } from "@/lib/utils";
 import MessageContent from "./message-content";
-import { Thread } from "@prisma/client";
 import { branchThread, editThread, saveThreadMessages } from "@/actions";
 import ModelSelector, { MODELS } from "./model-selector";
 import { toast } from "sonner";
@@ -33,6 +32,7 @@ import {
 } from "../ui/tooltip";
 import useSpeechToText from "react-hook-speech-to-text";
 import { useRouter } from "next/navigation";
+import { ThreadType } from "@/db/schema";
 
 interface Source {
   id: string;
@@ -87,7 +87,7 @@ const ChatInterface = ({
   thread,
   isEditable,
 }: {
-  thread: Thread | null;
+  thread: ThreadType | null;
   isEditable: boolean;
 }) => {
   const [selectedModel, setSelectedModel] = useState<string>(
@@ -124,7 +124,7 @@ const ChatInterface = ({
     onError: (error: Error) => {
       console.error("Chat error:", error);
     },
-    experimental_throttle: !selectedModel.includes("gemini") ? 50 : 0,
+    experimental_throttle: 50,
   });
 
   const messages = chatMessages as unknown as ExtendedMessage[];
@@ -780,7 +780,7 @@ const ChatInterface = ({
                             {message.role === "assistant" &&
                               message.modelName && (
                                 <TooltipProvider>
-                                  <Tooltip>
+                                  <Tooltip delayDuration={0}>
                                     <TooltipTrigger>
                                       <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">
                                         {getDisplayModelName(message.modelName)}

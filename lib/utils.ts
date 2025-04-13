@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import jsPDF from "jspdf";
-import { Thread } from "@prisma/client";
+import { ThreadType } from "@/db/schema";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -170,7 +170,7 @@ function processMarkdownLine(
   return y + lineHeight;
 }
 
-export async function exportThreadAsPDF(thread: Thread) {
+export async function exportThreadAsPDF(thread: ThreadType) {
   try {
     const pdf = new jsPDF({
       orientation: "portrait",

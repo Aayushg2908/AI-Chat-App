@@ -1,11 +1,11 @@
 import ChatInterface from "./chat-interface";
-import { Thread } from "@prisma/client";
+import { ThreadType } from "@/db/schema";
 
 const ChatComponent = ({
   thread,
   isEditable,
 }: {
-  thread: Thread | null;
+  thread: ThreadType | null;
   isEditable: boolean;
 }) => {
   return (

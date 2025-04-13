@@ -3,9 +3,9 @@
 import { cloneSharedThread } from "@/actions";
 import ChatComponent from "@/components/chat";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { ThreadType } from "@/db/schema";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { cn } from "@/lib/utils";
-import { Thread } from "@prisma/client";
 import { User } from "better-auth";
 import { ArrowLeft, Loader2Icon } from "lucide-react";
 import Link from "next/link";
@@ -17,7 +17,7 @@ const SharedPage = ({
   thread,
   user,
 }: {
-  thread: Thread;
+  thread: ThreadType;
   user: User | undefined;
 }) => {
   const { isOpen, onOpen } = useLoginModal();

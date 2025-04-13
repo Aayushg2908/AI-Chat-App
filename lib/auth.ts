@@ -1,15 +1,18 @@
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@prisma/client";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "@/db/drizzle";
+import { users, sessions, accounts, verifications } from "@/db/schema";
 
-const prisma = new PrismaClient();
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema: {
+      user: users,
+      session: sessions,
+      account: accounts,
+      verification: verifications,
+    },
   }),
-  emailAndPassword: {
-    enabled: true,
-  },
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID!,

@@ -7,17 +7,17 @@ import {
 import SidebarFooterComponent from "./sidebar-footer";
 import SidebarHeaderComponent from "./sidebar-header";
 import { getUserThreads } from "@/actions";
-import { Thread } from "@prisma/client";
 import SidebarContentComponent from "./sidebar-content";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { ThreadType } from "@/db/schema";
 
 export async function AppSidebar() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
   const response = await getUserThreads();
-  let threads: Thread[] = [];
+  let threads: ThreadType[] = [];
   if (response.success) {
     threads = response.data;
   }
