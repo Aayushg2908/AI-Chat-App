@@ -25,9 +25,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import {
   deleteThread,
   editThread,
-  pinThread,
+  pinAndUnpinThread,
   regenerateShareLink,
-  unpinThread,
   updateSharedThreadVisibility,
 } from "@/actions";
 import { motion } from "framer-motion";
@@ -121,16 +120,14 @@ const ThreadItem = ({
   threadRefs,
   onEdit,
   onDelete,
-  handlePin,
-  handleUnpin,
+  handlePinAndUnpin,
 }: {
   thread: ThreadType;
   threadId: string;
   threadRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
   onEdit: (id: string, title: string) => void;
   onDelete: (id: string) => void;
-  handlePin: (id: string) => Promise<void>;
-  handleUnpin: (id: string) => Promise<void>;
+  handlePinAndUnpin: (id: string, pin: boolean) => Promise<void>;
 }) => {
   const [shareThreadId, setShareThreadId] = useState<string | null>(null);
   useState(false);
@@ -213,11 +210,7 @@ const ThreadItem = ({
                 <DropdownMenuItem
                   className="cursor-pointer flex items-center my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
                   onClick={async () => {
-                    if (thread.pinned) {
-                      await handleUnpin(thread.id);
-                    } else {
-                      await handlePin(thread.id);
-                    }
+                    handlePinAndUnpin(thread.id, !thread.pinned);
                   }}
                 >
                   {thread.pinned ? (
@@ -387,29 +380,16 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
     setEditThreadTitle(title);
   };
 
-  const handlePin = async (id: string) => {
+  const handlePinAndUnpin = async (id: string, pin: boolean) => {
     try {
-      toast.promise(pinThread(id), {
-        loading: "Pinning thread...",
-        success: "Thread pinned successfully",
-        error: "Failed to pin thread",
+      toast.promise(pinAndUnpinThread(id, pin), {
+        loading: `${pin ? "Pinning" : "Unpinning"} thread...`,
+        success: `Thread ${pin ? "Pinned" : "Unpinned"} successfully`,
+        error: `Failed to ${pin ? "Pin" : "Unpin"} thread`,
       });
     } catch (e) {
       console.error(e);
       toast.error("Failed to pin thread");
-    }
-  };
-
-  const handleUnpin = async (id: string) => {
-    try {
-      toast.promise(unpinThread(id), {
-        loading: "Unpinning thread...",
-        success: "Thread unpinned successfully",
-        error: "Failed to unpin thread",
-      });
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to unpin thread");
     }
   };
 
@@ -429,8 +409,7 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
                 threadRefs={threadRefs}
                 onEdit={handleEditStart}
                 onDelete={setDeleteThreadId}
-                handlePin={handlePin}
-                handleUnpin={handleUnpin}
+                handlePinAndUnpin={handlePinAndUnpin}
               />
             ))}
           </SidebarGroup>
@@ -448,8 +427,7 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
               threadRefs={threadRefs}
               onEdit={handleEditStart}
               onDelete={setDeleteThreadId}
-              handlePin={handlePin}
-              handleUnpin={handleUnpin}
+              handlePinAndUnpin={handlePinAndUnpin}
             />
           ))}
         </SidebarGroup>
@@ -469,8 +447,7 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
                 threadRefs={threadRefs}
                 onEdit={handleEditStart}
                 onDelete={setDeleteThreadId}
-                handlePin={handlePin}
-                handleUnpin={handleUnpin}
+                handlePinAndUnpin={handlePinAndUnpin}
               />
             ))}
           </SidebarGroup>
@@ -491,8 +468,7 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
                 threadRefs={threadRefs}
                 onEdit={handleEditStart}
                 onDelete={setDeleteThreadId}
-                handlePin={handlePin}
-                handleUnpin={handleUnpin}
+                handlePinAndUnpin={handlePinAndUnpin}
               />
             ))}
           </SidebarGroup>

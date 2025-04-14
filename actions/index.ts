@@ -146,7 +146,7 @@ export const editThread = async (threadId: string, title: string) => {
   return { success: "Thread updated successfully" };
 };
 
-export const pinThread = async (threadId: string) => {
+export const pinAndUnpinThread = async (threadId: string, pin: boolean) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -164,36 +164,11 @@ export const pinThread = async (threadId: string) => {
 
   await db
     .update(threads)
-    .set({ pinned: true, updatedAt: existingThread.updatedAt })
+    .set({ pinned: pin, updatedAt: existingThread.updatedAt })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
   revalidatePath("/");
 
-  return { success: "Thread pinned successfully" };
-};
-
-export const unpinThread = async (threadId: string) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session) {
-    return { error: "Unauthorized" };
-  }
-
-  const [existingThread] = await db
-    .select()
-    .from(threads)
-    .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
-  if (!existingThread) {
-    return { error: "Thread not found" };
-  }
-
-  await db
-    .update(threads)
-    .set({ pinned: false, updatedAt: existingThread.updatedAt })
-    .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
-  revalidatePath("/");
-
-  return { success: "Thread pinned successfully" };
+  return { success: `Thread ${pin ? "pinned" : "unpinned"} successfully` };
 };
 
 export const updateSharedThreadVisibility = async (
