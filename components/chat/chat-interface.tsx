@@ -945,10 +945,11 @@ const ChatInterface = ({
                 }`}
                 maxRows={8}
                 minRows={2}
+                maxLength={4000}
                 disabled={isLoading}
               />
               <div className="flex items-center justify-between px-3 py-2">
-                <div className="flex items-center">
+                <div className="flex items-center gap-4">
                   <ModelSelector
                     threadId={thread?.id}
                     selectedModel={selectedModel}
@@ -962,6 +963,9 @@ const ChatInterface = ({
                     effortLevel={effortLevel}
                     setEffortLevel={setEffortLevel}
                   />
+                  <span className="text-xs text-gray-500">
+                    {input.length}/4000
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   {status === "streaming" ? (
