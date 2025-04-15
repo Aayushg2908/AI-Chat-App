@@ -26,6 +26,7 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
       useSearchGrounding: useSearch,
     }
   ),
+  "gemini-2.5-pro-exp-03-25": google("gemini-2.5-pro-exp-03-25"),
   "gpt-4o": useSearch ? openai.responses("gpt-4o") : openai("gpt-4o"),
   "gpt-4o-mini": useSearch
     ? openai.responses("gpt-4o-mini")
