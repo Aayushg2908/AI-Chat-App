@@ -49,7 +49,8 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
 type ModelKey = keyof ReturnType<typeof getModels>;
 
 export async function POST(req: Request) {
-  const { messages, model, search, effortLevel, context } = await req.json();
+  const { messages, model, search, effortLevel, context, canvasMode } =
+    await req.json();
 
   const MODELS = getModels(search === true, effortLevel);
 
