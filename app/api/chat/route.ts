@@ -27,10 +27,13 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
     }
   ),
   "gemini-2.5-pro-exp-03-25": google("gemini-2.5-pro-exp-03-25"),
-  "gpt-4o": useSearch ? openai.responses("gpt-4o") : openai("gpt-4o"),
   "gpt-4o-mini": useSearch
     ? openai.responses("gpt-4o-mini")
     : openai("gpt-4o-mini"),
+  "gpt-4o": useSearch ? openai.responses("gpt-4o") : openai("gpt-4o"),
+  "gpt-4.1-nano-2025-04-14": openai("gpt-4.1-nano-2025-04-14"),
+  "gpt-4.1-mini-2025-04-14": openai("gpt-4.1-mini-2025-04-14"),
+  "gpt-4.1-2025-04-14": openai("gpt-4.1-2025-04-14"),
   "o3-mini-2025-01-31": openai("o3-mini-2025-01-31", {
     reasoningEffort: effortLevel as "low" | "medium" | "high",
   }),

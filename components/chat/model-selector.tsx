@@ -130,12 +130,36 @@ export const MODELS: {
   },
   "GPT 4o": {
     id: "gpt-4o",
-    description: "OpenAI's latest model.",
+    description: "OpenAI's old model.",
     icons: [
       createTooltipIcon(Globe, "Web Search", "text-green-500"),
       createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
+    canUploadFile: true,
+  },
+  "GPT 4.1 Nano": {
+    id: "gpt-4.1-nano-2025-04-14",
+    description: "OpenAI's new GPT-4.1 Nano model.",
+    icons: [
+      createTooltipIcon(Zap, "Very Fast", "text-yellow-500"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+    ],
+    canSearch: false,
+    canUploadFile: true,
+  },
+  "GPT 4.1 Mini": {
+    id: "gpt-4.1-mini-2025-04-14",
+    description: "OpenAI's new GPT-4.1 Mini model.",
+    icons: [createTooltipIcon(FileText, "File Upload", "text-blue-400")],
+    canSearch: false,
+    canUploadFile: true,
+  },
+  "GPT 4.1": {
+    id: "gpt-4.1-2025-04-14",
+    description: "OpenAI's new GPT-4.1 model.",
+    icons: [createTooltipIcon(FileText, "File Upload", "text-blue-400")],
+    canSearch: false,
     canUploadFile: true,
   },
   "O3 Mini": {
