@@ -18,6 +18,8 @@ import rehypeRaw from "rehype-raw";
 import type { Components } from "react-markdown";
 import { Check, Copy } from "lucide-react";
 import { GlobeIcon } from "lucide-react";
+import { Card } from "../ui/card";
+import CanvasEditor from "../canvas/canvas-editor";
 
 interface MessageContentProps {
   content: string;
@@ -67,6 +69,7 @@ export const MessageContent = React.memo(
       number | null
     >(null);
     const codeBlocksRef = useRef<Map<number, HTMLElement>>(new Map());
+    const [canvasCode, setCanvasCode] = useState<string | null>(null);
 
     useEffect(() => {
       const loadStylesheets = () => {
@@ -378,6 +381,18 @@ export const MessageContent = React.memo(
     }, []);
 
     useEffect(() => {
+      const canvasMatch = content.match(
+        /\*\*Canvas: (.*?)\*\*([\s\S]*?)```canvas\n([\s\S]*?)```/
+      );
+      if (canvasMatch) {
+        const [_, title, __, code] = canvasMatch;
+        setCanvasCode(code);
+      } else {
+        setCanvasCode(null);
+      }
+    }, [content]);
+
+    useEffect(() => {
       if (copiedIndex !== null) {
         const timeout = setTimeout(() => {
           setCopiedIndex(null);
@@ -457,11 +472,15 @@ export const MessageContent = React.memo(
             </CodeBlock>
           );
         },
-        code: ({
+        code({
           className,
           children,
           ...props
-        }: React.HTMLAttributes<HTMLElement>) => {
+        }: React.HTMLAttributes<HTMLElement>) {
+          const language = className?.replace("language-", "");
+          if (language === "canvas") {
+            return null;
+          }
           const isInline = !className;
           if (isInline) {
             return (
@@ -746,7 +765,7 @@ export const MessageContent = React.memo(
       isUserMessage ? "user-message" : ""
     }`;
 
-    return (
+    const messageContent = (
       <div className={wrapperClassName}>
         {sources && sources.length > 0 && !isUserMessage && (
           <div className="mb-4 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -818,10 +837,24 @@ export const MessageContent = React.memo(
           ]}
           components={components}
         >
-          {content || ""}
+          {content.replace(/```canvas\n[\s\S]*?```/, "")}
         </ReactMarkdown>
+        {canvasCode && (
+          <Card className="mt-4">
+            <div className="bg-muted/50 px-4 py-2 border-b">
+              <h3 className="font-semibold">
+                {content.match(/\*\*Canvas: (.*?)\*\*/)?.[1] || "Canvas"}
+              </h3>
+            </div>
+            <div className="h-[600px]">
+              <CanvasEditor code={canvasCode} />
+            </div>
+          </Card>
+        )}
       </div>
     );
+
+    return messageContent;
   },
   arePropsEqual
 );
