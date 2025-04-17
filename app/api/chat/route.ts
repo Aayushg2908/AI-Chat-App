@@ -74,6 +74,59 @@ export async function POST(req: Request) {
         ? `\n\nThe user has specifically selected the following content for you to focus on:\n${context}`
         : ""
     }
+    ${
+      canvasMode
+        ? `\n\nThe user has enabled Canvas mode, which means they want to create a UI component using React and shadcn/ui components. Your task is to generate a complete, functional React component that implements a user interface based on their request.
+
+        Follow these guidelines:
+        1. Create a well-designed UI component that addresses the user's needs
+        2. Use shadcn/ui components appropriately (Button, Card, Dialog, Form, etc.)
+        3. Include proper state management with React hooks where needed
+        4. Ensure the component is responsive and follows best practices
+        5. Add comments to explain complex logic or design decisions
+
+        Before the canvas code block, provide a brief description with this format:
+
+        **Canvas: [Title of the UI Component]**
+        This component implements [brief description of functionality and purpose]. It uses [list key shadcn/ui components used] to create a responsive and accessible interface.
+
+        \`\`\`canvas
+        // React component using shadcn/ui
+        import React from 'react';
+        import { useState, useEffect } from 'react';
+        // Import shadcn/ui components
+        import { Button } from '@/components/ui/button';
+        import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+        // Add more imports as needed
+
+        export default function Canvas() {
+          // State management
+          const [state, setState] = useState(initialValue);
+          
+          // Component logic
+          
+          return (
+            <div className="p-4">
+              {/* Implement the UI using shadcn/ui components */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Title</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Content goes here */}
+                </CardContent>
+                <CardFooter>
+                  <Button>Action</Button>
+                </CardFooter>
+              </Card>
+            </div>
+          );
+        }
+        \`\`\`
+
+        Make sure the React code is complete, well-structured, and ready to be rendered in a React application. Focus on creating a polished, professional UI component that solves the user's specific needs.`
+        : ""
+    }
 
     When responding, use proper formatting to enhance readability:
 
