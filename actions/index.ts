@@ -57,7 +57,10 @@ export const saveThreadMessages = async (
     return { error: "Unauthorized" };
   }
 
-  await db.update(threads).set({ messages }).where(eq(threads.id, threadId));
+  await db
+    .update(threads)
+    .set({ messages, updatedAt: new Date() })
+    .where(eq(threads.id, threadId));
 
   return { success: "Messages saved successfully" };
 };
@@ -139,7 +142,7 @@ export const editThread = async (threadId: string, title: string) => {
 
   await db
     .update(threads)
-    .set({ title, updatedAt: existingThread.updatedAt })
+    .set({ title })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
   revalidatePath("/");
 
@@ -164,7 +167,7 @@ export const pinAndUnpinThread = async (threadId: string, pin: boolean) => {
 
   await db
     .update(threads)
-    .set({ pinned: pin, updatedAt: existingThread.updatedAt })
+    .set({ pinned: pin })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
   revalidatePath("/");
 
@@ -192,7 +195,7 @@ export const updateSharedThreadVisibility = async (
 
   await db
     .update(threads)
-    .set({ requireAuth, updatedAt: existingThread.updatedAt })
+    .set({ requireAuth })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
   revalidatePath("/");
 
@@ -279,7 +282,6 @@ export const regenerateShareLink = async (shareThreadId: string) => {
     .update(threads)
     .set({
       shareId: crypto.randomUUID(),
-      updatedAt: thread.updatedAt,
     })
     .where(
       and(eq(threads.id, shareThreadId), eq(threads.userId, session.user.id))
