@@ -385,7 +385,7 @@ export const MessageContent = React.memo(
         /\*\*Canvas: (.*?)\*\*([\s\S]*?)```canvas\n([\s\S]*?)```/
       );
       if (canvasMatch) {
-        const [_, title, __, code] = canvasMatch;
+        const [, , , code] = canvasMatch;
         setCanvasCode(code);
       } else {
         setCanvasCode(null);
