@@ -150,7 +150,7 @@ export const pinAndUnpinThread = async (threadId: string, pin: boolean) => {
     headers: await headers(),
   });
   if (!session) {
-    return { error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
 
   const [existingThread] = await db
@@ -158,16 +158,13 @@ export const pinAndUnpinThread = async (threadId: string, pin: boolean) => {
     .from(threads)
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
   if (!existingThread) {
-    return { error: "Thread not found" };
+    throw new Error("Thread not found");
   }
 
   await db
     .update(threads)
     .set({ pinned: pin })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
-  revalidatePath("/");
-
-  return { success: `Thread ${pin ? "pinned" : "unpinned"} successfully` };
 };
 
 export const updateSharedThreadVisibility = async (

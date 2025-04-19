@@ -374,6 +374,17 @@ const SidebarContentComponent = ({
     },
   });
 
+  const pinAndUnpinMutation = useMutation({
+    mutationFn: ({ threadId, pin }: { threadId: string; pin: boolean }) =>
+      pinAndUnpinThread(threadId, pin),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
   const handleEdit = async () => {
     if (!editThreadId) return;
     if (!editThreadTitle) {
@@ -394,16 +405,12 @@ const SidebarContentComponent = ({
   };
 
   const handlePinAndUnpin = async (id: string, pin: boolean) => {
-    try {
-      toast.promise(pinAndUnpinThread(id, pin), {
-        loading: `${pin ? "Pinning" : "Unpinning"} thread...`,
-        success: `Thread ${pin ? "Pinned" : "Unpinned"} successfully`,
-        error: `Failed to ${pin ? "Pin" : "Unpin"} thread`,
-      });
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to pin thread");
-    }
+    if (!id) return;
+    toast.promise(pinAndUnpinMutation.mutateAsync({ threadId: id, pin }), {
+      loading: `${pin ? "Pinning" : "Unpinning"} thread...`,
+      success: `Thread ${pin ? "pinned" : "unpinned"} successfully`,
+      error: `Failed to ${pin ? "pin" : "unpin"} thread`,
+    });
   };
 
   useEffect(() => {
