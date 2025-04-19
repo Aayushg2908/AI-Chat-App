@@ -88,8 +88,6 @@ export const handleUserRedirect = async () => {
     })
     .returning();
 
-  revalidatePath("/");
-
   return redirect(`/${thread.id}`);
 };
 
@@ -175,7 +173,7 @@ export const updateSharedThreadVisibility = async (
     headers: await headers(),
   });
   if (!session) {
-    return { error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
 
   const [existingThread] = await db
@@ -183,16 +181,13 @@ export const updateSharedThreadVisibility = async (
     .from(threads)
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
   if (!existingThread) {
-    return { error: "Thread not found" };
+    throw new Error("Thread not found");
   }
 
   await db
     .update(threads)
     .set({ requireAuth })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
-  revalidatePath("/");
-
-  return { success: "Thread visibility updated successfully" };
 };
 
 export const getThreadFromShareId = async (shareId: string) => {

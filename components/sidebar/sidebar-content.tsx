@@ -130,20 +130,38 @@ const ThreadItem = ({
   handlePinAndUnpin: (id: string, pin: boolean) => Promise<void>;
 }) => {
   const [shareThreadId, setShareThreadId] = useState<string | null>(null);
-  useState(false);
   const [regeneratingShareLink, setRegeneratingShareLink] = useState(false);
+  const queryClient = useQueryClient();
 
-  const handleRequireAuthChange = async (requireAuth: boolean) => {
-    try {
-      toast.promise(updateSharedThreadVisibility(shareThreadId!, requireAuth), {
+  const updateVisibilityMutation = useMutation({
+    mutationFn: ({
+      threadId,
+      requireAuth,
+    }: {
+      threadId: string;
+      requireAuth: boolean;
+    }) => updateSharedThreadVisibility(threadId, requireAuth),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  const handleRequireAuthChange = (requireAuth: boolean) => {
+    if (!shareThreadId) return;
+    toast.promise(
+      updateVisibilityMutation.mutateAsync({
+        threadId: shareThreadId,
+        requireAuth,
+      }),
+      {
         loading: "Updating shared thread visibility...",
         success: "Shared thread visibility updated successfully",
         error: "Failed to update shared thread visibility",
-      });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update shared thread visibility");
-    }
+      }
+    );
   };
 
   const handleRegenerateShareLink = async () => {
