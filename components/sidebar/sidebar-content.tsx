@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -313,7 +311,23 @@ const ThreadItem = ({
   );
 };
 
-const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
+const ThreadSkeleton = () => {
+  return (
+    <div className="flex items-center justify-between px-3 py-2 animate-pulse">
+      <div className="flex-1 min-w-0">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2" />
+      </div>
+    </div>
+  );
+};
+
+const SidebarContentComponent = ({
+  threads,
+  isLoading,
+}: {
+  threads: ThreadType[];
+  isLoading: boolean;
+}) => {
   const params = useParams();
   const threadId = params?.threadId as string;
   const [deleteThreadId, setDeleteThreadId] = useState<string | null>(null);
@@ -392,6 +406,31 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
       toast.error("Failed to pin thread");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="mb-4">
+          <h3 className="text-sm font-medium text-gray-500 mb-2 px-3">Today</h3>
+          <SidebarGroup>
+            {Array.from({ length: 1 }).map((_, i) => (
+              <ThreadSkeleton key={i} />
+            ))}
+          </SidebarGroup>
+        </div>
+        <div className="mb-4">
+          <h3 className="text-sm font-medium text-gray-500 mb-2 px-3">
+            Yesterday
+          </h3>
+          <SidebarGroup>
+            {Array.from({ length: 2 }).map((_, i) => (
+              <ThreadSkeleton key={i} />
+            ))}
+          </SidebarGroup>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

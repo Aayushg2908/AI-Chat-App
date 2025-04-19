@@ -1,5 +1,3 @@
-"use client";
-
 import { handleUserRedirect } from "@/actions";
 import {
   Tooltip,

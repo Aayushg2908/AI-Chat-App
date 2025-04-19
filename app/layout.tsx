@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import ModalProvider from "@/components/providers/modal-provider";
 import { Toaster } from "sonner";
 import NextTopLoader from "nextjs-toploader";
+import QueryProvider from "@/components/providers/query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +34,11 @@ export default function RootLayout({
       >
         <NextTopLoader color="#0000FF" />
         <ThemeProvider>
-          <Toaster position="top-right" richColors />
-          <ModalProvider />
-          {children}
+          <QueryProvider>
+            <Toaster position="top-right" richColors />
+            <ModalProvider />
+            {children}
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

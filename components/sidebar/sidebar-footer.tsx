@@ -1,5 +1,3 @@
-"use client";
-
 import { signOut } from "@/lib/auth-client";
 import {
   LogInIcon,
@@ -26,10 +24,35 @@ import { useRouter } from "next/navigation";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { User } from "better-auth";
 
-const SidebarFooterComponent = ({ session }: { session: User | undefined }) => {
+const FooterSkeleton = () => {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-x-1">
+        <div className="size-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+        <div className="flex flex-col justify-center">
+          <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
+          <div className="h-3 w-32 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+        </div>
+      </div>
+      <div className="size-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mr-2" />
+    </div>
+  );
+};
+
+const SidebarFooterComponent = ({
+  session,
+  isPending,
+}: {
+  session: User | undefined;
+  isPending: boolean;
+}) => {
   const { setTheme } = useTheme();
   const router = useRouter();
   const { onOpen } = useLoginModal();
+
+  if (isPending) {
+    return <FooterSkeleton />;
+  }
 
   if (!session?.id) {
     return (

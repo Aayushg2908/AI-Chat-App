@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Sidebar,
   SidebarContent,
@@ -8,19 +10,22 @@ import SidebarFooterComponent from "./sidebar-footer";
 import SidebarHeaderComponent from "./sidebar-header";
 import { getUserThreads } from "@/actions";
 import SidebarContentComponent from "./sidebar-content";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { ThreadType } from "@/db/schema";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "@/lib/auth-client";
 
-export async function AppSidebar() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
+export function AppSidebar() {
+  const { data: session, isPending } = useSession();
+
+  const { data: threads = [], isLoading } = useQuery({
+    queryKey: ["get-user-threads"],
+    queryFn: async () => {
+      const response = await getUserThreads();
+      if (response.success) {
+        return response.data;
+      }
+      return [];
+    },
   });
-  const response = await getUserThreads();
-  let threads: ThreadType[] = [];
-  if (response.success) {
-    threads = response.data;
-  }
 
   return (
     <Sidebar>
@@ -28,10 +33,10 @@ export async function AppSidebar() {
         <SidebarHeaderComponent threads={threads} />
       </SidebarHeader>
       <SidebarContent className="mt-8 scrollbar-hide">
-        <SidebarContentComponent threads={threads} />
+        <SidebarContentComponent threads={threads} isLoading={isLoading} />
       </SidebarContent>
       <SidebarFooter className="border border-t">
-        <SidebarFooterComponent session={session?.user} />
+        <SidebarFooterComponent session={session?.user} isPending={isPending} />
       </SidebarFooter>
     </Sidebar>
   );
