@@ -88,6 +88,8 @@ export const handleUserRedirect = async () => {
     })
     .returning();
 
+  revalidatePath("/");
+
   return redirect(`/${thread.id}`);
 };
 
@@ -113,15 +115,12 @@ export const deleteThread = async (threadId: string) => {
     headers: await headers(),
   });
   if (!session) {
-    return { error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
 
   await db
     .delete(threads)
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
-  revalidatePath("/");
-
-  return { success: "Thread deleted successfully" };
 };
 
 export const editThread = async (threadId: string, title: string) => {
@@ -129,7 +128,7 @@ export const editThread = async (threadId: string, title: string) => {
     headers: await headers(),
   });
   if (!session) {
-    return { error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
 
   const [existingThread] = await db
@@ -137,16 +136,13 @@ export const editThread = async (threadId: string, title: string) => {
     .from(threads)
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
   if (!existingThread) {
-    return { error: "Thread not found" };
+    throw new Error("Thread not found");
   }
 
   await db
     .update(threads)
     .set({ title })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
-  revalidatePath("/");
-
-  return { success: "Thread updated successfully" };
 };
 
 export const pinAndUnpinThread = async (threadId: string, pin: boolean) => {

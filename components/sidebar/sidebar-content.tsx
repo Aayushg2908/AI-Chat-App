@@ -9,6 +9,7 @@ import {
   FileDown,
   Share2,
   RefreshCw,
+  Loader2,
 } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent } from "../ui/sidebar";
 import {
@@ -51,6 +52,7 @@ import { Button } from "../ui/button";
 import { exportThreadAsPDF } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
 import { ThreadType } from "@/db/schema";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const categorizeThreads = (threads: ThreadType[]) => {
   const today = new Date();
@@ -334,64 +336,61 @@ const SidebarContentComponent = ({
   const [editThreadId, setEditThreadId] = useState<string | null>(null);
   const [editThreadTitle, setEditThreadTitle] = useState("");
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const threadRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const { pinnedThreads, todayThreads, yesterdayThreads, previousThreads } =
     categorizeThreads(threads);
 
-  useEffect(() => {
-    if (threadId && threadRefs.current.has(threadId)) {
-      const activeThreadElement = threadRefs.current.get(threadId);
-      if (activeThreadElement) {
-        activeThreadElement.scrollIntoView({
-          behavior: "smooth",
-          block: "nearest",
-        });
+  const editMutation = useMutation({
+    mutationFn: ({ id, title }: { id: string; title: string }) =>
+      editThread(id, title),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+      toast.success("Thread renamed successfully");
+      setEditThreadId(null);
+      setEditThreadTitle("");
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to rename thread");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (threadId: string) => deleteThread(threadId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+      toast.success("Thread deleted successfully");
+      if (threadId === deleteThreadId) {
+        router.push("/");
       }
-    }
-  }, [threadId]);
+      setDeleteThreadId(null);
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to delete thread");
+    },
+  });
 
   const handleEdit = async () => {
     if (!editThreadId) return;
-    try {
-      if (!editThreadTitle) {
-        toast.error("Thread title cannot be empty");
-        return;
-      }
-      toast.promise(editThread(editThreadId, editThreadTitle), {
-        loading: "Renaming thread...",
-        success: "Thread renamed successfully",
-        error: "Failed to rename thread",
-      });
-      setEditThreadId(null);
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to rename thread");
+    if (!editThreadTitle) {
+      toast.error("Thread title cannot be empty");
+      return;
     }
-  };
-
-  const handleDelete = async () => {
-    if (!deleteThreadId) return;
-    try {
-      toast.promise(deleteThread(deleteThreadId), {
-        loading: "Deleting thread...",
-        success: "Thread deleted successfully",
-        error: "Failed to delete thread",
-      });
-      setDeleteThreadId(null);
-      if (deleteThreadId === threadId) {
-        router.push("/");
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to delete thread");
-    }
+    editMutation.mutate({ id: editThreadId, title: editThreadTitle });
   };
 
   const handleEditStart = (id: string, title: string) => {
     setEditThreadId(id);
     setEditThreadTitle(title);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteThreadId) return;
+    deleteMutation.mutate(deleteThreadId);
   };
 
   const handlePinAndUnpin = async (id: string, pin: boolean) => {
@@ -406,6 +405,18 @@ const SidebarContentComponent = ({
       toast.error("Failed to pin thread");
     }
   };
+
+  useEffect(() => {
+    if (threadId && threadRefs.current.has(threadId)) {
+      const activeThreadElement = threadRefs.current.get(threadId);
+      if (activeThreadElement) {
+        activeThreadElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }
+    }
+  }, [threadId]);
 
   if (isLoading) {
     return (
@@ -527,12 +538,21 @@ const SidebarContentComponent = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setDeleteThreadId(null)}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }}
               className="bg-red-500 text-white hover:bg-red-600"
+              disabled={deleteMutation.isPending}
             >
-              Delete
+              {deleteMutation.isPending && (
+                <Loader2 className="size-4 animate-spin" />
+              )}
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -561,7 +581,12 @@ const SidebarContentComponent = ({
             >
               Cancel
             </Button>
-            <Button onClick={handleEdit}>Save</Button>
+            <Button onClick={handleEdit} disabled={editMutation.isPending}>
+              {editMutation.isPending && (
+                <Loader2 className="size-4 animate-spin" />
+              )}
+              {editMutation.isPending ? "Saving..." : "Save"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
