@@ -24,28 +24,6 @@ export const getUserThread = async (threadId: string) => {
   return { success: "Thread fetched successfully", data: thread };
 };
 
-export const createThread = async (threadId?: string) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    return { error: "Unauthorized" };
-  }
-
-  const [thread] = await db
-    .insert(threads)
-    .values({
-      userId: session.user.id,
-      title: "New Chat",
-    })
-    .returning();
-
-  revalidatePath("/");
-
-  return { success: "Thread created successfully", threadId: thread.id };
-};
-
 export const saveThreadMessages = async (
   threadId: string,
   messages: string
