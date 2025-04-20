@@ -130,7 +130,6 @@ const ThreadItem = ({
   handlePinAndUnpin: (id: string, pin: boolean) => Promise<void>;
 }) => {
   const [shareThreadId, setShareThreadId] = useState<string | null>(null);
-  const [regeneratingShareLink, setRegeneratingShareLink] = useState(false);
   const queryClient = useQueryClient();
 
   const updateVisibilityMutation = useMutation({
@@ -146,6 +145,19 @@ const ThreadItem = ({
     },
     onError: (error) => {
       console.error(error);
+    },
+  });
+
+  const regenerateShareLinkMutation = useMutation({
+    mutationFn: ({ threadId }: { threadId: string }) =>
+      regenerateShareLink(threadId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+      toast.success("Share link regenerated successfully");
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to regenerate share link");
     },
   });
 
@@ -165,20 +177,10 @@ const ThreadItem = ({
   };
 
   const handleRegenerateShareLink = async () => {
-    try {
-      setRegeneratingShareLink(true);
-      const response = await regenerateShareLink(shareThreadId!);
-      if (response.error) {
-        toast.error(response.error);
-      } else if (response.success) {
-        toast.success("Share link regenerated successfully");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to regenerate share link");
-    } finally {
-      setRegeneratingShareLink(false);
-    }
+    if (!shareThreadId) return;
+    regenerateShareLinkMutation.mutate({
+      threadId: shareThreadId,
+    });
   };
 
   return (
@@ -297,14 +299,19 @@ const ThreadItem = ({
               size="icon"
               className="ml-2"
               onClick={handleRegenerateShareLink}
-              disabled={regeneratingShareLink}
+              disabled={regenerateShareLinkMutation.isPending}
             >
               <RefreshCw
                 className={`size-4 ${
-                  regeneratingShareLink ? "animate-spin" : ""
+                  regenerateShareLinkMutation.isPending ? "animate-spin" : ""
                 }`}
               />
             </Button>
+            {regenerateShareLinkMutation.isPending && (
+              <span className="text-sm dark:text-gray-400 text-gray-700 ml-1">
+                Regenerating...
+              </span>
+            )}
           </div>
           <div className="flex items-center mt-2 space-x-3">
             <span>Is login required to view this thread?</span>

@@ -255,7 +255,7 @@ export const regenerateShareLink = async (shareThreadId: string) => {
     headers: await headers(),
   });
   if (!session) {
-    return { error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
 
   const [thread] = await db
@@ -263,7 +263,7 @@ export const regenerateShareLink = async (shareThreadId: string) => {
     .from(threads)
     .where(eq(threads.id, shareThreadId));
   if (!thread) {
-    return { error: "Thread not found" };
+    throw new Error("Thread not found");
   }
 
   await db
@@ -274,7 +274,4 @@ export const regenerateShareLink = async (shareThreadId: string) => {
     .where(
       and(eq(threads.id, shareThreadId), eq(threads.userId, session.user.id))
     );
-  revalidatePath("/");
-
-  return { success: "Share link regenerated successfully" };
 };
