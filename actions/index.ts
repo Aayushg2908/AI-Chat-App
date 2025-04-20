@@ -54,15 +54,16 @@ export const saveThreadMessages = async (
     headers: await headers(),
   });
   if (!session) {
-    return { error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
 
-  await db
+  const [thread] = await db
     .update(threads)
     .set({ messages, updatedAt: new Date() })
-    .where(eq(threads.id, threadId));
+    .where(eq(threads.id, threadId))
+    .returning();
 
-  return { success: "Messages saved successfully" };
+  return thread.updatedAt;
 };
 
 export const handleUserRedirect = async () => {

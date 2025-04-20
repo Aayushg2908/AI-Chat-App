@@ -162,6 +162,29 @@ const ChatInterface = ({
     },
   });
 
+  const saveThreadMessagesMutation = useMutation({
+    mutationFn: ({
+      threadId,
+      messages,
+    }: {
+      threadId: string;
+      messages: string;
+    }) => saveThreadMessages(threadId, messages),
+    onSuccess: (updatedAt) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const threadDate = new Date(updatedAt);
+      threadDate.setHours(0, 0, 0, 0);
+      if (threadDate.getTime() === today.getTime()) {
+        queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to save thread messages");
+    },
+  });
+
   const originalMessagesRef = useRef<string>("");
 
   useEffect(() => {
@@ -223,7 +246,10 @@ const ChatInterface = ({
         }
 
         if (thread) {
-          await saveThreadMessages(thread.id, currentMessagesString);
+          saveThreadMessagesMutation.mutate({
+            threadId: thread.id,
+            messages: currentMessagesString,
+          });
           originalMessagesRef.current = currentMessagesString;
         }
       }
