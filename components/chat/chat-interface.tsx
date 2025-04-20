@@ -37,6 +37,7 @@ import { useRouter } from "next/navigation";
 import { ThreadType } from "@/db/schema";
 import { Badge } from "../ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Source {
   id: string;
@@ -108,6 +109,7 @@ const ChatInterface = ({
   const [showCanvasDropdown, setShowCanvasDropdown] = useState<boolean>(false);
   const [canvasMode, setCanvasMode] = useState<boolean>(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     messages: chatMessages,
@@ -147,6 +149,18 @@ const ChatInterface = ({
 
   const [shouldSaveMessages, setShouldSaveMessages] = useState(false);
   const [messagesChanged, setMessagesChanged] = useState(false);
+
+  const editThreadMutation = useMutation({
+    mutationFn: ({ threadId, title }: { threadId: string; title: string }) =>
+      editThread(threadId, title),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to edit thread");
+    },
+  });
 
   const originalMessagesRef = useRef<string>("");
 
@@ -202,7 +216,10 @@ const ChatInterface = ({
 
       if (currentMessagesString !== originalMessagesRef.current) {
         if (messages.length === 2 && thread) {
-          await editThread(thread.id, messages[0].content);
+          editThreadMutation.mutate({
+            threadId: thread.id,
+            title: messages[0].content,
+          });
         }
 
         if (thread) {
