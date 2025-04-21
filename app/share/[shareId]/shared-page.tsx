@@ -6,11 +6,12 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { ThreadType } from "@/db/schema";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { cn } from "@/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { User } from "better-auth";
 import { ArrowLeft, Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 const SharedPage = ({
@@ -21,8 +22,21 @@ const SharedPage = ({
   user: User | undefined;
 }) => {
   const { isOpen, onOpen } = useLoginModal();
-  const [isCloning, setIsCloning] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const cloneThreadMutation = useMutation({
+    mutationFn: ({ threadId }: { threadId: string }) =>
+      cloneSharedThread(threadId),
+    onSuccess: ({ threadId }) => {
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+      toast.success("Thread cloned successfully");
+      router.push(`/${threadId}`);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   useEffect(() => {
     if (thread.requireAuth && !user) {
@@ -35,28 +49,7 @@ const SharedPage = ({
   if (isOpen) return null;
 
   const handleCloneThread = async () => {
-    try {
-      setIsCloning(true);
-      toast.promise(cloneSharedThread(thread.id), {
-        loading: "Cloning thread...",
-        success: (
-          data:
-            | { error: string; success?: undefined; threadId?: undefined }
-            | { success: string; threadId: string; error?: undefined }
-        ) => {
-          if (data.success) {
-            router.push(`/${data.threadId}`);
-            return "Thread cloned successfully";
-          }
-          return "Failed to clone thread";
-        },
-      });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to clone this Thread.");
-    } finally {
-      setIsCloning(false);
-    }
+    cloneThreadMutation.mutate({ threadId: thread.id });
   };
 
   return (
@@ -76,10 +69,12 @@ const SharedPage = ({
         <Button
           onClick={handleCloneThread}
           className="bg-blue-600 text-white hover:bg-blue-700"
-          disabled={isCloning}
+          disabled={cloneThreadMutation.isPending}
         >
-          {isCloning && <Loader2Icon className="size-4 animate-spin" />}
-          {isCloning ? "Cloning..." : "Clone this Thread"}
+          {cloneThreadMutation.isPending && (
+            <Loader2Icon className="size-4 animate-spin" />
+          )}
+          {cloneThreadMutation.isPending ? "Cloning..." : "Clone this Thread"}
         </Button>
       </header>
       <ChatComponent thread={thread} isEditable={false} />

@@ -633,7 +633,6 @@ const CopyButton = ({ textToCopy }: { textToCopy: string }) => {
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast.success("Link copied to clipboard");
   }, [textToCopy]);
 
   return (

@@ -182,7 +182,7 @@ export const cloneSharedThread = async (threadId: string) => {
     headers: await headers(),
   });
   if (!session) {
-    return { error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
 
   const [thread] = await db
@@ -190,10 +190,10 @@ export const cloneSharedThread = async (threadId: string) => {
     .from(threads)
     .where(eq(threads.id, threadId));
   if (!thread) {
-    return { error: "Thread not found" };
+    throw new Error("Thread not found");
   }
   if (thread.userId === session.user.id) {
-    return { error: "You cannot clone your own thread" };
+    throw new Error("You cannot clone your own thread");
   }
 
   const [newThread] = await db
@@ -205,7 +205,7 @@ export const cloneSharedThread = async (threadId: string) => {
     })
     .returning();
 
-  return { success: "Thread cloned successfully", threadId: newThread.id };
+  return { threadId: newThread.id };
 };
 
 export const branchThread = async (title: string, messages: string) => {
