@@ -185,6 +185,15 @@ const ChatInterface = ({
     },
   });
 
+  const branchThreadMutation = useMutation({
+    mutationFn: ({ title, messages }: { title: string; messages: string }) =>
+      branchThread(title, messages),
+    onSuccess: ({ threadId }) => {
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+      router.push(`/${threadId}`);
+    },
+  });
+
   const originalMessagesRef = useRef<string>("");
 
   useEffect(() => {
@@ -448,26 +457,18 @@ const ChatInterface = ({
     index: number,
     title: string | undefined
   ) => {
-    try {
-      const previousMessages = messages.slice(0, index + 2);
-      toast.promise(branchThread(title!, JSON.stringify(previousMessages)), {
+    const previousMessages = messages.slice(0, index + 2);
+    toast.promise(
+      branchThreadMutation.mutateAsync({
+        title: title!,
+        messages: JSON.stringify(previousMessages),
+      }),
+      {
         loading: "Branching thread...",
-        success: (
-          data:
-            | { error: string; success?: undefined; threadId?: undefined }
-            | { success: string; threadId: string; error?: undefined }
-        ) => {
-          if (data.success) {
-            router.push(`/${data.threadId}`);
-            return "Thread branched successfully";
-          }
-          return "Failed to branch thread";
-        },
-      });
-    } catch (error) {
-      console.error("Failed to branch message:", error);
-      toast.error("Failed to branch thread");
-    }
+        success: "Thread branched successfully",
+        error: "Failed to branch thread",
+      }
+    );
   };
 
   const addToContext = () => {

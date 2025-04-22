@@ -213,7 +213,7 @@ export const branchThread = async (title: string, messages: string) => {
     headers: await headers(),
   });
   if (!session) {
-    return { error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
 
   const [newThread] = await db
@@ -226,7 +226,7 @@ export const branchThread = async (title: string, messages: string) => {
     .returning();
   revalidatePath("/");
 
-  return { success: "Thread branched successfully", threadId: newThread.id };
+  return { threadId: newThread.id };
 };
 
 export const regenerateShareLink = async (shareThreadId: string) => {
