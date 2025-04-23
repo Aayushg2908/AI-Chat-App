@@ -17,6 +17,7 @@ import {
   GitBranch,
   X,
   LayoutTemplate,
+  Info,
 } from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
@@ -1028,15 +1029,34 @@ const ChatInterface = ({
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.15, ease: "easeOut" }}
                     >
-                      <div className="bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 shadow-md overflow-hidden">
+                      <div className="bg-white dark:bg-zinc-900 rounded-md border border-gray-200 dark:border-none shadow-md overflow-hidden">
+                        <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            AI Agents
+                          </h3>
+                        </div>
                         <motion.div
-                          className="py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                          className="py-2 px-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                           onClick={insertCanvasTag}
                           whileHover={{ backgroundColor: "rgba(0,0,0,0.05)" }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <LayoutTemplate className="h-4 w-4 text-blue-500" />
-                          <span>canvas</span>
+                          <span>Canvas</span>
+                          <TooltipProvider>
+                            <Tooltip delayDuration={0}>
+                              <TooltipTrigger asChild>
+                                <Info className="h-3.5 w-3.5 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400" />
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[250px] dark:text-white text-black"
+                              >
+                                Create beautiful UI components using shadcn/ui
+                                by describing what you want in natural language
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </motion.div>
                       </div>
                     </motion.div>
