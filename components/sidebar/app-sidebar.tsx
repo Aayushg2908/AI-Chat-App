@@ -5,6 +5,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import SidebarFooterComponent from "./sidebar-footer";
 import SidebarHeaderComponent from "./sidebar-header";
@@ -12,9 +13,13 @@ import { getUserThreads } from "@/actions";
 import SidebarContentComponent from "./sidebar-content";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "@/lib/auth-client";
+import { useCanvas } from "@/hooks/use-canvas";
+import { useEffect } from "react";
 
 export function AppSidebar() {
+  const { isOpen } = useCanvas();
   const { data: session, isPending } = useSession();
+  const { toggleSidebar, state } = useSidebar();
 
   const { data: threads = [], isLoading } = useQuery({
     queryKey: ["get-user-threads"],
@@ -27,8 +32,14 @@ export function AppSidebar() {
     },
   });
 
+  useEffect(() => {
+    if (isOpen && state === "expanded") {
+      toggleSidebar();
+    }
+  }, [isOpen]);
+
   return (
-    <Sidebar>
+    <Sidebar hidden={isOpen}>
       <SidebarHeader>
         <SidebarHeaderComponent threads={threads} />
       </SidebarHeader>
