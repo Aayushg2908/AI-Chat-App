@@ -20,6 +20,7 @@ import { Check, Copy } from "lucide-react";
 import { GlobeIcon } from "lucide-react";
 import { Card } from "../ui/card";
 import CanvasEditor from "../canvas/canvas-editor";
+import { useCanvas } from "@/hooks/use-canvas";
 
 interface MessageContentProps {
   content: string;
@@ -70,6 +71,7 @@ export const MessageContent = React.memo(
     >(null);
     const codeBlocksRef = useRef<Map<number, HTMLElement>>(new Map());
     const [canvasCode, setCanvasCode] = useState<string | null>(null);
+    const { onOpen } = useCanvas();
 
     useEffect(() => {
       const loadStylesheets = () => {
@@ -840,14 +842,17 @@ export const MessageContent = React.memo(
           {content.replace(/```canvas\n[\s\S]*?```/, "")}
         </ReactMarkdown>
         {canvasCode && (
-          <Card className="mt-4">
+          <Card
+            className="mt-4 cursor-pointer"
+            onClick={() => onOpen(canvasCode, false)}
+          >
             <div className="bg-muted/50 px-4 py-2 border-b">
               <h3 className="font-semibold">
                 {content.match(/\*\*Canvas: (.*?)\*\*/)?.[1] || "Canvas"}
               </h3>
-            </div>
-            <div className="h-[600px]">
-              <CanvasEditor code={canvasCode} />
+              <span className="text-sm text-muted-foreground">
+                Click to view the Canvas Editor
+              </span>
             </div>
           </Card>
         )}

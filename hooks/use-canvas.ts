@@ -9,7 +9,7 @@ interface CanvasStore {
 }
 
 export const useCanvas = create<CanvasStore>((set) => ({
-  isOpen: true,
+  isOpen: false,
   code: "",
   readOnly: false,
   onOpen: (code: string, readOnly: boolean) =>
