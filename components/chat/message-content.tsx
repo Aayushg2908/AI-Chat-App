@@ -19,7 +19,6 @@ import type { Components } from "react-markdown";
 import { Check, Copy } from "lucide-react";
 import { GlobeIcon } from "lucide-react";
 import { Card } from "../ui/card";
-import CanvasEditor from "../canvas/canvas-editor";
 import { useCanvas } from "@/hooks/use-canvas";
 
 interface MessageContentProps {

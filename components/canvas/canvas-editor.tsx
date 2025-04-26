@@ -5,19 +5,17 @@ import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { Card, CardContent } from "../ui/card";
+import { useCanvas } from "@/hooks/use-canvas";
 
-interface CanvasEditorProps {
-  code: string;
-  readOnly?: boolean;
-}
+const CanvasEditor = () => {
+  const { code, readOnly } = useCanvas();
 
-const CanvasEditor = ({ code, readOnly = false }: CanvasEditorProps) => {
   return (
     <Card className="h-full border-0 rounded-none">
       <CardContent className="p-0 h-full">
         <CodeMirror
           value={code}
-          height="600px"
+          height="100vh"
           theme={vscodeDark}
           extensions={[javascript({ jsx: true, typescript: true })]}
           readOnly={readOnly}

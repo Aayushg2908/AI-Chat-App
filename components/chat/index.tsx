@@ -2,7 +2,7 @@
 
 import { useCanvas } from "@/hooks/use-canvas";
 import ChatInterface from "./chat-interface";
-import GlobalCanvasEditor from "../canvas/global-canvas-editor";
+import CanvasEditor from "../canvas/canvas-editor";
 import {
   ResizablePanel,
   ResizablePanelGroup,
@@ -38,7 +38,7 @@ export const ChatComponent = ({ thread, isEditable }: ChatComponentProps) => {
             minSize={30}
             className="h-[calc(100vh-45px)]"
           >
-            <GlobalCanvasEditor />
+            <CanvasEditor />
           </ResizablePanel>
         </>
       )}
