@@ -1141,20 +1141,36 @@ const ChatInterface = ({
                         >
                           <Button
                             type="button"
-                            className={`transition-colors ${
-                              isRecording
-                                ? "text-red-500 hover:text-red-600"
-                                : "dark:text-gray-400 text-gray-600 hover:dark:text-white hover:text-gray-950"
-                            }`}
+                            className="transition-colors"
                             onClick={toggleMicrophone}
                             size="icon"
                             variant="ghost"
                             disabled={isLoading}
                           >
                             {isRecording ? (
-                              <MicOff className="size-3.5" />
+                              <motion.div
+                                initial={{ scale: 1 }}
+                                animate={{
+                                  scale: [1, 1.2, 1],
+                                  color: ["#ef4444", "#dc2626", "#ef4444"],
+                                }}
+                                transition={{
+                                  duration: 1.5,
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                }}
+                              >
+                                <MicOff className="size-3.5" />
+                              </motion.div>
                             ) : (
-                              <Mic className="size-3.5" />
+                              <motion.div
+                                className="text-gray-600 dark:text-gray-400"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                <Mic className="size-3.5 hover:text-gray-950 dark:hover:text-white" />
+                              </motion.div>
                             )}
                           </Button>
                         </TooltipComponent>
