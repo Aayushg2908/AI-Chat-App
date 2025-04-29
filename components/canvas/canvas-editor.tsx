@@ -6,16 +6,17 @@ import { javascript } from "@codemirror/lang-javascript";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { X, Copy } from "lucide-react";
-import { toast } from "sonner";
+import { X, Copy, Check } from "lucide-react";
 import { useCanvas } from "@/hooks/use-canvas";
 
 const CanvasEditor = () => {
   const { code, readOnly, onClose } = useCanvas();
+  const [showCheck, setShowCheck] = React.useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
-    toast.success("Code copied to clipboard!");
+    setShowCheck(true);
+    setTimeout(() => setShowCheck(false), 1000);
   };
 
   return (
@@ -27,7 +28,11 @@ const CanvasEditor = () => {
           size="sm"
           onClick={handleCopy}
         >
-          <Copy className="size-2" />
+          {showCheck ? (
+            <Check className="size-2 text-green-500" />
+          ) : (
+            <Copy className="size-2" />
+          )}
         </Button>
         <Button
           variant="ghost"
