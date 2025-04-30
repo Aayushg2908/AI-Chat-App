@@ -89,7 +89,10 @@ const SidebarFooterComponent = ({
         <DropdownMenuTrigger asChild>
           <SettingsIcon className="size-5 cursor-pointer mr-2" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-[150px]">
+        <DropdownMenuContent
+          align="start"
+          className="w-[150px] p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg"
+        >
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href="/settings" className="flex items-center gap-2">
               <SettingsIcon className="size-4" />
@@ -101,7 +104,7 @@ const SidebarFooterComponent = ({
               <SunIcon className="size-4" />
               Theme
             </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
+            <DropdownMenuSubContent className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg">
               <DropdownMenuItem
                 onClick={() => setTheme("light")}
                 className="flex items-center gap-2 cursor-pointer"
