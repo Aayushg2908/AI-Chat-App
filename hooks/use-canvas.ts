@@ -11,7 +11,7 @@ interface CanvasStore {
 export const useCanvas = create<CanvasStore>((set) => ({
   isOpen: false,
   code: "",
-  readOnly: false,
+  readOnly: true,
   onOpen: (code: string, readOnly: boolean) =>
     set(() => ({ isOpen: true, code, readOnly })),
   onClose: () => set(() => ({ isOpen: false, code: "", readOnly: false })),

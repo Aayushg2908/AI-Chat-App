@@ -843,7 +843,7 @@ export const MessageContent = React.memo(
         {canvasCode && (
           <Card
             className="mt-4 cursor-pointer"
-            onClick={() => onOpen(canvasCode, false)}
+            onClick={() => onOpen(canvasCode, true)}
           >
             <div className="bg-muted/50 px-4 py-2 border-b">
               <h3 className="font-semibold">
