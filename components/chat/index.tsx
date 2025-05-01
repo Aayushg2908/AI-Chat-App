@@ -5,7 +5,6 @@ import ChatInterface from "./chat-interface";
 import CanvasEditor from "../canvas/canvas-editor";
 import { ThreadType } from "@/db/schema";
 import { useCallback, useEffect, useState } from "react";
-import { GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatComponentProps {
