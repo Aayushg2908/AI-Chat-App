@@ -6,6 +6,7 @@ import CanvasEditor from "../canvas/canvas-editor";
 import { ThreadType } from "@/db/schema";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import CanvasPreview from "../canvas/canvas-preview";
 
 interface ChatComponentProps {
   thread: ThreadType | null;
@@ -78,11 +79,11 @@ export const ChatComponent = ({ thread, isEditable }: ChatComponentProps) => {
           )}
         >
           <div
-            className="absolute left-0 top-0 bottom-0 w-[3px] cursor-col-resize hover:bg-blue-600 group z-50"
+            className="absolute left-0 top-0 bottom-0 w-[4px] cursor-col-resize hover:bg-blue-600 group z-50"
             onMouseDown={handleMouseDown}
           />
           {isOpen === "editor" && <CanvasEditor />}
-          {/* {isOpen === "preview" && <CanvasPreview />} */}
+          {isOpen === "preview" && <CanvasPreview />}
         </div>
       </div>
     </div>
