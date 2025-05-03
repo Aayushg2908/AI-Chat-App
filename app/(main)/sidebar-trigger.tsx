@@ -5,6 +5,34 @@ import { useCanvas } from "@/hooks/use-canvas";
 import { Check, Copy, ExternalLink, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+const TooltipComponent = ({
+  children,
+  description,
+}: {
+  children: React.ReactNode;
+  description: string;
+}) => {
+  return (
+    <TooltipProvider>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs"
+        >
+          {description}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 const SidebarTriggerComponent = () => {
   const { isOpen, onClose, code, setIsOpen } = useCanvas();
@@ -20,7 +48,7 @@ const SidebarTriggerComponent = () => {
     <div className="flex items-center justify-between">
       <SidebarTrigger />
       {isOpen !== null && (
-        <div className="mr-5 flex items-center gap-3">
+        <div className="mr-6 flex items-center gap-3">
           <div className="flex border-r border-border pr-3 dark:border-border">
             <button
               onClick={() => setIsOpen("editor")}
@@ -50,19 +78,25 @@ const SidebarTriggerComponent = () => {
               {showCheck ? (
                 <Check className="size-[18px] text-green-500" />
               ) : (
-                <Copy
-                  className="size-[18px] cursor-pointer text-muted-foreground hover:text-foreground dark:hover:text-foreground"
-                  onClick={handleCopy}
-                />
+                <TooltipComponent description="Copy code">
+                  <Copy
+                    className="size-[18px] cursor-pointer text-muted-foreground hover:text-foreground dark:hover:text-foreground"
+                    onClick={handleCopy}
+                  />
+                </TooltipComponent>
               )}
             </>
           ) : (
-            <ExternalLink className="size-[18px] cursor-pointer text-muted-foreground hover:text-foreground dark:hover:text-foreground" />
+            <TooltipComponent description="Open preview in new tab">
+              <ExternalLink className="size-[18px] cursor-pointer text-muted-foreground hover:text-foreground dark:hover:text-foreground" />
+            </TooltipComponent>
           )}
-          <X
-            className="size-[18px] cursor-pointer text-muted-foreground hover:text-foreground dark:hover:text-foreground"
-            onClick={onClose}
-          />
+          <TooltipComponent description="Close panel">
+            <X
+              className="size-[18px] cursor-pointer text-muted-foreground hover:text-foreground dark:hover:text-foreground"
+              onClick={onClose}
+            />
+          </TooltipComponent>
         </div>
       )}
     </div>
