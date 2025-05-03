@@ -7,6 +7,7 @@ interface CanvasStore {
   code: string;
   readOnly: boolean;
   onOpen: (isOpen: OpenType, code: string, readOnly: boolean) => void;
+  setIsOpen: (isOpen: OpenType | null) => void;
   onClose: () => void;
 }
 
@@ -16,5 +17,6 @@ export const useCanvas = create<CanvasStore>((set) => ({
   readOnly: true,
   onOpen: (isOpen: OpenType, code: string, readOnly: boolean) =>
     set(() => ({ isOpen, code, readOnly })),
+  setIsOpen: (isOpen: OpenType | null) => set(() => ({ isOpen })),
   onClose: () => set(() => ({ isOpen: null, code: "", readOnly: false })),
 }));
