@@ -1,18 +1,20 @@
 import { create } from "zustand";
 
+type OpenType = "editor" | "preview";
+
 interface CanvasStore {
-  isOpen: boolean;
+  isOpen: OpenType | null;
   code: string;
   readOnly: boolean;
-  onOpen: (code: string, readOnly: boolean) => void;
+  onOpen: (isOpen: OpenType, code: string, readOnly: boolean) => void;
   onClose: () => void;
 }
 
 export const useCanvas = create<CanvasStore>((set) => ({
-  isOpen: false,
+  isOpen: null,
   code: "",
   readOnly: true,
-  onOpen: (code: string, readOnly: boolean) =>
-    set(() => ({ isOpen: true, code, readOnly })),
-  onClose: () => set(() => ({ isOpen: false, code: "", readOnly: false })),
+  onOpen: (isOpen: OpenType, code: string, readOnly: boolean) =>
+    set(() => ({ isOpen, code, readOnly })),
+  onClose: () => set(() => ({ isOpen: null, code: "", readOnly: false })),
 }));

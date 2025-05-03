@@ -81,7 +81,8 @@ export const ChatComponent = ({ thread, isEditable }: ChatComponentProps) => {
             className="absolute left-0 top-0 bottom-0 w-[3px] cursor-col-resize hover:bg-blue-600 group z-50"
             onMouseDown={handleMouseDown}
           />
-          <CanvasEditor />
+          {isOpen === "editor" && <CanvasEditor />}
+          {/* {isOpen === "preview" && <CanvasPreview />} */}
         </div>
       </div>
     </div>

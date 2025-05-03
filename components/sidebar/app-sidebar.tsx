@@ -39,7 +39,7 @@ export function AppSidebar() {
   }, [isOpen]);
 
   return (
-    <Sidebar hidden={isOpen}>
+    <Sidebar hidden={isOpen !== null}>
       <SidebarHeader>
         <SidebarHeaderComponent threads={threads} />
       </SidebarHeader>
