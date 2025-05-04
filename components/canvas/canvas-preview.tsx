@@ -8,6 +8,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as lucide from "lucide-react";
 import * as UI from "../ui";
+import { toast } from "sonner";
 
 const CanvasPreview = () => {
   const { code } = useCanvas();
@@ -28,6 +29,7 @@ const CanvasPreview = () => {
         useForm,
         zodResolver,
         z,
+        toast,
         ...lucide,
         ...UI,
       }}

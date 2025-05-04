@@ -124,7 +124,7 @@ export async function POST(req: Request) {
         }
         \`\`\`
 
-        Make sure the React code is complete, well-structured, function name is always Canvas, does not contain any export, main div should have a height of calc(100vh - 45px), make sure shadcn ui form component is used with react hook form and zod with proper format as specified by shadcn ui, and ready to be rendered in a React application. Focus on creating a polished, professional UI component that solves the user's specific needs.`
+        Make sure the React code is complete, well-structured, there are proper margins and gaps between elements, mobile responsive, function name is always Canvas, does not contain any export, main div should have a height of calc(100vh - 45px), make sure shadcn ui form component is used with react hook form and zod with proper format as specified by shadcn ui, toast from sonner should be used for notifications, lucide icons should be used for icons, and ready to be rendered in a React application. Focus on creating a polished, professional UI component that solves the user's specific needs.`
         : ""
     }
 
