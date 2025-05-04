@@ -107,7 +107,30 @@ export const MODELS: {
   },
   "Gemini 2.5 Pro": {
     id: "gemini-2.5-pro-exp-03-25",
-    description: "Google's latest and best model.",
+    description: "Google's state of the art thinking model.",
+    icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: true,
+    canUploadFile: true,
+  },
+  "Gemini 2.5 Flash": {
+    id: "gemini-2.5-flash-preview-04-17",
+    description: "Google's latest Flash model.",
+    icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+    ],
+    canSearch: true,
+    canUploadFile: true,
+  },
+  "Gemini 2.5 Flash Thinking": {
+    id: "gemini-2.5-flash-thinking",
+    description: "Google's latest Flash model.",
     icons: [
       createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
       createTooltipIcon(Globe, "Web Search", "text-green-500"),

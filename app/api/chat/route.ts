@@ -26,7 +26,15 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
       useSearchGrounding: useSearch,
     }
   ),
-  "gemini-2.5-pro-exp-03-25": google("gemini-2.5-pro-exp-03-25"),
+  "gemini-2.5-pro-exp-03-25": google("gemini-2.5-pro-exp-03-25", {
+    useSearchGrounding: useSearch,
+  }),
+  "gemini-2.5-flash-preview-04-17": google("gemini-2.5-flash-preview-04-17", {
+    useSearchGrounding: useSearch,
+  }),
+  "gemini-2.5-flash-thinking": google("gemini-2.5-flash-preview-04-17", {
+    useSearchGrounding: useSearch,
+  }),
   "gpt-4o-mini": useSearch
     ? openai.responses("gpt-4o-mini")
     : openai("gpt-4o-mini"),
@@ -192,6 +200,13 @@ export async function POST(req: Request) {
   const result = streamText({
     model: modelToUse as unknown as LanguageModelV1,
     messages: enhancedMessages,
+    providerOptions: {
+      google: {
+        thinkingConfig: {
+          thinkingBudget: model === "gemini-2.5-flash-preview-04-17" ? 0 : 2048,
+        },
+      },
+    },
     ...(search && model.startsWith("gpt")
       ? {
           tools: {
