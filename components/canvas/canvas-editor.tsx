@@ -8,13 +8,14 @@ import { Card, CardContent } from "../ui/card";
 import { useCanvas } from "@/hooks/use-canvas";
 
 const CanvasEditor = () => {
-  const { code, readOnly } = useCanvas();
+  const { code, readOnly, onCodeChange } = useCanvas();
 
   return (
     <Card className="h-full border-0 rounded-none">
       <CardContent className="p-0 h-full">
         <CodeMirror
           value={code}
+          onChange={onCodeChange}
           theme={vscodeDark}
           height="100vh"
           extensions={[javascript({ jsx: true, typescript: true })]}

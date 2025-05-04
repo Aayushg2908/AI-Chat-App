@@ -99,14 +99,14 @@ export async function POST(req: Request) {
         import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
         // Add more imports as needed
 
-        export default function Canvas() {
+        function Canvas() {
           // State management
           const [state, setState] = useState(initialValue);
           
           // Component logic
           
           return (
-            <div className="p-4">
+            <div className="p-4 h-[calc(100vh-45px)]">
               {/* Implement the UI using shadcn/ui components */}
               <Card>
                 <CardHeader>
@@ -124,7 +124,7 @@ export async function POST(req: Request) {
         }
         \`\`\`
 
-        Make sure the React code is complete, well-structured, and ready to be rendered in a React application. Focus on creating a polished, professional UI component that solves the user's specific needs.`
+        Make sure the React code is complete, well-structured, function name is always Canvas, does not contain any export, main div should have a height of calc(100vh - 45px), make sure shadcn ui form component is used with react hook form and zod with proper format as specified by shadcn ui, and ready to be rendered in a React application. Focus on creating a polished, professional UI component that solves the user's specific needs.`
         : ""
     }
 
