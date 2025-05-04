@@ -47,6 +47,9 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
   "o3-mini-2025-01-31": openai("o3-mini-2025-01-31", {
     reasoningEffort: effortLevel as "low" | "medium" | "high",
   }),
+  "o4-mini-2025-04-16": openai("o4-mini-2025-04-16", {
+    reasoningEffort: effortLevel as "low" | "medium" | "high",
+  }),
   "deepseek-r1-distill-llama-70b": groq("deepseek-r1-distill-llama-70b"),
   "deepseek-r1-distill-qwen-32b": groq("deepseek-r1-distill-qwen-32b"),
   "qwen-2.5-32b": groq("qwen-2.5-32b"),

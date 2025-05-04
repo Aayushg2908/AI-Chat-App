@@ -187,6 +187,15 @@ export const MODELS: {
   },
   "O3 Mini": {
     id: "o3-mini-2025-01-31",
+    description: "OpenAI's Reasoning model.",
+    icons: [
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: false,
+  },
+  "O4 Mini": {
+    id: "o4-mini-2025-04-16",
     description: "OpenAI's latest Reasoning model.",
     icons: [
       createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
@@ -311,11 +320,14 @@ const ModelSelector = ({
     id.includes("gemini")
   );
   const gptModels = Object.entries(MODELS).filter(
-    ([, { id }]) => id.includes("gpt") || id.includes("o3")
+    ([, { id }]) => id.includes("gpt") || id.includes("o3") || id.includes("o4")
   );
   const groqModels = Object.entries(MODELS).filter(
     ([, { id }]) =>
-      !id.includes("gemini") && !id.includes("gpt") && !id.includes("o3")
+      !id.includes("gemini") &&
+      !id.includes("gpt") &&
+      !id.includes("o3") &&
+      !id.includes("o4")
   );
 
   const modelGroups = [
@@ -698,55 +710,57 @@ const ModelSelector = ({
           )}
         </>
       )}
-      {selectedModel === "o3-mini-2025-01-31" && setEffortLevel && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "flex items-center gap-1.5 ml-1.5 px-2.5 py-1.5 rounded-md text-xs transition-all duration-200",
-                "dark:text-gray-300 text-gray-700",
-                "hover:dark:text-white hover:text-gray-950",
-                "hover:dark:bg-zinc-800 hover:bg-zinc-100",
-                "border dark:border-zinc-800 border-zinc-200"
-              )}
-              disabled={disabled}
+      {(selectedModel === "o3-mini-2025-01-31" ||
+        selectedModel === "o4-mini-2025-04-16") &&
+        setEffortLevel && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "flex items-center gap-1.5 ml-1.5 px-2.5 py-1.5 rounded-md text-xs transition-all duration-200",
+                  "dark:text-gray-300 text-gray-700",
+                  "hover:dark:text-white hover:text-gray-950",
+                  "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                  "border dark:border-zinc-800 border-zinc-200"
+                )}
+                disabled={disabled}
+              >
+                <BrainIcon className="size-3.5 text-violet-500 mr-0.5" />
+                <span className="font-medium capitalize">
+                  Effort: {effortLevel}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg"
             >
-              <BrainIcon className="size-3.5 text-violet-500 mr-0.5" />
-              <span className="font-medium capitalize">
-                Effort: {effortLevel}
-              </span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              {["low", "medium", "high"].map((level) => (
-                <DropdownMenuItem
-                  key={level}
-                  onClick={() => {
-                    if (setEffortLevel) setEffortLevel(level);
-                  }}
-                  className={cn(
-                    "cursor-pointer flex items-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
-                    "hover:dark:bg-zinc-800 hover:bg-zinc-100",
-                    effortLevel === level && "dark:bg-zinc-800 bg-zinc-100"
-                  )}
-                >
-                  <span className="capitalize">{level}</span>
-                </DropdownMenuItem>
-              ))}
-            </motion.div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                {["low", "medium", "high"].map((level) => (
+                  <DropdownMenuItem
+                    key={level}
+                    onClick={() => {
+                      if (setEffortLevel) setEffortLevel(level);
+                    }}
+                    className={cn(
+                      "cursor-pointer flex items-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
+                      "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                      effortLevel === level && "dark:bg-zinc-800 bg-zinc-100"
+                    )}
+                  >
+                    <span className="capitalize">{level}</span>
+                  </DropdownMenuItem>
+                ))}
+              </motion.div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
     </div>
   );
 };
