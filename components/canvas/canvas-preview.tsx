@@ -6,40 +6,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-  DialogDescription,
-  DialogFooter,
-  DialogOverlay,
-  DialogPortal,
-  DialogTrigger,
-} from "../ui/dialog";
 import * as lucide from "lucide-react";
+import * as UI from "../ui";
 
 const CanvasPreview = () => {
   const { code } = useCanvas();
@@ -59,35 +27,9 @@ const CanvasPreview = () => {
         useEffect,
         useForm,
         zodResolver,
-        Button,
-        Input,
-        Label,
-        Checkbox,
         z,
-        Form,
-        FormControl,
-        FormDescription,
-        FormField,
-        FormItem,
-        FormLabel,
-        FormMessage,
-        Card,
-        CardContent,
-        CardDescription,
-        CardFooter,
-        CardHeader,
-        CardTitle,
-        Dialog,
-        DialogContent,
-        DialogHeader,
-        DialogTitle,
-        DialogClose,
-        DialogDescription,
-        DialogFooter,
-        DialogOverlay,
-        DialogPortal,
-        DialogTrigger,
         ...lucide,
+        ...UI,
       }}
       noInline
       transformCode={handleTransformCode}
