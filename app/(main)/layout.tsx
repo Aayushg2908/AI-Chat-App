@@ -9,7 +9,10 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     headers: await headers(),
   });
 
-  if (!process.env.APP_ACCESS?.includes(session?.user?.email!)) {
+  if (
+    process.env.APP_ACCESS &&
+    !process.env.APP_ACCESS.includes(session?.user?.email || "")
+  ) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold">Access Denied</h1>
