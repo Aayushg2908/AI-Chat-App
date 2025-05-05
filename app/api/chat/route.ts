@@ -215,7 +215,9 @@ export async function POST(req: Request) {
     ...(search && model.startsWith("gpt")
       ? {
           tools: {
-            web_search_preview: openai.tools.webSearchPreview(),
+            web_search_preview: openai.tools.webSearchPreview({
+              searchContextSize: "low",
+            }),
           },
         }
       : {}),

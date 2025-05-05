@@ -33,6 +33,7 @@ import {
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const createTooltipIcon = (
   IconComponent: React.ElementType,
@@ -121,7 +122,6 @@ export const MODELS: {
     id: "gemini-2.5-flash-preview-04-17",
     description: "Google's latest Flash model.",
     icons: [
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
       createTooltipIcon(Globe, "Web Search", "text-green-500"),
       createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
@@ -166,41 +166,50 @@ export const MODELS: {
     description: "OpenAI's new GPT-4.1 Nano model.",
     icons: [
       createTooltipIcon(Zap, "Very Fast", "text-yellow-500"),
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
       createTooltipIcon(FileText, "File Upload", "text-blue-400"),
     ],
-    canSearch: false,
+    canSearch: true,
     canUploadFile: true,
   },
   "GPT 4.1 Mini": {
     id: "gpt-4.1-mini-2025-04-14",
     description: "OpenAI's new GPT-4.1 Mini model.",
-    icons: [createTooltipIcon(FileText, "File Upload", "text-blue-400")],
-    canSearch: false,
+    icons: [
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+    ],
+    canSearch: true,
     canUploadFile: true,
   },
   "GPT 4.1": {
     id: "gpt-4.1-2025-04-14",
     description: "OpenAI's new GPT-4.1 model.",
-    icons: [createTooltipIcon(FileText, "File Upload", "text-blue-400")],
-    canSearch: false,
+    icons: [
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+    ],
+    canSearch: true,
     canUploadFile: true,
   },
   "O3 Mini": {
     id: "o3-mini-2025-01-31",
     description: "OpenAI's Reasoning model.",
     icons: [
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
       createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
     ],
-    canSearch: false,
+    canSearch: true,
     canUploadFile: false,
   },
   "O4 Mini": {
     id: "o4-mini-2025-04-16",
     description: "OpenAI's latest Reasoning model.",
     icons: [
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
       createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
     ],
-    canSearch: false,
+    canSearch: true,
     canUploadFile: false,
   },
   "Deepseek R1 (llama distilled)": {
@@ -311,6 +320,12 @@ const ModelSelector = ({
       if (prev.includes(modelId)) {
         return prev.filter((id) => id !== modelId);
       } else {
+        if (prev.length >= 10) {
+          toast.error(
+            "You can only have 10 active models. Remove a model before adding a new one."
+          );
+          return prev;
+        }
         return [...prev, modelId];
       }
     });
