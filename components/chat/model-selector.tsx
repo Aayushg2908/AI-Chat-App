@@ -417,12 +417,13 @@ const ModelSelector = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
-          className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg max-h-[80vh] overflow-y-auto"
+          className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg max-h-[80vh] overflow-hidden flex flex-col"
         >
           <motion.div
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.15 }}
+            className="flex flex-col h-full"
           >
             <AnimatePresence mode="wait">
               {!showAllModels ? (
@@ -502,101 +503,108 @@ const ModelSelector = ({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.2, ease: "easeInOut" }}
+                  className="flex flex-col h-full"
                 >
-                  <div className="flex items-center justify-between px-3 py-2">
+                  <div
+                    className="overflow-y-auto overflow-x-hidden"
+                    style={{ maxHeight: "calc(80vh - 50px)" }}
+                  >
+                    {modelGroups.map((group, groupIndex) => (
+                      <React.Fragment key={`model-group-${groupIndex}`}>
+                        <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
+                          {group.name}
+                        </DropdownMenuLabel>
+                        <DropdownMenuGroup>
+                          {group.models.map(
+                            ([name, { id, description, icons }]) => (
+                              <DropdownMenuItem
+                                key={id}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                                className={cn(
+                                  "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
+                                  "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                                  "min-w-0"
+                                )}
+                              >
+                                <div className="flex items-center min-w-0 mr-2">
+                                  <div className="flex items-center min-w-0">
+                                    <span className="text-sm truncate">
+                                      {name}
+                                    </span>
+                                  </div>
+                                  <TooltipProvider>
+                                    <Tooltip delayDuration={0}>
+                                      <TooltipTrigger asChild>
+                                        <Info className="size-3 ml-1.5 text-gray-400" />
+                                      </TooltipTrigger>
+                                      <TooltipContent
+                                        side="right"
+                                        className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
+                                      >
+                                        {description}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                                <div className="flex items-center space-x-1.5 flex-shrink-0">
+                                  {icons.map((icon, index) => (
+                                    <React.Fragment
+                                      key={`dropdown-icon-${id}-${index}`}
+                                    >
+                                      {icon}
+                                    </React.Fragment>
+                                  ))}
+                                  <div
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      toggleModelSelection(id);
+                                    }}
+                                    className="ml-2 relative inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                    style={{
+                                      backgroundColor: selectedModels.includes(
+                                        id
+                                      )
+                                        ? "#145de3"
+                                        : "#6b7280",
+                                    }}
+                                  >
+                                    <span
+                                      className="pointer-events-none inline-block h-[16px] w-[16px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out"
+                                      style={{
+                                        transform: selectedModels.includes(id)
+                                          ? "translateX(16px)"
+                                          : "translateX(0)",
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </DropdownMenuItem>
+                            )
+                          )}
+                        </DropdownMenuGroup>
+                        {groupIndex < modelGroups.length - 1 && (
+                          <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                  <div className="mt-auto sticky bottom-0 bg-white dark:bg-zinc-900">
                     <div
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         setShowAllModels(false);
                       }}
-                      className="cursor-pointer text-xs flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      className="cursor-pointer flex items-center justify-center px-3 py-2 my-0.5 rounded-md transition-colors duration-150 hover:dark:bg-zinc-800 hover:bg-zinc-100"
                     >
-                      <ArrowLeftIcon className="size-3.5 mr-1" />
-                      Back
+                      <ArrowLeftIcon className="size-3.5 mr-1.5 text-gray-500" />
+                      <span className="text-sm">Back</span>
                     </div>
-                    <span className="text-xs font-medium dark:text-gray-400 text-gray-500">
-                      Select Models to Show
-                    </span>
                   </div>
-                  <DropdownMenuSeparator className="my-1 dark:bg-zinc-800 bg-zinc-200" />
-                  {modelGroups.map((group, groupIndex) => (
-                    <React.Fragment key={`model-group-${groupIndex}`}>
-                      <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
-                        {group.name}
-                      </DropdownMenuLabel>
-                      <DropdownMenuGroup>
-                        {group.models.map(
-                          ([name, { id, description, icons }]) => (
-                            <DropdownMenuItem
-                              key={id}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                              className={cn(
-                                "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
-                                "hover:dark:bg-zinc-800 hover:bg-zinc-100"
-                              )}
-                            >
-                              <div className="flex items-center">
-                                <div className="flex items-center">
-                                  <span className="text-sm">{name}</span>
-                                </div>
-                                <TooltipProvider>
-                                  <Tooltip delayDuration={0}>
-                                    <TooltipTrigger asChild>
-                                      <Info className="size-3 ml-1.5 text-gray-400" />
-                                    </TooltipTrigger>
-                                    <TooltipContent
-                                      side="right"
-                                      className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
-                                    >
-                                      {description}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                              <div className="flex items-center space-x-1.5">
-                                {icons.map((icon, index) => (
-                                  <React.Fragment
-                                    key={`dropdown-icon-${id}-${index}`}
-                                  >
-                                    {icon}
-                                  </React.Fragment>
-                                ))}
-                                <div
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    toggleModelSelection(id);
-                                  }}
-                                  className="ml-2 relative inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                                  style={{
-                                    backgroundColor: selectedModels.includes(id)
-                                      ? "#145de3"
-                                      : "#6b7280",
-                                  }}
-                                >
-                                  <span
-                                    className="pointer-events-none inline-block h-[16px] w-[16px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out"
-                                    style={{
-                                      transform: selectedModels.includes(id)
-                                        ? "translateX(16px)"
-                                        : "translateX(0)",
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                            </DropdownMenuItem>
-                          )
-                        )}
-                      </DropdownMenuGroup>
-                      {groupIndex < modelGroups.length - 1 && (
-                        <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
-                      )}
-                    </React.Fragment>
-                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
