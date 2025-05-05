@@ -3,6 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import SidebarTriggerComponent from "./sidebar-trigger";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import SignOutButton from "./sign-out-button";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth.api.getSession({
@@ -20,6 +21,7 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
           You do not have access to this application. Please contact the admin
           for granting you access to this application.
         </p>
+        <SignOutButton />
       </div>
     );
   }
