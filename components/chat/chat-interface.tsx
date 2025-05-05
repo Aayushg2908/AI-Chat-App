@@ -67,6 +67,15 @@ interface ExtendedMessage {
   modelName?: string;
 }
 
+const aiAgents = [
+  {
+    name: "Canvas",
+    icon: <LayoutTemplate className="h-4 w-4 text-blue-500" />,
+    description:
+      "Create beautiful UI components using shadcn/ui by describing what you want in simple text",
+  },
+];
+
 const TooltipComponent = ({
   children,
   description,
@@ -109,6 +118,7 @@ const ChatInterface = ({
   >([]);
   const [showCanvasDropdown, setShowCanvasDropdown] = useState<boolean>(false);
   const [canvasMode, setCanvasMode] = useState<boolean>(false);
+  const [agentFilter, setAgentFilter] = useState<string>("");
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -674,11 +684,27 @@ const ChatInterface = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
+    const atIndex = value.lastIndexOf("@");
 
-    if (value.endsWith("@")) {
-      setShowCanvasDropdown(true);
+    if (atIndex !== -1) {
+      // Extract the text after the @ symbol
+      const filterText = value.slice(atIndex + 1);
+      setAgentFilter(filterText);
+
+      // Only show dropdown if the filter text doesn't contain spaces and matches at least one agent
+      const hasSpace = filterText.includes(" ");
+      const matchingAgents = aiAgents.filter((agent) =>
+        agent.name.toLowerCase().startsWith(filterText.toLowerCase())
+      );
+
+      if (!hasSpace && matchingAgents.length > 0) {
+        setShowCanvasDropdown(true);
+      } else {
+        setShowCanvasDropdown(false);
+      }
     } else {
       setShowCanvasDropdown(false);
+      setAgentFilter("");
     }
 
     if (originalHandleInputChange) {
@@ -1035,29 +1061,39 @@ const ChatInterface = ({
                             AI Agents
                           </h3>
                         </div>
-                        <motion.div
-                          className="py-2 px-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-                          onClick={insertCanvasTag}
-                          whileHover={{ backgroundColor: "rgba(0,0,0,0.05)" }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          <LayoutTemplate className="h-4 w-4 text-blue-500" />
-                          <span>Canvas</span>
-                          <TooltipProvider>
-                            <Tooltip delayDuration={0}>
-                              <TooltipTrigger asChild>
-                                <Info className="h-3.5 w-3.5 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="right"
-                                className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[250px] dark:text-white text-black"
-                              >
-                                Create beautiful UI components using shadcn/ui
-                                by describing what you want in natural language
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </motion.div>
+                        {aiAgents
+                          .filter((agent) =>
+                            agent.name
+                              .toLowerCase()
+                              .startsWith(agentFilter.toLowerCase())
+                          )
+                          .map((agent, index) => (
+                            <motion.div
+                              key={index}
+                              className="py-2 px-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                              onClick={insertCanvasTag}
+                              whileHover={{
+                                backgroundColor: "rgba(0,0,0,0.05)",
+                              }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              {agent.icon}
+                              <span>{agent.name}</span>
+                              <TooltipProvider>
+                                <Tooltip delayDuration={0}>
+                                  <TooltipTrigger asChild>
+                                    <Info className="h-3.5 w-3.5 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400" />
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="right"
+                                    className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[250px] dark:text-white text-black"
+                                  >
+                                    {agent.description}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </motion.div>
+                          ))}
                       </div>
                     </motion.div>
                   )}
