@@ -420,6 +420,10 @@ const SidebarContentComponent = ({
   };
 
   const handleEditStart = (id: string, title: string) => {
+    if (title === "New Chat") {
+      toast.error("You cannot rename a chat with no messages");
+      return;
+    }
     setEditThreadId(id);
     setEditThreadTitle(title);
   };
