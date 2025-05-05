@@ -34,6 +34,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import Image from "next/image";
 
 const createTooltipIcon = (
   IconComponent: React.ElementType,
@@ -677,9 +678,11 @@ const ModelSelector = ({
               >
                 <div className="flex items-center max-w-[120px]">
                   {selectedFile.type.startsWith("image/") ? (
-                    <img
+                    <Image
                       src={URL.createObjectURL(selectedFile)}
                       alt="Preview"
+                      width={20}
+                      height={20}
                       className="h-5 w-5 object-cover rounded-full mr-1.5"
                     />
                   ) : (
