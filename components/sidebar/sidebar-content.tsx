@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
   MoreHorizontal,
   Pencil,
@@ -360,7 +360,6 @@ const SidebarContentComponent = ({
   const [deleteThreadId, setDeleteThreadId] = useState<string | null>(null);
   const [editThreadId, setEditThreadId] = useState<string | null>(null);
   const [editThreadTitle, setEditThreadTitle] = useState("");
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const threadRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -389,7 +388,7 @@ const SidebarContentComponent = ({
       queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
       toast.success("Thread deleted successfully");
       if (threadId === deleteThreadId) {
-        router.push("/");
+        window.location.href = "/";
       }
       setDeleteThreadId(null);
     },
