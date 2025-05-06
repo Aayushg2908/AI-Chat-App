@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { User } from "better-auth";
 
@@ -47,7 +46,6 @@ const SidebarFooterComponent = ({
   isPending: boolean;
 }) => {
   const { setTheme } = useTheme();
-  const router = useRouter();
   const { onOpen } = useLoginModal();
 
   if (isPending) {
@@ -135,8 +133,7 @@ const SidebarFooterComponent = ({
               await signOut({
                 fetchOptions: {
                   onSuccess: () => {
-                    router.push("/");
-                    window.location.reload();
+                    window.location.href = "/";
                   },
                 },
               })

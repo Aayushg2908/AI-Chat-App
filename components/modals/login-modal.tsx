@@ -20,8 +20,10 @@ const LoginModal = () => {
 
   const handleLogin = async (provider: "google" | "github") => {
     try {
-      console.log(prompt);
       setIsLoading(true);
+      if (prompt) {
+        localStorage.setItem("user-login-prompt", prompt);
+      }
       await signIn.social({
         provider,
         callbackURL: pathname,

@@ -391,7 +391,7 @@ const ChatInterface = ({
       if (!data?.user && !data?.user.id) {
         onOpen(
           "Sign in to your account to access your chat history, settings and much more.",
-          ""
+          input || ""
         );
         return;
       }
