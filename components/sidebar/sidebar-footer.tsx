@@ -61,7 +61,8 @@ const SidebarFooterComponent = ({
         <LogInIcon
           onClick={() =>
             onOpen(
-              "Sign in to your account to access your chat history, settings and much more."
+              "Sign in to your account to access your chat history, settings and much more.",
+              ""
             )
           }
           className="size-5 cursor-pointer mr-2"

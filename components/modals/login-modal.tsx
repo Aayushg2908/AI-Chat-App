@@ -15,11 +15,12 @@ import { usePathname } from "next/navigation";
 
 const LoginModal = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { isOpen, onClose, description } = useLoginModal();
+  const { isOpen, onClose, description, prompt } = useLoginModal();
   const pathname = usePathname();
 
   const handleLogin = async (provider: "google" | "github") => {
     try {
+      console.log(prompt);
       setIsLoading(true);
       await signIn.social({
         provider,

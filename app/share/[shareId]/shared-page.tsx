@@ -41,7 +41,8 @@ const SharedPage = ({
   useEffect(() => {
     if (thread.requireAuth && !user) {
       onOpen(
-        "Please login to view this thread or ask the owner to make it public."
+        "Please login to view this thread or ask the owner to make it public.",
+        ""
       );
     }
   }, [thread.requireAuth, onOpen]);

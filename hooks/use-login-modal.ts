@@ -3,13 +3,16 @@ import { create } from "zustand";
 interface LoginModalStore {
   isOpen: boolean;
   description: string;
-  onOpen: (description: string) => void;
+  prompt: string;
+  onOpen: (description: string, prompt: string) => void;
   onClose: () => void;
 }
 
 export const useLoginModal = create<LoginModalStore>((set) => ({
   isOpen: false,
   description: "",
-  onOpen: (description: string) => set(() => ({ isOpen: true, description })),
-  onClose: () => set(() => ({ isOpen: false })),
+  prompt: "",
+  onOpen: (description: string, prompt: string) =>
+    set(() => ({ isOpen: true, description, prompt })),
+  onClose: () => set(() => ({ isOpen: false, description: "", prompt: "" })),
 }));
