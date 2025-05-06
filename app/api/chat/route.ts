@@ -207,9 +207,9 @@ export async function POST(req: Request) {
     messages: enhancedMessages,
     providerOptions: {
       google: {
-        thinkingConfig: {
-          thinkingBudget: model === "gemini-2.5-flash-preview-04-17" ? 0 : 2048,
-        },
+        ...(model === "gemini-2.5-flash-preview-04-17"
+          ? { thinkingConfig: { thinkingBudget: 0 } }
+          : {}),
       },
     },
     ...(search && model.startsWith("gpt")

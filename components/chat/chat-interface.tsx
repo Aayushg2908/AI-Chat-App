@@ -158,6 +158,21 @@ const ChatInterface = ({
     }
   }, []);
 
+  useEffect(() => {
+    const checkForStoredPrompt = () => {
+      const storedPrompt = localStorage.getItem("user-login-prompt");
+      if (storedPrompt) {
+        append({
+          role: "user",
+          content: storedPrompt,
+        });
+        localStorage.removeItem("user-login-prompt");
+      }
+    };
+
+    checkForStoredPrompt();
+  }, []);
+
   const [shouldSaveMessages, setShouldSaveMessages] = useState(false);
   const [messagesChanged, setMessagesChanged] = useState(false);
 
