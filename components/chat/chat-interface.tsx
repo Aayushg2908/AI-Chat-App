@@ -159,6 +159,17 @@ const ChatInterface = ({
   }, []);
 
   useEffect(() => {
+    if (thread?.id) {
+      const savedInput = localStorage.getItem(`thread-input:${thread.id}`);
+      if (savedInput) {
+        originalHandleInputChange({
+          target: { value: savedInput },
+        } as React.ChangeEvent<HTMLTextAreaElement>);
+      }
+    }
+  }, [thread?.id]);
+
+  useEffect(() => {
     const checkForStoredPrompt = () => {
       const storedPrompt = localStorage.getItem("user-login-prompt");
       if (storedPrompt) {
@@ -409,6 +420,10 @@ const ChatInterface = ({
           input || ""
         );
         return;
+      }
+
+      if (thread?.id) {
+        localStorage.removeItem(`thread-input:${thread.id}`);
       }
 
       handleSubmit(e as React.FormEvent<HTMLFormElement>, {
@@ -700,14 +715,21 @@ const ChatInterface = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
+
+    if (thread?.id) {
+      if (value.trim()) {
+        localStorage.setItem(`thread-input:${thread.id}`, value);
+      } else {
+        localStorage.removeItem(`thread-input:${thread.id}`);
+      }
+    }
+
     const atIndex = value.lastIndexOf("@");
 
     if (atIndex !== -1) {
-      // Extract the text after the @ symbol
       const filterText = value.slice(atIndex + 1);
       setAgentFilter(filterText);
 
-      // Only show dropdown if the filter text doesn't contain spaces and matches at least one agent
       const hasSpace = filterText.includes(" ");
       const matchingAgents = aiAgents.filter((agent) =>
         agent.name.toLowerCase().startsWith(filterText.toLowerCase())
