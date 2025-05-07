@@ -3,11 +3,15 @@ import Header from "./header";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { redirect } from "next/navigation";
 
 const SettingsPage = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+  if (!session?.user.id) {
+    return redirect("/");
+  }
 
   return (
     <div className="h-full flex flex-col">
