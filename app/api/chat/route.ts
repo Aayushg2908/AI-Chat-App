@@ -26,13 +26,16 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
       useSearchGrounding: useSearch,
     }
   ),
-  "gemini-2.5-pro-exp-03-25": google("gemini-2.5-pro-exp-03-25", {
-    useSearchGrounding: useSearch,
-  }),
   "gemini-2.5-flash-preview-04-17": google("gemini-2.5-flash-preview-04-17", {
     useSearchGrounding: useSearch,
   }),
   "gemini-2.5-flash-thinking": google("gemini-2.5-flash-preview-04-17", {
+    useSearchGrounding: useSearch,
+  }),
+  "gemini-2.5-pro-exp-03-25": google("gemini-2.5-pro-exp-03-25", {
+    useSearchGrounding: useSearch,
+  }),
+  "gemini-2.5-pro-preview-05-06": google("gemini-2.5-pro-preview-05-06", {
     useSearchGrounding: useSearch,
   }),
   "gpt-4o-mini": useSearch
