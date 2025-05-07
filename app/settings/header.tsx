@@ -2,22 +2,21 @@
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { signOut } from "@/lib/auth-client";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { ArrowLeft, Loader2, LogOut } from "lucide-react";
 import Link from "next/link";
-import { useTransition } from "react";
 
 const Header = () => {
-  const [isPending, startTransition] = useTransition();
-
-  const handleSignOut = async () => {
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          window.location.href = "/";
+  const signOutMutation = useMutation({
+    mutationFn: async () =>
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.href = "/";
+          },
         },
-      },
-    });
-  };
+      }),
+  });
 
   return (
     <header className="flex items-center justify-between py-2 px-6">
@@ -35,11 +34,15 @@ const Header = () => {
       <Button
         variant="ghost"
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        onClick={() => startTransition(handleSignOut)}
-        disabled={isPending}
+        disabled={signOutMutation.isPending}
+        onClick={() => signOutMutation.mutate()}
       >
-        <LogOut className="h-4 w-4" />
-        {isPending ? "Signing out..." : "Sign out"}
+        {signOutMutation.isPending ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <LogOut className="h-4 w-4" />
+        )}
+        {signOutMutation.isPending ? "Signing out..." : "Sign out"}
       </Button>
     </header>
   );
