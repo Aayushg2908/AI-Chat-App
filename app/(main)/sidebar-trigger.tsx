@@ -73,7 +73,7 @@ const SidebarTriggerComponent = () => {
               Preview
             </button>
           </div>
-          {isOpen === "editor" ? (
+          {isOpen === "editor" && (
             <>
               {showCheck ? (
                 <Check className="size-[18px] text-green-500" />
@@ -86,10 +86,6 @@ const SidebarTriggerComponent = () => {
                 </TooltipComponent>
               )}
             </>
-          ) : (
-            <TooltipComponent description="Open preview in new tab">
-              <ExternalLink className="size-[18px] cursor-pointer text-muted-foreground hover:text-foreground dark:hover:text-foreground" />
-            </TooltipComponent>
           )}
           <TooltipComponent description="Close panel">
             <X
