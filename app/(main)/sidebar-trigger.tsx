@@ -2,7 +2,7 @@
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useCanvas } from "@/hooks/use-canvas";
-import { Check, Copy, ExternalLink, X } from "lucide-react";
+import { Check, Copy, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
