@@ -2,6 +2,11 @@ import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { groq } from "@ai-sdk/groq";
 import { LanguageModelV1, streamText } from "ai";
+import { db } from "@/db/drizzle";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export interface Message {
   role: string;
@@ -68,6 +73,18 @@ export async function POST(req: Request) {
   const { messages, model, search, effortLevel, context, canvasMode } =
     await req.json();
 
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, session.user.id));
+
   const MODELS = getModels(search === true, effortLevel);
 
   const isValidModel = (key: string): key is ModelKey =>
@@ -80,7 +97,16 @@ export async function POST(req: Request) {
   const systemMessage: Message = {
     role: "system",
     content: `You are AllIn1, a helpful AI assistant that provides detailed and well-formatted responses.
-
+    ${
+      user.aiNickname
+        ? `Address the user as "${user.aiNickname}" rather than using generic terms.`
+        : ""
+    }
+    ${
+      user.aiPersonality
+        ? `Adopt the following personality traits when responding: ${user.aiPersonality}`
+        : ""
+    }
     ${
       search
         ? "You have access to web search capabilities to provide up-to-date information."
