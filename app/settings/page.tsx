@@ -20,9 +20,11 @@ const SettingsPage = async () => {
     <div className="h-full flex flex-col">
       <Header />
       <div className="flex-1 container py-8 px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <SettingsSidebar user={session?.user} />
-          <div className="md:col-span-3">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="hidden md:block">
+            <SettingsSidebar user={session?.user} />
+          </div>
+          <div className="lg:col-span-3">
             <div className="bg-background border rounded-lg overflow-hidden">
               <Tabs defaultValue="account" className="w-full">
                 <div className="border-b bg-card">
