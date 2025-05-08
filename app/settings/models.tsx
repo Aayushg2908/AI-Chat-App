@@ -8,12 +8,6 @@ import { toast } from "sonner";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   FlaskConical,
   Globe,
   FileText,
@@ -22,22 +16,43 @@ import {
   Clock,
 } from "lucide-react";
 
-const createTooltipIcon = (
+const createFeatureButton = (
   IconComponent: React.ElementType,
   description: string,
   colorClass: string
 ) => {
+  const getBgAndTextColors = () => {
+    switch (colorClass) {
+      case "text-green-500":
+        return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400";
+      case "text-blue-400":
+        return "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
+      case "text-red-400":
+        return "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400";
+      case "text-violet-400":
+        return "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400";
+      case "text-yellow-500":
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400";
+      case "text-amber-400":
+        return "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400";
+      default:
+        return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400";
+    }
+  };
+
+  const colorStyles = getBgAndTextColors();
+
   return (
-    <TooltipProvider key={description}>
-      <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild>
-          <IconComponent className={`size-3 ${colorClass}`} />
-        </TooltipTrigger>
-        <TooltipContent className="bg-gray-200 text-black dark:bg-black dark:text-white text-xs">
-          {description}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div
+      key={description}
+      className={cn(
+        "flex items-center space-x-1 px-2 py-1 rounded-md text-xs",
+        colorStyles
+      )}
+    >
+      <IconComponent className={`size-3.5`} />
+      <span>{description}</span>
+    </div>
   );
 };
 
@@ -54,8 +69,8 @@ export const MODELS: {
     id: "gemini-2.0-flash-001",
     description: "Google's latest Flash model.",
     icons: [
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -64,9 +79,9 @@ export const MODELS: {
     id: "gemini-2.0-pro-exp-02-05",
     description: "Google's latest Experimental Pro model.",
     icons: [
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(FlaskConical, "Experimental", "text-red-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -75,9 +90,9 @@ export const MODELS: {
     id: "gemini-2.0-flash-lite-preview-02-05",
     description: "Google's Experimental and Faster model.",
     icons: [
-      createTooltipIcon(Zap, "Very Fast", "text-yellow-500"),
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(Zap, "Very Fast", "text-yellow-500"),
+      createFeatureButton(FlaskConical, "Experimental", "text-red-400"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: false,
     canUploadFile: true,
@@ -86,9 +101,9 @@ export const MODELS: {
     id: "gemini-2.0-flash-thinking-exp-01-21",
     description: "Google's latest Reasoning model.",
     icons: [
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(FlaskConical, "Experimental", "text-red-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -97,8 +112,8 @@ export const MODELS: {
     id: "gemini-2.5-flash-preview-04-17",
     description: "Google's latest Flash model.",
     icons: [
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -107,10 +122,14 @@ export const MODELS: {
     id: "gemini-2.5-flash-thinking",
     description: "Google's latest Flash model.",
     icons: [
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
-      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+      createFeatureButton(FlaskConical, "Experimental", "text-red-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(
+        BrainIcon,
+        "Reasoning Capabilities",
+        "text-violet-400"
+      ),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -119,10 +138,14 @@ export const MODELS: {
     id: "gemini-2.5-pro-exp-03-25",
     description: "Google's state of the art thinking model.",
     icons: [
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
-      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+      createFeatureButton(FlaskConical, "Experimental", "text-red-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(
+        BrainIcon,
+        "Reasoning Capabilities",
+        "text-violet-400"
+      ),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -131,10 +154,14 @@ export const MODELS: {
     id: "gemini-2.5-pro-preview-05-06",
     description: "Google's state of the art thinking model.",
     icons: [
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
-      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+      createFeatureButton(FlaskConical, "Experimental", "text-red-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(
+        BrainIcon,
+        "Reasoning Capabilities",
+        "text-violet-400"
+      ),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -143,9 +170,9 @@ export const MODELS: {
     id: "gpt-4o-mini",
     description: "OpenAI's small and cheap model.",
     icons: [
-      createTooltipIcon(Clock, "Old Model", "text-amber-400"),
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(Clock, "Old Model", "text-amber-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -154,8 +181,8 @@ export const MODELS: {
     id: "gpt-4o",
     description: "OpenAI's old model.",
     icons: [
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -164,9 +191,9 @@ export const MODELS: {
     id: "gpt-4.1-nano-2025-04-14",
     description: "OpenAI's new GPT-4.1 Nano model.",
     icons: [
-      createTooltipIcon(Zap, "Very Fast", "text-yellow-500"),
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(Zap, "Very Fast", "text-yellow-500"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -175,8 +202,8 @@ export const MODELS: {
     id: "gpt-4.1-mini-2025-04-14",
     description: "OpenAI's new GPT-4.1 Mini model.",
     icons: [
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -185,8 +212,8 @@ export const MODELS: {
     id: "gpt-4.1-2025-04-14",
     description: "OpenAI's new GPT-4.1 model.",
     icons: [
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
     ],
     canSearch: true,
     canUploadFile: true,
@@ -195,8 +222,12 @@ export const MODELS: {
     id: "o3-mini-2025-01-31",
     description: "OpenAI's Reasoning model.",
     icons: [
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(
+        BrainIcon,
+        "Reasoning Capabilities",
+        "text-violet-400"
+      ),
     ],
     canSearch: true,
     canUploadFile: false,
@@ -205,8 +236,12 @@ export const MODELS: {
     id: "o4-mini-2025-04-16",
     description: "OpenAI's latest Reasoning model.",
     icons: [
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+      createFeatureButton(Globe, "Web Search", "text-green-500"),
+      createFeatureButton(
+        BrainIcon,
+        "Reasoning Capabilities",
+        "text-violet-400"
+      ),
     ],
     canSearch: true,
     canUploadFile: false,
@@ -215,7 +250,11 @@ export const MODELS: {
     id: "deepseek-r1-distill-llama-70b",
     description: "Llama Distilled Deepseek model hosted on Groq",
     icons: [
-      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+      createFeatureButton(
+        BrainIcon,
+        "Reasoning Capabilities",
+        "text-violet-400"
+      ),
     ],
     canSearch: false,
     canUploadFile: false,
@@ -224,8 +263,12 @@ export const MODELS: {
     id: "deepseek-r1-distill-qwen-32b",
     description: "Qwen Distilled Deepseek model hosted on Groq",
     icons: [
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
-      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+      createFeatureButton(FlaskConical, "Experimental", "text-red-400"),
+      createFeatureButton(
+        BrainIcon,
+        "Reasoning Capabilities",
+        "text-violet-400"
+      ),
     ],
     canSearch: false,
     canUploadFile: false,
@@ -233,7 +276,7 @@ export const MODELS: {
   "Qwen 2.5": {
     id: "qwen-2.5-32b",
     description: "Qwen 2.5 model hosted on Groq",
-    icons: [createTooltipIcon(FlaskConical, "Experimental", "text-red-400")],
+    icons: [createFeatureButton(FlaskConical, "Experimental", "text-red-400")],
     canSearch: false,
     canUploadFile: false,
   },
@@ -241,8 +284,12 @@ export const MODELS: {
     id: "qwen-qwq-32b",
     description: "Qwen QWQ model hosted on Groq",
     icons: [
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
-      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+      createFeatureButton(FlaskConical, "Experimental", "text-red-400"),
+      createFeatureButton(
+        BrainIcon,
+        "Reasoning Capabilities",
+        "text-violet-400"
+      ),
     ],
     canSearch: false,
     canUploadFile: false,
@@ -251,9 +298,13 @@ export const MODELS: {
     id: "meta-llama/llama-4-scout-17b-16e-instruct",
     description: "Llama 4 Scout model hosted on Groq",
     icons: [
-      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
-      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+      createFeatureButton(FlaskConical, "Experimental", "text-red-400"),
+      createFeatureButton(FileText, "File Upload", "text-blue-400"),
+      createFeatureButton(
+        BrainIcon,
+        "Reasoning Capabilities",
+        "text-violet-400"
+      ),
     ],
     canSearch: false,
     canUploadFile: true,
@@ -395,7 +446,7 @@ const ModelSettings = () => {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <h4 className="font-medium">{name}</h4>
-                      <div className="flex items-center space-x-1">
+                      <div className="flex flex-wrap gap-2 mt-2">
                         {icons.map((icon, index) => (
                           <span key={`model-icon-${id}-${index}`}>{icon}</span>
                         ))}
