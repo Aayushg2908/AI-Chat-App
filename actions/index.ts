@@ -265,3 +265,51 @@ export const deleteAccount = async () => {
 
   await db.delete(users).where(eq(users.id, session.user.id));
 };
+
+export const getAiCustomizations = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, session.user.id));
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return {
+    aiNickname: user.aiNickname,
+    aiPersonality: user.aiPersonality,
+  };
+};
+
+export const updateAiCustomizations = async ({
+  aiNickname,
+  aiPersonality,
+}: {
+  aiNickname: string | null;
+  aiPersonality: string | null;
+}) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  await db
+    .update(users)
+    .set({
+      aiNickname: aiNickname || null,
+      aiPersonality: aiPersonality || null,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, session.user.id));
+
+  revalidatePath("/settings");
+};

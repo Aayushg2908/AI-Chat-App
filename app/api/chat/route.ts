@@ -79,7 +79,8 @@ export async function POST(req: Request) {
 
   const systemMessage: Message = {
     role: "system",
-    content: `You are a helpful AI assistant that provides detailed and well-formatted responses.
+    content: `You are AllIn1, a helpful AI assistant that provides detailed and well-formatted responses.
+
     ${
       search
         ? "You have access to web search capabilities to provide up-to-date information."

@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getAiCustomizations } from "@/actions";
 
 const SettingsPage = async () => {
   const session = await auth.api.getSession({
@@ -15,6 +16,8 @@ const SettingsPage = async () => {
   if (!session?.user.id) {
     return redirect("/");
   }
+
+  const aiCustomizations = await getAiCustomizations();
 
   return (
     <div className="h-full flex flex-col">
@@ -54,7 +57,9 @@ const SettingsPage = async () => {
                     <AccountSettings />
                   </TabsContent>
                   <TabsContent value="customization" className="mt-0">
-                    <CustomizationSettings />
+                    <CustomizationSettings
+                      aiCustomizations={aiCustomizations}
+                    />
                   </TabsContent>
                   <TabsContent value="models" className="mt-0">
                     <ModelSettings />
