@@ -47,16 +47,13 @@ const SettingsPage = async () => {
                     </TabsTrigger>
                   </TabsList>
                 </div>
-
                 <div className="p-6">
                   <TabsContent value="account" className="mt-0">
                     <AccountSettings />
                   </TabsContent>
-
                   <TabsContent value="customization" className="mt-0">
                     <CustomizationSettings />
                   </TabsContent>
-
                   <TabsContent value="models" className="mt-0">
                     <ModelSettings />
                   </TabsContent>

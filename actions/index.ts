@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { threads } from "@/db/schema";
+import { threads, users } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -253,4 +253,15 @@ export const regenerateShareLink = async (shareThreadId: string) => {
     .where(
       and(eq(threads.id, shareThreadId), eq(threads.userId, session.user.id))
     );
+};
+
+export const deleteAccount = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  await db.delete(users).where(eq(users.id, session.user.id));
 };
