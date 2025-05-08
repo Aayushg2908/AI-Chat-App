@@ -24,7 +24,7 @@ const SettingsSidebar = ({ user }: { user: User }) => {
         <h2 className="text-xl font-bold">{user?.name || "User"}</h2>
         <p className="text-sm text-muted-foreground">{user?.email || ""}</p>
         <div className="mt-2">
-          <span className="bg-blue-800 text-sm px-3 py-1 rounded-full">
+          <span className="bg-neutral-700 text-sm px-3 py-1 rounded-full">
             Free Plan
           </span>
         </div>
