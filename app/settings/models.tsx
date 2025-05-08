@@ -16,31 +16,31 @@ import {
   Clock,
 } from "lucide-react";
 
+const getBgAndTextColors = (colorClass: string) => {
+  switch (colorClass) {
+    case "text-green-500":
+      return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400";
+    case "text-blue-400":
+      return "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
+    case "text-red-400":
+      return "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400";
+    case "text-violet-400":
+      return "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400";
+    case "text-yellow-500":
+      return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400";
+    case "text-amber-400":
+      return "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400";
+    default:
+      return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400";
+  }
+};
+
 const createFeatureButton = (
   IconComponent: React.ElementType,
   description: string,
   colorClass: string
 ) => {
-  const getBgAndTextColors = () => {
-    switch (colorClass) {
-      case "text-green-500":
-        return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400";
-      case "text-blue-400":
-        return "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
-      case "text-red-400":
-        return "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400";
-      case "text-violet-400":
-        return "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400";
-      case "text-yellow-500":
-        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400";
-      case "text-amber-400":
-        return "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400";
-      default:
-        return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400";
-    }
-  };
-
-  const colorStyles = getBgAndTextColors();
+  const colorStyles = getBgAndTextColors(colorClass);
 
   return (
     <div
@@ -50,21 +50,13 @@ const createFeatureButton = (
         colorStyles
       )}
     >
-      <IconComponent className={`size-3.5`} />
+      <IconComponent className="size-3.5" />
       <span>{description}</span>
     </div>
   );
 };
 
-export const MODELS: {
-  [key: string]: {
-    id: string;
-    description: string;
-    icons: React.ReactNode[];
-    canSearch: boolean;
-    canUploadFile: boolean;
-  };
-} = {
+export const MODELS = {
   "Gemini 2.0 Flash": {
     id: "gemini-2.0-flash-001",
     description: "Google's latest Flash model.",
@@ -311,9 +303,38 @@ export const MODELS: {
   },
 };
 
+const FEATURE_TAGS = [
+  {
+    label: "Search",
+    icon: Globe,
+    color: "text-green-500",
+    property: "canSearch",
+  },
+  {
+    label: "File Upload",
+    icon: FileText,
+    color: "text-blue-400",
+    property: "canUploadFile",
+  },
+  {
+    label: "Reasoning Capabilities",
+    icon: BrainIcon,
+    color: "text-violet-400",
+    property: null,
+  },
+  {
+    label: "Experimental",
+    icon: FlaskConical,
+    color: "text-red-400",
+    property: null,
+  },
+  { label: "Very Fast", icon: Zap, color: "text-yellow-500", property: null },
+];
+
 const ModelSettings = () => {
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const defaultModels = [
     "gemini-2.0-flash-lite-preview-02-05",
@@ -382,14 +403,41 @@ const ModelSettings = () => {
     { name: "Groq Models", models: groqModels },
   ];
 
+  const modelHasTag = (
+    modelData: (typeof MODELS)[keyof typeof MODELS],
+    tagLabel: string
+  ) => {
+    const tag = FEATURE_TAGS.find((t) => t.label === tagLabel);
+    if (!tag) return false;
+
+    if (tag.property && modelData[tag.property as keyof typeof modelData]) {
+      return true;
+    }
+
+    const iconTexts = modelData.icons.map((icon) => {
+      const iconElement = icon as React.ReactElement;
+      return (iconElement.key as string) || "";
+    });
+
+    return iconTexts.includes(tagLabel);
+  };
+
   const filteredModelGroups = modelGroups
     .map((group) => ({
       ...group,
-      models: group.models.filter(
-        ([name, { description }]) =>
+      models: group.models.filter(([name, modelData]) => {
+        const matchesSearch =
           name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          description.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
+          modelData.description
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase());
+
+        const matchesTags =
+          selectedTags.length === 0 ||
+          selectedTags.every((tag) => modelHasTag(modelData, tag));
+
+        return matchesSearch && matchesTags;
+      }),
     }))
     .filter((group) => group.models.length > 0);
 
@@ -403,26 +451,69 @@ const ModelSettings = () => {
         </p>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="relative w-64">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Filter by Model Name..."
-            className="pl-9"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="relative w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Filter by Model Name..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetModels}
+              className="text-sm"
+            >
+              Reset All
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={resetModels}
-            className="text-sm"
-          >
-            Reset All
-          </Button>
+
+        <div className="flex flex-wrap gap-2">
+          <p className="text-sm text-muted-foreground mr-2 flex items-center">
+            Filter by features:
+          </p>
+          {FEATURE_TAGS.map((tag) => {
+            const isSelected = selectedTags.includes(tag.label);
+            const TagIcon = tag.icon;
+            return (
+              <Button
+                key={tag.label}
+                variant={isSelected ? "default" : "outline"}
+                size="sm"
+                className={cn(
+                  "text-xs gap-1.5",
+                  isSelected && getBgAndTextColors(tag.color)
+                )}
+                onClick={() => {
+                  setSelectedTags((prev) =>
+                    prev.includes(tag.label)
+                      ? prev.filter((t) => t !== tag.label)
+                      : [...prev, tag.label]
+                  );
+                }}
+              >
+                <TagIcon className="size-3.5" />
+                {tag.label}
+              </Button>
+            );
+          })}
+          {selectedTags.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs"
+              onClick={() => setSelectedTags([])}
+            >
+              Clear filters
+            </Button>
+          )}
         </div>
       </div>
 
