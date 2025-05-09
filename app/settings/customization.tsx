@@ -70,11 +70,14 @@ const CustomizationSettings = ({
               What should AllIn1 call you?
             </Label>
             <TooltipProvider>
-              <Tooltip delayDuration={300}>
+              <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <Info className="size-4 text-muted-foreground cursor-pointer" />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs" side="top">
+                <TooltipContent
+                  className="bg-gray-200 text-black dark:bg-neutral-900 dark:text-white text-sm"
+                  side="right"
+                >
                   This will be used in conversations to personalize how the AI
                   addresses you
                 </TooltipContent>
@@ -94,11 +97,14 @@ const CustomizationSettings = ({
               What traits should AllIn1 have?
             </Label>
             <TooltipProvider>
-              <Tooltip delayDuration={300}>
+              <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <Info className="size-4 text-muted-foreground cursor-pointer" />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs" side="top">
+                <TooltipContent
+                  className="bg-gray-200 text-black dark:bg-neutral-900 dark:text-white text-sm"
+                  side="right"
+                >
                   The AI will adopt these personality traits when responding to
                   your messages
                 </TooltipContent>
