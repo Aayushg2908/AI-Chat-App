@@ -114,15 +114,21 @@ export const MessageContent = React.memo(
             margin: 0 !important;
             position: relative;
             overflow: hidden;
+            font-family: var(--font-code, var(--font-geist-mono, monospace)) !important;
+          }
+          
+          .code-block pre,
+          .code-block code {
+            font-family: var(--font-code, var(--font-geist-mono, monospace)) !important;
           }
           
           .code-header {
             background-color: #191b20;
             color: #abb2bf;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-family: var(--font-code, var(--font-geist-mono, monospace));
             font-size: 0.85rem;
-            padding: 0.6rem 1rem;
-            border-bottom: 1px solid #13151a;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #282c34;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -461,9 +467,10 @@ export const MessageContent = React.memo(
           ...props
         }: React.HTMLAttributes<HTMLPreElement>) => {
           const currentIndex = codeBlockIndex++;
+
           return (
             <CodeBlock
-              className={className}
+              className={`${className}`}
               index={currentIndex}
               copyToClipboard={copyToClipboard}
               isCopied={copiedIndex === currentIndex}
@@ -473,11 +480,11 @@ export const MessageContent = React.memo(
             </CodeBlock>
           );
         },
-        code({
+        code: ({
           className,
           children,
           ...props
-        }: React.HTMLAttributes<HTMLElement>) {
+        }: React.HTMLAttributes<HTMLElement>) => {
           const language = className?.replace("language-", "");
           if (language === "canvas") {
             return null;
@@ -486,7 +493,7 @@ export const MessageContent = React.memo(
           if (isInline) {
             return (
               <code
-                className="bg-gray-800 px-1 py-0.5 rounded text-pink-400"
+                className={`bg-gray-800 px-1 py-0.5 rounded text-pink-400`}
                 {...props}
               >
                 {children}
