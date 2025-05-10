@@ -3,6 +3,7 @@ import SettingsSidebar from "./sidebar";
 import AccountSettings from "./account";
 import CustomizationSettings from "./customization";
 import ModelSettings from "./models";
+import FeaturesSettings from "./features";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -50,6 +51,12 @@ const SettingsPage = async () => {
                     >
                       Models
                     </TabsTrigger>
+                    <TabsTrigger
+                      value="features"
+                      className="data-[state=active]:bg-background rounded-none border-r px-6 h-full"
+                    >
+                      Features
+                    </TabsTrigger>
                   </TabsList>
                 </div>
                 <div className="p-6">
@@ -63,6 +70,9 @@ const SettingsPage = async () => {
                   </TabsContent>
                   <TabsContent value="models" className="mt-0">
                     <ModelSettings />
+                  </TabsContent>
+                  <TabsContent value="features" className="mt-0">
+                    <FeaturesSettings />
                   </TabsContent>
                 </div>
               </Tabs>
