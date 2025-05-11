@@ -7,6 +7,7 @@ import { ThreadType } from "@/db/schema";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import CanvasPreview from "../canvas/canvas-preview";
+import { usePathname } from "next/navigation";
 
 interface ChatComponentProps {
   thread: ThreadType | null;
@@ -14,9 +15,14 @@ interface ChatComponentProps {
 }
 
 export const ChatComponent = ({ thread, isEditable }: ChatComponentProps) => {
-  const { isOpen } = useCanvas();
+  const { isOpen, onClose } = useCanvas();
   const [isResizing, setIsResizing] = useState(false);
   const [editorWidth, setEditorWidth] = useState(50);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    onClose();
+  }, [pathname, onClose]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
