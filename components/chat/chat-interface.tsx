@@ -172,7 +172,11 @@ const ChatInterface = ({
   useEffect(() => {
     const checkForStoredPrompt = () => {
       const storedPrompt = localStorage.getItem("user-login-prompt");
-      if (storedPrompt) {
+      if (
+        storedPrompt &&
+        thread?.title === "New Chat" &&
+        messages.length === 0
+      ) {
         append({
           role: "user",
           content: storedPrompt,
@@ -182,7 +186,7 @@ const ChatInterface = ({
     };
 
     checkForStoredPrompt();
-  }, []);
+  }, [thread?.title, messages.length]);
 
   const [shouldSaveMessages, setShouldSaveMessages] = useState(false);
   const [messagesChanged, setMessagesChanged] = useState(false);

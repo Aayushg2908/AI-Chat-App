@@ -22,11 +22,13 @@ import {
   CommandList,
 } from "../ui/command";
 import { ThreadType } from "@/db/schema";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SidebarHeaderComponent = ({ threads }: { threads: ThreadType[] }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -47,6 +49,7 @@ const SidebarHeaderComponent = ({ threads }: { threads: ThreadType[] }) => {
     try {
       setLoading(true);
       await handleUserRedirect();
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
     } catch (error) {
       console.error(error);
     } finally {
