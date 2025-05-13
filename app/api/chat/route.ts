@@ -22,9 +22,7 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
   "gemini-2.0-pro-exp-02-05": google("gemini-2.0-pro-exp-02-05", {
     useSearchGrounding: useSearch,
   }),
-  "gemini-2.0-flash-lite-preview-02-05": google(
-    "gemini-2.0-flash-lite-preview-02-05"
-  ),
+  "gemini-2.0-flash-lite": google("gemini-2.0-flash-lite"),
   "gemini-2.0-flash-thinking-exp-01-21": google(
     "gemini-2.0-flash-thinking-exp-01-21",
     {
@@ -92,7 +90,7 @@ export async function POST(req: Request) {
 
   const modelToUse = isValidModel(model)
     ? MODELS[model]
-    : MODELS["gemini-2.0-flash-lite-preview-02-05"];
+    : MODELS["gemini-2.0-flash-lite"];
 
   const systemMessage: Message = {
     role: "system",

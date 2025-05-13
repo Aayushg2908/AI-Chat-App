@@ -7,6 +7,8 @@ import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { google } from "@ai-sdk/google";
+import { generateText, LanguageModelV1 } from "ai";
 
 export const getUserThread = async (threadId: string) => {
   const session = await auth.api.getSession({
@@ -116,9 +118,14 @@ export const editThread = async (threadId: string, title: string) => {
     throw new Error("Thread not found");
   }
 
+  const result = await generateText({
+    model: google("gemini-2.0-flash-lite") as LanguageModelV1,
+    prompt: `Rewrite the following thread title to be concise, descriptive, and not more than 15 words: ${existingThread.title}. Do not include any other text. Just give the concise title.`,
+  });
+
   await db
     .update(threads)
-    .set({ title })
+    .set({ title: result.text })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
 };
 

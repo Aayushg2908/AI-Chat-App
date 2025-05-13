@@ -86,7 +86,7 @@ export const MODELS: {
     canUploadFile: true,
   },
   "Gemini 2.0 Flash Lite": {
-    id: "gemini-2.0-flash-lite-preview-02-05",
+    id: "gemini-2.0-flash-lite",
     description: "Google's Experimental and Faster model.",
     icons: [
       createTooltipIcon(Zap, "Very Fast", "text-yellow-500"),
@@ -307,7 +307,7 @@ const ModelSelector = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const defaultModels = [
-    "gemini-2.0-flash-lite-preview-02-05",
+    "gemini-2.0-flash-lite",
     "gpt-4o-mini",
     "meta-llama/llama-4-scout-17b-16e-instruct",
   ];

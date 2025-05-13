@@ -106,8 +106,7 @@ const ChatInterface = ({
   isEditable: boolean;
 }) => {
   const [selectedModel, setSelectedModel] = useState<string>(
-    localStorage.getItem(`model:${thread?.id}`) ||
-      "gemini-2.0-flash-lite-preview-02-05"
+    localStorage.getItem(`model:${thread?.id}`) || "gemini-2.0-flash-lite"
   );
   const [isSearchEnabled, setIsSearchEnabled] = useState<boolean>(false);
   const [files, setFiles] = useState<FileList | undefined>(undefined);
