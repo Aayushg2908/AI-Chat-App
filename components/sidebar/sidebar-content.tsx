@@ -53,6 +53,10 @@ import { exportThreadAsPDF } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
 import { ThreadType } from "@/db/schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { TooltipContent } from "../ui/tooltip";
+import { TooltipTrigger } from "../ui/tooltip";
+import { Tooltip } from "../ui/tooltip";
+import { TooltipProvider } from "../ui/tooltip";
 
 const categorizeThreads = (threads: ThreadType[]) => {
   const today = new Date();
@@ -197,15 +201,27 @@ const ThreadItem = ({
         )}
       >
         <div className="flex items-center justify-between w-full">
-          <Link
-            href={`/${thread.id}`}
-            className={cn(
-              "flex-1 truncate",
-              threadId === thread.id && "font-bold"
-            )}
-          >
-            {thread.title}
-          </Link>
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={`/${thread.id}`}
+                  className={cn(
+                    "flex-1 truncate",
+                    threadId === thread.id && "font-bold"
+                  )}
+                >
+                  {thread.title}
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="bg-gray-200 text-black dark:bg-neutral-900 dark:text-white text-sm"
+              >
+                <p>{thread.title}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <DropdownMenu>
             <DropdownMenuTrigger className="opacity-0 group-hover/thread:opacity-100 focus:opacity-100 transition-opacity">
               <MoreHorizontal className="size-4" />
