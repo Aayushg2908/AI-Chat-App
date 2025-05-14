@@ -750,7 +750,7 @@ const ModelSelector = ({
 
                   <div
                     className="overflow-y-auto overflow-x-hidden"
-                    style={{ maxHeight: "calc(80vh - 50px)" }}
+                    style={{ maxHeight: "calc(80vh - 83px)" }}
                   >
                     {filteredModelGroups.map((group, groupIndex) =>
                       group.models.length > 0 ? (
