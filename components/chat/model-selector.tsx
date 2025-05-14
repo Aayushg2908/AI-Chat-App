@@ -14,6 +14,8 @@ import {
   ChevronUpIcon,
   ArrowRightIcon,
   ArrowLeftIcon,
+  FilterIcon,
+  CheckIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -274,6 +276,34 @@ export const MODELS: {
   },
 };
 
+const filterOptions = [
+  {
+    id: "fast",
+    label: "Fast",
+    icon: <Zap className="size-3.5 text-yellow-500 mr-2" />,
+  },
+  {
+    id: "search",
+    label: "Web Search",
+    icon: <Globe className="size-3.5 text-green-500 mr-2" />,
+  },
+  {
+    id: "file",
+    label: "File Upload",
+    icon: <FileText className="size-3.5 text-blue-400 mr-2" />,
+  },
+  {
+    id: "reasoning",
+    label: "Reasoning",
+    icon: <BrainIcon className="size-3.5 text-violet-400 mr-2" />,
+  },
+  {
+    id: "experimental",
+    label: "Experimental",
+    icon: <FlaskConical className="size-3.5 text-red-400 mr-2" />,
+  },
+];
+
 interface ModelSelectorProps {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
@@ -305,6 +335,8 @@ const ModelSelector = ({
   const [showAllModels, setShowAllModels] = useState(false);
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const defaultModels = [
     "gemini-2.0-flash-lite",
@@ -415,6 +447,55 @@ const ModelSelector = ({
     }
   };
 
+  const toggleFilter = (filterId: string) => {
+    setActiveFilters((prev) =>
+      prev.includes(filterId)
+        ? prev.filter((id) => id !== filterId)
+        : [...prev, filterId]
+    );
+  };
+
+  const doesModelPassFilter = (modelIcons: React.ReactNode[]) => {
+    if (activeFilters.length === 0) return true;
+
+    return activeFilters.every((filter) => {
+      const iconMatches = {
+        fast: /Very Fast/,
+        search: /Web Search/,
+        file: /File Upload/,
+        reasoning: /Reasoning Capabilities/,
+        experimental: /Experimental/,
+      };
+
+      return modelIcons.some((icon) => {
+        const iconString = JSON.stringify(icon);
+        return iconMatches[filter as keyof typeof iconMatches].test(iconString);
+      });
+    });
+  };
+
+  const filterModels = (
+    models: [
+      string,
+      {
+        id: string;
+        description: string;
+        icons: React.ReactNode[];
+        canSearch: boolean;
+        canUploadFile: boolean;
+      }
+    ][]
+  ) => {
+    if (activeFilters.length === 0) return models;
+    return models.filter(([, { icons }]) => doesModelPassFilter(icons));
+  };
+
+  const filteredVisibleModels = filterModels(visibleModels);
+  const filteredModelGroups = modelGroups.map((group) => ({
+    ...group,
+    models: filterModels(group.models),
+  }));
+
   return (
     <div className="flex items-center">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -462,54 +543,125 @@ const ModelSelector = ({
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                 >
-                  <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
-                    Your Models
-                  </DropdownMenuLabel>
-                  <DropdownMenuGroup>
-                    {visibleModels.map(([name, { id, description, icons }]) => (
-                      <DropdownMenuItem
-                        key={id}
-                        onClick={() => {
-                          setSelectedModel(id);
-                          if (threadId) {
-                            localStorage.setItem(`model:${threadId}`, id);
-                          }
-                        }}
-                        className={cn(
-                          "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
-                          "hover:dark:bg-zinc-800 hover:bg-zinc-100",
-                          selectedModel === id && "dark:bg-zinc-800 bg-zinc-100"
-                        )}
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <DropdownMenuLabel className="text-xs font-medium dark:text-gray-400 text-gray-500 p-0">
+                      Your Models
+                    </DropdownMenuLabel>
+
+                    <div className="flex items-center space-x-1">
+                      <DropdownMenu
+                        open={isFilterOpen}
+                        onOpenChange={setIsFilterOpen}
                       >
-                        <div className="flex items-center">
-                          <div className="flex items-center">
-                            <span className="text-sm">{name}</span>
-                          </div>
-                          <TooltipProvider>
-                            <Tooltip delayDuration={0}>
-                              <TooltipTrigger asChild>
-                                <Info className="size-3 ml-1.5 text-gray-400" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="right"
-                                className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
-                              >
-                                {description}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <div className="flex items-center space-x-1.5">
-                          {icons.map((icon, index) => (
-                            <React.Fragment
-                              key={`dropdown-icon-${id}-${index}`}
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 rounded-md hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                          >
+                            <FilterIcon
+                              className={cn(
+                                "size-3.5",
+                                activeFilters.length > 0
+                                  ? "text-blue-500"
+                                  : "text-gray-500"
+                              )}
+                            />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg max-w-[200px]">
+                          <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
+                            Filter Models
+                          </DropdownMenuLabel>
+                          <DropdownMenuSeparator className="dark:bg-zinc-800 bg-zinc-200" />
+                          {filterOptions.map((filter) => (
+                            <DropdownMenuItem
+                              key={filter.id}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                toggleFilter(filter.id);
+                              }}
+                              className={cn(
+                                "cursor-pointer flex items-center justify-between px-3 py-2 rounded-md hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                                activeFilters.includes(filter.id) &&
+                                  "dark:bg-zinc-800 bg-zinc-100"
+                              )}
                             >
-                              {icon}
-                            </React.Fragment>
+                              <div className="flex items-center">
+                                {filter.icon}
+                                <span className="text-sm">{filter.label}</span>
+                              </div>
+                              {activeFilters.includes(filter.id) && (
+                                <CheckIcon className="size-3.5 text-blue-500" />
+                              )}
+                            </DropdownMenuItem>
                           ))}
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+
+                  <DropdownMenuGroup>
+                    {filteredVisibleModels.length > 0 ? (
+                      filteredVisibleModels.map(
+                        ([name, { id, description, icons }]) => (
+                          <DropdownMenuItem
+                            key={id}
+                            onClick={() => {
+                              setSelectedModel(id);
+                              if (threadId) {
+                                localStorage.setItem(`model:${threadId}`, id);
+                              }
+                            }}
+                            className={cn(
+                              "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
+                              "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                              selectedModel === id &&
+                                "dark:bg-zinc-800 bg-zinc-100"
+                            )}
+                          >
+                            <div className="flex items-center">
+                              <div className="flex items-center">
+                                <span className="text-sm">{name}</span>
+                              </div>
+                              <TooltipProvider>
+                                <Tooltip delayDuration={0}>
+                                  <TooltipTrigger asChild>
+                                    <Info className="size-3 ml-1.5 text-gray-400" />
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="right"
+                                    className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
+                                  >
+                                    {description}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <div className="flex items-center space-x-1.5">
+                              {icons.map(
+                                (icon: React.ReactNode, index: number) => (
+                                  <React.Fragment
+                                    key={`dropdown-icon-${id}-${index}`}
+                                  >
+                                    {icon}
+                                  </React.Fragment>
+                                )
+                              )}
+                            </div>
+                          </DropdownMenuItem>
+                        )
+                      )
+                    ) : (
+                      <div className="px-3 py-4 text-center text-sm text-gray-500">
+                        No models match your filters
+                      </div>
+                    )}
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
                   <div
@@ -533,92 +685,173 @@ const ModelSelector = ({
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                   className="flex flex-col h-full"
                 >
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <DropdownMenuLabel className="text-xs font-medium dark:text-gray-400 text-gray-500 p-0">
+                      All Models
+                    </DropdownMenuLabel>
+
+                    <div className="flex items-center space-x-1">
+                      <DropdownMenu
+                        open={isFilterOpen}
+                        onOpenChange={setIsFilterOpen}
+                      >
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 rounded-md hover:dark:bg-zinc-800 hover:bg-zinc-100"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                          >
+                            <FilterIcon
+                              className={cn(
+                                "size-3.5",
+                                activeFilters.length > 0
+                                  ? "text-blue-500"
+                                  : "text-gray-500"
+                              )}
+                            />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="p-1 dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-lg max-w-[200px]">
+                          <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
+                            Filter Models
+                          </DropdownMenuLabel>
+                          <DropdownMenuSeparator className="dark:bg-zinc-800 bg-zinc-200" />
+                          {filterOptions.map((filter) => (
+                            <DropdownMenuItem
+                              key={filter.id}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                toggleFilter(filter.id);
+                              }}
+                              className={cn(
+                                "cursor-pointer flex items-center justify-between px-3 py-2 rounded-md hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                                activeFilters.includes(filter.id) &&
+                                  "dark:bg-zinc-800 bg-zinc-100"
+                              )}
+                            >
+                              <div className="flex items-center">
+                                {filter.icon}
+                                <span className="text-sm">{filter.label}</span>
+                              </div>
+                              {activeFilters.includes(filter.id) && (
+                                <CheckIcon className="size-3.5 text-blue-500" />
+                              )}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+
                   <div
                     className="overflow-y-auto overflow-x-hidden"
                     style={{ maxHeight: "calc(80vh - 50px)" }}
                   >
-                    {modelGroups.map((group, groupIndex) => (
-                      <React.Fragment key={`model-group-${groupIndex}`}>
-                        <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
-                          {group.name}
-                        </DropdownMenuLabel>
-                        <DropdownMenuGroup>
-                          {group.models.map(
-                            ([name, { id, description, icons }]) => (
-                              <DropdownMenuItem
-                                key={id}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }}
-                                className={cn(
-                                  "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
-                                  "hover:dark:bg-zinc-800 hover:bg-zinc-100",
-                                  "min-w-0"
-                                )}
-                              >
-                                <div className="flex items-center min-w-0 mr-2">
-                                  <div className="flex items-center min-w-0">
-                                    <span className="text-sm truncate">
-                                      {name}
-                                    </span>
+                    {filteredModelGroups.map((group, groupIndex) =>
+                      group.models.length > 0 ? (
+                        <React.Fragment key={`model-group-${groupIndex}`}>
+                          <DropdownMenuLabel className="px-3 py-2 text-xs font-medium dark:text-gray-400 text-gray-500">
+                            {group.name}
+                          </DropdownMenuLabel>
+                          <DropdownMenuGroup>
+                            {group.models.map(
+                              ([name, { id, description, icons }]) => (
+                                <DropdownMenuItem
+                                  key={id}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
+                                  className={cn(
+                                    "cursor-pointer flex items-center justify-between px-3 py-2 my-0.5 rounded-md transition-colors duration-150",
+                                    "hover:dark:bg-zinc-800 hover:bg-zinc-100",
+                                    "min-w-0"
+                                  )}
+                                >
+                                  <div className="flex items-center min-w-0 mr-2">
+                                    <div className="flex items-center min-w-0">
+                                      <span className="text-sm truncate">
+                                        {name}
+                                      </span>
+                                    </div>
+                                    <TooltipProvider>
+                                      <Tooltip delayDuration={0}>
+                                        <TooltipTrigger asChild>
+                                          <Info className="size-3 ml-1.5 text-gray-400" />
+                                        </TooltipTrigger>
+                                        <TooltipContent
+                                          side="right"
+                                          className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
+                                        >
+                                          {description}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
                                   </div>
-                                  <TooltipProvider>
-                                    <Tooltip delayDuration={0}>
-                                      <TooltipTrigger asChild>
-                                        <Info className="size-3 ml-1.5 text-gray-400" />
-                                      </TooltipTrigger>
-                                      <TooltipContent
-                                        side="right"
-                                        className="dark:bg-zinc-900 bg-white border dark:border-zinc-800 border-zinc-200 text-sm p-2 max-w-[200px] dark:text-white text-black"
-                                      >
-                                        {description}
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </div>
-                                <div className="flex items-center space-x-1.5 flex-shrink-0">
-                                  {icons.map((icon, index) => (
-                                    <React.Fragment
-                                      key={`dropdown-icon-${id}-${index}`}
-                                    >
-                                      {icon}
-                                    </React.Fragment>
-                                  ))}
-                                  <div
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      toggleModelSelection(id);
-                                    }}
-                                    className="ml-2 relative inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                                    style={{
-                                      backgroundColor: selectedModels.includes(
-                                        id
+                                  <div className="flex items-center space-x-1.5 flex-shrink-0">
+                                    {icons.map(
+                                      (
+                                        icon: React.ReactNode,
+                                        index: number
+                                      ) => (
+                                        <React.Fragment
+                                          key={`dropdown-icon-${id}-${index}`}
+                                        >
+                                          {icon}
+                                        </React.Fragment>
                                       )
-                                        ? "#145de3"
-                                        : "#6b7280",
-                                    }}
-                                  >
-                                    <span
-                                      className="pointer-events-none inline-block h-[16px] w-[16px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out"
-                                      style={{
-                                        transform: selectedModels.includes(id)
-                                          ? "translateX(16px)"
-                                          : "translateX(0)",
+                                    )}
+                                    <div
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        toggleModelSelection(id);
                                       }}
-                                    />
+                                      className="ml-2 relative inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                      style={{
+                                        backgroundColor:
+                                          selectedModels.includes(id)
+                                            ? "#145de3"
+                                            : "#6b7280",
+                                      }}
+                                    >
+                                      <span
+                                        className="pointer-events-none inline-block h-[16px] w-[16px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out"
+                                        style={{
+                                          transform: selectedModels.includes(id)
+                                            ? "translateX(16px)"
+                                            : "translateX(0)",
+                                        }}
+                                      />
+                                    </div>
                                   </div>
-                                </div>
-                              </DropdownMenuItem>
-                            )
+                                </DropdownMenuItem>
+                              )
+                            )}
+                          </DropdownMenuGroup>
+                          {groupIndex <
+                            filteredModelGroups.filter(
+                              (g) => g.models.length > 0
+                            ).length -
+                              1 && (
+                            <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
                           )}
-                        </DropdownMenuGroup>
-                        {groupIndex < modelGroups.length - 1 && (
-                          <DropdownMenuSeparator className="my-1.5 dark:bg-zinc-800 bg-zinc-200" />
-                        )}
-                      </React.Fragment>
-                    ))}
+                        </React.Fragment>
+                      ) : null
+                    )}
+
+                    {filteredModelGroups.every(
+                      (group) => group.models.length === 0
+                    ) && (
+                      <div className="px-3 py-4 text-center text-sm text-gray-500">
+                        No models match your filters
+                      </div>
+                    )}
                   </div>
                   <div className="mt-auto sticky bottom-0 bg-white dark:bg-zinc-900">
                     <div
