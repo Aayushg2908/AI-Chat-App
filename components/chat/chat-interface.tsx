@@ -297,6 +297,11 @@ const ChatInterface = ({
         }
 
         if (thread) {
+          localStorage.setItem(
+            `thread-messages:${thread.id}`,
+            currentMessagesString
+          );
+
           saveThreadMessagesMutation.mutate({
             threadId: thread.id,
             messages: currentMessagesString,
@@ -769,6 +774,47 @@ const ChatInterface = ({
   };
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (thread?.id) {
+      localStorage.setItem(`model:${thread.id}`, selectedModel);
+    }
+  }, [selectedModel, thread?.id]);
+
+  useEffect(() => {
+    if (thread) {
+      setMessages(JSON.parse(thread.messages || "[]"));
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (!thread?.id) return;
+
+      if (e.key === `thread-messages:${thread.id}`) {
+        const newMessages = JSON.parse(e.newValue || "[]");
+        const currentMessagesString = JSON.stringify(messages);
+
+        if (e.newValue !== currentMessagesString && e.newValue) {
+          setMessages(newMessages);
+          originalMessagesRef.current = e.newValue;
+        }
+      }
+
+      if (e.key === `model:${thread.id}` && e.newValue) {
+        setSelectedModel(e.newValue);
+      }
+
+      if (e.key === `thread-input:${thread.id}` && e.newValue !== input) {
+        originalHandleInputChange({
+          target: { value: e.newValue || "" },
+        } as React.ChangeEvent<HTMLTextAreaElement>);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [thread?.id, messages, input]);
 
   return (
     <div className="flex flex-col h-full relative">
