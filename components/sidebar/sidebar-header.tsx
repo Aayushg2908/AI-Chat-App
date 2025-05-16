@@ -1,3 +1,5 @@
+"use client";
+
 import { handleUserRedirect } from "@/actions";
 import {
   Tooltip,
@@ -22,19 +24,25 @@ import {
   CommandList,
 } from "../ui/command";
 import { ThreadType } from "@/db/schema";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const SidebarHeaderComponent = ({ threads }: { threads: ThreadType[] }) => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+
+  const newChatMutation = useMutation({
+    mutationFn: async () => {
+      await handleUserRedirect();
+      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
+    },
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "o") {
         e.preventDefault();
-        handleNewChat();
+        newChatMutation.mutate();
       } else if (e.ctrlKey && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen(true);
@@ -44,18 +52,6 @@ const SidebarHeaderComponent = ({ threads }: { threads: ThreadType[] }) => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [router]);
-
-  const handleNewChat = async () => {
-    try {
-      setLoading(true);
-      await handleUserRedirect();
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>
@@ -75,11 +71,11 @@ const SidebarHeaderComponent = ({ threads }: { threads: ThreadType[] }) => {
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
-                {loading ? (
+                {newChatMutation.isPending ? (
                   <Loader2 className="size-5 cursor-pointer animate-spin" />
                 ) : (
                   <SquarePen
-                    onClick={handleNewChat}
+                    onClick={() => newChatMutation.mutate()}
                     className="size-5 cursor-pointer"
                   />
                 )}
