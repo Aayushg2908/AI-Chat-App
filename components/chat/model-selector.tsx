@@ -179,13 +179,9 @@ export const MODELS: {
   "GPT 4.1 Nano": {
     id: "gpt-4.1-nano-2025-04-14",
     description: "OpenAI's new GPT-4.1 Nano model.",
-    icons: [
-      createTooltipIcon(Zap, "Very Fast", "text-yellow-500"),
-      createTooltipIcon(Globe, "Web Search", "text-green-500"),
-      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
-    ],
-    canSearch: true,
-    canUploadFile: true,
+    icons: [createTooltipIcon(Zap, "Very Fast", "text-yellow-500")],
+    canSearch: false,
+    canUploadFile: false,
   },
   "GPT 4.1 Mini": {
     id: "gpt-4.1-mini-2025-04-14",
@@ -882,7 +878,7 @@ const ModelSelector = ({
                 className={cn(
                   "ml-1.5 p-1.5 rounded-full transition-all duration-200",
                   isSearchEnabled
-                    ? "text-red-500 dark:bg-red-500/10 bg-red-100"
+                    ? "text-blue-500 dark:bg-blue-500/10 bg-blue-100 hover:text-blue-600 dark:hover:text-blue-600"
                     : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 )}
                 onClick={handleSearchToggle}

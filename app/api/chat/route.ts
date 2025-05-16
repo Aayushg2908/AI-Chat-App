@@ -1,5 +1,5 @@
 import { google } from "@ai-sdk/google";
-import { openai } from "@ai-sdk/openai";
+import { openai, OpenAIResponsesProviderOptions } from "@ai-sdk/openai";
 import { groq } from "@ai-sdk/groq";
 import { LanguageModelV1, streamText } from "ai";
 import { db } from "@/db/drizzle";
@@ -15,7 +15,7 @@ export interface Message {
 
 export const maxDuration = 30;
 
-const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
+const getModels = (useSearch: boolean = false) => ({
   "gemini-2.0-flash-001": google("gemini-2.0-flash-001", {
     useSearchGrounding: useSearch,
   }),
@@ -41,21 +41,13 @@ const getModels = (useSearch: boolean = false, effortLevel?: string) => ({
   "gemini-2.5-pro-preview-05-06": google("gemini-2.5-pro-preview-05-06", {
     useSearchGrounding: useSearch,
   }),
-  "gpt-4o-mini": useSearch
-    ? openai.responses("gpt-4o-mini")
-    : openai("gpt-4o-mini"),
-  "gpt-4o": useSearch
-    ? openai.responses("chatgpt-4o-latest")
-    : openai("chatgpt-4o-latest"),
-  "gpt-4.1-nano-2025-04-14": openai("gpt-4.1-nano-2025-04-14"),
-  "gpt-4.1-mini-2025-04-14": openai("gpt-4.1-mini-2025-04-14"),
-  "gpt-4.1-2025-04-14": openai("gpt-4.1-2025-04-14"),
-  "o3-mini-2025-01-31": openai("o3-mini-2025-01-31", {
-    reasoningEffort: effortLevel as "low" | "medium" | "high",
-  }),
-  "o4-mini-2025-04-16": openai("o4-mini-2025-04-16", {
-    reasoningEffort: effortLevel as "low" | "medium" | "high",
-  }),
+  "gpt-4o-mini": openai.responses("gpt-4o-mini"),
+  "gpt-4o": openai.responses("chatgpt-4o-latest"),
+  "gpt-4.1-nano-2025-04-14": openai.responses("gpt-4.1-nano-2025-04-14"),
+  "gpt-4.1-mini-2025-04-14": openai.responses("gpt-4.1-mini-2025-04-14"),
+  "gpt-4.1-2025-04-14": openai.responses("gpt-4.1-2025-04-14"),
+  "o3-mini-2025-01-31": openai.responses("o3-mini-2025-01-31"),
+  "o4-mini-2025-04-16": openai.responses("o4-mini-2025-04-16"),
   "deepseek-r1-distill-llama-70b": groq("deepseek-r1-distill-llama-70b"),
   "deepseek-r1-distill-qwen-32b": groq("deepseek-r1-distill-qwen-32b"),
   "qwen-2.5-32b": groq("qwen-2.5-32b"),
@@ -83,7 +75,7 @@ export async function POST(req: Request) {
     .from(users)
     .where(eq(users.id, session.user.id));
 
-  const MODELS = getModels(search === true, effortLevel);
+  const MODELS = getModels(search === true);
 
   const isValidModel = (key: string): key is ModelKey =>
     typeof key === "string" && Object.keys(MODELS).includes(key);
@@ -234,27 +226,39 @@ export async function POST(req: Request) {
     model: modelToUse as unknown as LanguageModelV1,
     messages: enhancedMessages,
     providerOptions: {
+      openai: {
+        ...(model.startsWith("o3") || model.startsWith("o4")
+          ? {
+              reasoningEffort: effortLevel,
+              reasoningSummary: "auto",
+            }
+          : {}),
+      } satisfies OpenAIResponsesProviderOptions,
       google: {
         ...(model === "gemini-2.5-flash-preview-04-17"
           ? { thinkingConfig: { thinkingBudget: 0 } }
           : {}),
       },
     },
-    ...(search &&
-    (model.startsWith("gpt") ||
-      model.startsWith("o3") ||
-      model.startsWith("o4"))
-      ? {
-          tools: {
+    tools: {
+      ...(search &&
+      (model.startsWith("gpt") ||
+        model.startsWith("o3") ||
+        model.startsWith("o4"))
+        ? {
             web_search_preview: openai.tools.webSearchPreview({
               searchContextSize: "low",
             }),
-          },
-        }
-      : {}),
+          }
+        : {}),
+    },
+    onError: (error) => {
+      console.log(error);
+    },
   });
 
   return result.toDataStreamResponse({
     sendSources: true,
+    sendReasoning: true,
   });
 }

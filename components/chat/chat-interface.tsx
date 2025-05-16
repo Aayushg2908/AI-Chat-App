@@ -150,7 +150,7 @@ const ChatInterface = ({
     onError: (error: Error) => {
       console.error("Chat error:", error);
     },
-    experimental_throttle: 50,
+    experimental_throttle: 30,
   });
 
   const messages = chatMessages as unknown as ExtendedMessage[];
