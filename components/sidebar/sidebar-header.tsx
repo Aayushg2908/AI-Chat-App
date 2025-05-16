@@ -24,17 +24,15 @@ import {
   CommandList,
 } from "../ui/command";
 import { ThreadType } from "@/db/schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 const SidebarHeaderComponent = ({ threads }: { threads: ThreadType[] }) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   const newChatMutation = useMutation({
     mutationFn: async () => {
       await handleUserRedirect();
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
     },
   });
 

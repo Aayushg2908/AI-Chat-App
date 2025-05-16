@@ -54,7 +54,7 @@ import { Button } from "../ui/button";
 import { exportThreadAsPDF } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
 import { ThreadType } from "@/db/schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { TooltipContent } from "../ui/tooltip";
 import { TooltipTrigger } from "../ui/tooltip";
 import { Tooltip } from "../ui/tooltip";
@@ -136,7 +136,6 @@ const ThreadItem = ({
   handlePinAndUnpin: (id: string, pin: boolean) => Promise<void>;
 }) => {
   const [shareThreadId, setShareThreadId] = useState<string | null>(null);
-  const queryClient = useQueryClient();
 
   const updateVisibilityMutation = useMutation({
     mutationFn: ({
@@ -146,9 +145,6 @@ const ThreadItem = ({
       threadId: string;
       requireAuth: boolean;
     }) => updateSharedThreadVisibility(threadId, requireAuth),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
-    },
     onError: (error) => {
       console.error(error);
     },
@@ -158,7 +154,6 @@ const ThreadItem = ({
     mutationFn: ({ threadId }: { threadId: string }) =>
       regenerateShareLink(threadId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
       toast.success("Share link regenerated successfully");
     },
     onError: (error) => {
@@ -362,7 +357,6 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
   const [deleteThreadId, setDeleteThreadId] = useState<string | null>(null);
   const [editThreadId, setEditThreadId] = useState<string | null>(null);
   const [editThreadTitle, setEditThreadTitle] = useState("");
-  const queryClient = useQueryClient();
 
   const threadRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
@@ -373,7 +367,6 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
     mutationFn: ({ id, title }: { id: string; title: string }) =>
       editThread(id, title),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
       toast.success("Thread renamed successfully");
       setEditThreadId(null);
       setEditThreadTitle("");
@@ -387,7 +380,6 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
   const deleteMutation = useMutation({
     mutationFn: (threadId: string) => deleteThread(threadId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
       toast.success("Thread deleted successfully");
       if (threadId === deleteThreadId) {
         window.location.href = "/";
@@ -403,9 +395,6 @@ const SidebarContentComponent = ({ threads }: { threads: ThreadType[] }) => {
   const pinAndUnpinMutation = useMutation({
     mutationFn: ({ threadId, pin }: { threadId: string; pin: boolean }) =>
       pinAndUnpinThread(threadId, pin),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
-    },
     onError: (error) => {
       console.error(error);
     },

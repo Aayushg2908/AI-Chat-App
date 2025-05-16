@@ -6,7 +6,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { ThreadType } from "@/db/schema";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { cn } from "@/lib/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { User } from "better-auth";
 import { ArrowLeft, Loader2Icon } from "lucide-react";
 import Link from "next/link";
@@ -23,13 +23,11 @@ const SharedPage = ({
 }) => {
   const { isOpen, onOpen } = useLoginModal();
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const cloneThreadMutation = useMutation({
     mutationFn: ({ threadId }: { threadId: string }) =>
       cloneSharedThread(threadId),
     onSuccess: ({ threadId }) => {
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
       toast.success("Thread cloned successfully");
       router.push(`/${threadId}`);
     },

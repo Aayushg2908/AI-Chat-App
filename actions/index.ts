@@ -43,7 +43,13 @@ export const saveThreadMessages = async (
     .where(eq(threads.id, threadId))
     .returning();
 
-  return thread.updatedAt;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const threadDate = new Date(thread.updatedAt);
+  threadDate.setHours(0, 0, 0, 0);
+  if (threadDate.getTime() === today.getTime()) {
+    revalidatePath("/");
+  }
 };
 
 export const handleUserRedirect = async () => {
@@ -68,6 +74,8 @@ export const handleUserRedirect = async () => {
       title: "New Chat",
     })
     .returning();
+
+  revalidatePath("/", "layout");
 
   return redirect(`/${thread.id}`);
 };
@@ -100,6 +108,8 @@ export const deleteThread = async (threadId: string) => {
   await db
     .delete(threads)
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
+
+  revalidatePath("/");
 };
 
 export const editThread = async (threadId: string, title: string) => {
@@ -120,13 +130,15 @@ export const editThread = async (threadId: string, title: string) => {
 
   const result = await generateText({
     model: google("gemini-2.0-flash-lite") as LanguageModelV1,
-    prompt: `Rewrite the following thread title to be concise, descriptive, and not more than 15 words: ${existingThread.title}. Do not include any other text. Just give the concise title.`,
+    prompt: `Rewrite the following thread title to be concise, descriptive, and not more than 15 words: ${title}. Do not include any other text. Just give the concise title.`,
   });
 
   await db
     .update(threads)
     .set({ title: result.text })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
+
+  revalidatePath("/");
 };
 
 export const pinAndUnpinThread = async (threadId: string, pin: boolean) => {
@@ -149,6 +161,8 @@ export const pinAndUnpinThread = async (threadId: string, pin: boolean) => {
     .update(threads)
     .set({ pinned: pin })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
+
+  revalidatePath("/");
 };
 
 export const updateSharedThreadVisibility = async (
@@ -174,6 +188,8 @@ export const updateSharedThreadVisibility = async (
     .update(threads)
     .set({ requireAuth })
     .where(and(eq(threads.id, threadId), eq(threads.userId, session.user.id)));
+
+  revalidatePath("/");
 };
 
 export const getThreadFromShareId = async (shareId: string) => {
@@ -212,6 +228,8 @@ export const cloneSharedThread = async (threadId: string) => {
     })
     .returning();
 
+  revalidatePath("/");
+
   return { threadId: newThread.id };
 };
 
@@ -231,6 +249,7 @@ export const branchThread = async (title: string, messages: string) => {
       messages,
     })
     .returning();
+
   revalidatePath("/");
 
   return { threadId: newThread.id };
@@ -260,6 +279,8 @@ export const regenerateShareLink = async (shareThreadId: string) => {
     .where(
       and(eq(threads.id, shareThreadId), eq(threads.userId, session.user.id))
     );
+
+  revalidatePath("/");
 };
 
 export const deleteAccount = async () => {

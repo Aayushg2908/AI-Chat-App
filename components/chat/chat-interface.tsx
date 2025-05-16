@@ -38,7 +38,7 @@ import { useRouter } from "next/navigation";
 import { ThreadType } from "@/db/schema";
 import { Badge } from "../ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 interface Source {
   id: string;
@@ -126,7 +126,6 @@ const ChatInterface = ({
   const [canvasMode, setCanvasMode] = useState<boolean>(false);
   const [agentFilter, setAgentFilter] = useState<string>("");
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const {
     messages: chatMessages,
@@ -200,9 +199,6 @@ const ChatInterface = ({
   const editThreadMutation = useMutation({
     mutationFn: ({ threadId, title }: { threadId: string; title: string }) =>
       editThread(threadId, title),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
-    },
     onError: (error) => {
       console.error(error);
       toast.error("Failed to edit thread");
@@ -217,17 +213,7 @@ const ChatInterface = ({
       threadId: string;
       messages: string;
     }) => saveThreadMessages(threadId, messages),
-    onSuccess: (updatedAt) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const threadDate = new Date(updatedAt);
-      threadDate.setHours(0, 0, 0, 0);
-      if (threadDate.getTime() === today.getTime()) {
-        queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
-      }
-    },
-    onError: (error) => {
-      console.error(error);
+    onError: () => {
       toast.error("Failed to save thread messages");
     },
   });
@@ -236,7 +222,6 @@ const ChatInterface = ({
     mutationFn: ({ title, messages }: { title: string; messages: string }) =>
       branchThread(title, messages),
     onSuccess: ({ threadId }) => {
-      queryClient.invalidateQueries({ queryKey: ["get-user-threads"] });
       router.push(`/${threadId}`);
     },
   });
