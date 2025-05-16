@@ -105,11 +105,16 @@ const ChatInterface = ({
   thread: ThreadType | null;
   isEditable: boolean;
 }) => {
-  const [selectedModel, setSelectedModel] = useState<string>(
-    localStorage.getItem(`model:${thread?.id}`) ||
-      JSON.parse(localStorage.getItem("selected-models") || "[]")[0] ||
-      "gemini-2.0-flash-lite"
-  );
+  const [selectedModel, setSelectedModel] = useState<string>(() => {
+    const threadSpecificModel = localStorage.getItem(`model:${thread?.id}`);
+    if (threadSpecificModel) return threadSpecificModel;
+
+    const savedModels = localStorage.getItem("selected-models");
+    const parsedModels = savedModels ? JSON.parse(savedModels) : [];
+    const firstSavedModel = parsedModels[0];
+
+    return firstSavedModel || "gemini-2.0-flash-lite";
+  });
   const [isSearchEnabled, setIsSearchEnabled] = useState<boolean>(false);
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

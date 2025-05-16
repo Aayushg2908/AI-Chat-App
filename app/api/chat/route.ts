@@ -240,7 +240,10 @@ export async function POST(req: Request) {
           : {}),
       },
     },
-    ...(search && model.startsWith("gpt")
+    ...(search &&
+    (model.startsWith("gpt") ||
+      model.startsWith("o3") ||
+      model.startsWith("o4"))
       ? {
           tools: {
             web_search_preview: openai.tools.webSearchPreview({
