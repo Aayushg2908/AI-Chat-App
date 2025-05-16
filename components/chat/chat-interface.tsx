@@ -776,18 +776,6 @@ const ChatInterface = ({
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (thread?.id) {
-      localStorage.setItem(`model:${thread.id}`, selectedModel);
-    }
-  }, [selectedModel, thread?.id]);
-
-  useEffect(() => {
-    if (thread) {
-      setMessages(JSON.parse(thread.messages || "[]"));
-    }
-  }, []);
-
-  useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (!thread?.id) return;
 
