@@ -1028,19 +1028,27 @@ const ChatInterface = ({
         )}
       </div>
       <div className="relative">
-        {showScrollButton && (
-          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-50">
-            <Button
-              onClick={scrollToBottom}
-              className="rounded-full shadow-md flex items-center gap-1 px-3 py-1"
-              size="sm"
-              variant="secondary"
+        <AnimatePresence>
+          {showScrollButton && (
+            <motion.div
+              className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-50"
+              initial={{ opacity: 0, y: 20, x: -100 }}
+              animate={{ opacity: 1, y: 0, x: -100 }}
+              exit={{ opacity: 0, y: 20, x: -100 }}
+              transition={{ duration: 0.2 }}
             >
-              <ChevronDown className="h-4 w-4" />
-              <span>Scroll to bottom</span>
-            </Button>
-          </div>
-        )}
+              <Button
+                onClick={scrollToBottom}
+                className="rounded-full shadow-md flex items-center gap-1 px-3 py-1"
+                size="sm"
+                variant="secondary"
+              >
+                <ChevronDown className="h-4 w-4" />
+                <span>Scroll to bottom</span>
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {isEditable && (
           <div className="max-w-3xl mx-auto mt-2 w-full">
             {contextItems.length > 0 && (
