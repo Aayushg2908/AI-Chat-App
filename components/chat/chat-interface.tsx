@@ -18,6 +18,8 @@ import {
   X,
   LayoutTemplate,
   Info,
+  Calendar,
+  Upload,
 } from "lucide-react";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { useSession } from "@/lib/auth-client";
@@ -66,15 +68,6 @@ interface ExtendedMessage {
   }>;
   modelName?: string;
 }
-
-const aiAgents = [
-  {
-    name: "Canvas",
-    icon: <LayoutTemplate className="h-4 w-4 text-blue-500" />,
-    description:
-      "Create beautiful UI components using shadcn/ui by describing what you want in simple text",
-  },
-];
 
 const TooltipComponent = ({
   children,
@@ -126,6 +119,27 @@ const ChatInterface = ({
   const [canvasMode, setCanvasMode] = useState<boolean>(false);
   const [agentFilter, setAgentFilter] = useState<string>("");
   const router = useRouter();
+
+  const aiAgents = [
+    {
+      name: "Canvas",
+      icon: <LayoutTemplate className="h-4 w-4 text-blue-500" />,
+      description:
+        "Create beautiful UI components using shadcn/ui by describing what you want in simple text",
+    },
+    {
+      name: "Google Drive",
+      icon: <Upload className="h-4 w-4 text-blue-500" />,
+      description:
+        "Connect to your Google Drive and search for files and folders",
+    },
+    {
+      name: "Google Calendar",
+      icon: <Calendar className="h-4 w-4 text-blue-500" />,
+      description:
+        "Connect to your Google Calendar and search for events and appointments",
+    },
+  ];
 
   const {
     messages: chatMessages,
