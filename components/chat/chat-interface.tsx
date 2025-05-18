@@ -744,12 +744,14 @@ const ChatInterface = ({
       const filterText = value.slice(atIndex + 1);
       setAgentFilter(filterText);
 
-      const hasSpace = filterText.includes(" ");
-      const matchingAgents = aiAgents.filter((agent) =>
-        agent.name.toLowerCase().startsWith(filterText.toLowerCase())
-      );
+      const matchingAgents = aiAgents.filter((agent) => {
+        const agentName = agent.name.toLowerCase();
+        const filter = filterText.toLowerCase();
 
-      if (!hasSpace && matchingAgents.length > 0) {
+        return agentName.includes(filter);
+      });
+
+      if (matchingAgents.length > 0) {
         setShowCanvasDropdown(true);
       } else {
         setShowCanvasDropdown(false);
@@ -765,7 +767,12 @@ const ChatInterface = ({
   };
 
   const insertCanvasTag = () => {
-    const newInput = input.substring(0, input.length - 1);
+    const newInput = input.substring(0, input.lastIndexOf("@"));
+
+    // Find the selected agent
+    const selectedAgent = aiAgents.find((agent) =>
+      agent.name.toLowerCase().includes(agentFilter.toLowerCase())
+    );
 
     if (originalHandleInputChange) {
       originalHandleInputChange({
@@ -773,7 +780,19 @@ const ChatInterface = ({
       } as React.ChangeEvent<HTMLTextAreaElement>);
     }
 
-    setCanvasMode(true);
+    // Handle different agent types
+    if (selectedAgent) {
+      if (selectedAgent.name === "Canvas") {
+        setCanvasMode(true);
+      } else if (selectedAgent.name === "Google Drive") {
+        toast.info("Google Drive integration coming soon!");
+        // Here you would add Drive-specific functionality
+      } else if (selectedAgent.name === "Google Calendar") {
+        toast.info("Google Calendar integration coming soon!");
+        // Here you would add Calendar-specific functionality
+      }
+    }
+
     setShowCanvasDropdown(false);
   };
 
@@ -1154,7 +1173,7 @@ const ChatInterface = ({
                           .filter((agent) =>
                             agent.name
                               .toLowerCase()
-                              .startsWith(agentFilter.toLowerCase())
+                              .includes(agentFilter.toLowerCase())
                           )
                           .map((agent, index) => (
                             <motion.div
