@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { threads, users } from "@/db/schema";
+import { accounts, threads, users } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -340,4 +340,60 @@ export const updateAiCustomizations = async ({
     .where(eq(users.id, session.user.id));
 
   revalidatePath("/settings");
+};
+
+export const connectedToGoogleDrive = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  const account = await db
+    .select()
+    .from(accounts)
+    .where(eq(accounts.userId, session.user.id));
+
+  let hasGoogleDriveProvider = false;
+  account.forEach((account) => {
+    const scopes = account.scope;
+    if (
+      account.providerId === "google" &&
+      scopes &&
+      scopes.includes("https://www.googleapis.com/auth/drive")
+    ) {
+      hasGoogleDriveProvider = true;
+    }
+  });
+
+  return hasGoogleDriveProvider;
+};
+
+export const connectedToGoogleCalendar = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  const account = await db
+    .select()
+    .from(accounts)
+    .where(eq(accounts.userId, session.user.id));
+
+  let hasGoogleCalendarProvider = false;
+  account.forEach((account) => {
+    const scopes = account.scope;
+    if (
+      account.providerId === "google" &&
+      scopes &&
+      scopes.includes("https://www.googleapis.com/auth/calendar")
+    ) {
+      hasGoogleCalendarProvider = true;
+    }
+  });
+
+  return hasGoogleCalendarProvider;
 };

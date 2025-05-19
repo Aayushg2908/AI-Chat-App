@@ -41,6 +41,7 @@ import { ThreadType } from "@/db/schema";
 import { Badge } from "../ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
+import { connectedToGoogleCalendar, connectedToGoogleDrive } from "@/actions";
 
 interface Source {
   id: string;
@@ -824,9 +825,31 @@ const ChatInterface = ({
     if (agent.name === "Canvas") {
       setCanvasMode(true);
     } else if (agent.name === "Google Drive") {
-      toast.info("Google Drive integration coming soon!");
+      connectedToGoogleDrive().then((connected) => {
+        if (connected) {
+          toast.info("Google Drive integration coming soon!");
+        } else {
+          toast.error("You have not connected your google drive.", {
+            action: {
+              label: "Connect",
+              onClick: () => {},
+            },
+          });
+        }
+      });
     } else if (agent.name === "Google Calendar") {
-      toast.info("Google Calendar integration coming soon!");
+      connectedToGoogleCalendar().then((connected) => {
+        if (connected) {
+          toast.info("Google Calendar integration coming soon!");
+        } else {
+          toast.error("You have not connected your google calendar.", {
+            action: {
+              label: "Connect",
+              onClick: () => {},
+            },
+          });
+        }
+      });
     }
 
     setShowCanvasDropdown(false);
