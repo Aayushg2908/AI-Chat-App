@@ -118,6 +118,8 @@ const ChatInterface = ({
   const [showCanvasDropdown, setShowCanvasDropdown] = useState<boolean>(false);
   const [canvasMode, setCanvasMode] = useState<boolean>(false);
   const [agentFilter, setAgentFilter] = useState<string>("");
+  const [activeAgentIndex, setActiveAgentIndex] = useState<number>(-1);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const aiAgents = [
@@ -753,12 +755,15 @@ const ChatInterface = ({
 
       if (matchingAgents.length > 0) {
         setShowCanvasDropdown(true);
+        setActiveAgentIndex(0);
       } else {
         setShowCanvasDropdown(false);
+        setActiveAgentIndex(-1);
       }
     } else {
       setShowCanvasDropdown(false);
       setAgentFilter("");
+      setActiveAgentIndex(-1);
     }
 
     if (originalHandleInputChange) {
@@ -766,13 +771,49 @@ const ChatInterface = ({
     }
   };
 
-  const insertCanvasTag = () => {
-    const newInput = input.substring(0, input.lastIndexOf("@"));
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (showCanvasDropdown) {
+      const matchingAgents = aiAgents.filter((agent) => {
+        const agentName = agent.name.toLowerCase();
+        const filter = agentFilter.toLowerCase();
+        return agentName.includes(filter);
+      });
 
-    // Find the selected agent
-    const selectedAgent = aiAgents.find((agent) =>
-      agent.name.toLowerCase().includes(agentFilter.toLowerCase())
-    );
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setActiveAgentIndex((prev) =>
+            prev < matchingAgents.length - 1 ? prev + 1 : prev
+          );
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setActiveAgentIndex((prev) => (prev > 0 ? prev - 1 : 0));
+          break;
+        case "Enter":
+          e.preventDefault();
+          if (
+            activeAgentIndex >= 0 &&
+            activeAgentIndex < matchingAgents.length
+          ) {
+            const selectedAgent = matchingAgents[activeAgentIndex];
+            handleAgentSelect(selectedAgent);
+          }
+          break;
+        case "Escape":
+          e.preventDefault();
+          setShowCanvasDropdown(false);
+          setActiveAgentIndex(-1);
+          break;
+      }
+    } else if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleAgentSelect = (agent: (typeof aiAgents)[0]) => {
+    const newInput = input.substring(0, input.lastIndexOf("@"));
 
     if (originalHandleInputChange) {
       originalHandleInputChange({
@@ -780,20 +821,16 @@ const ChatInterface = ({
       } as React.ChangeEvent<HTMLTextAreaElement>);
     }
 
-    // Handle different agent types
-    if (selectedAgent) {
-      if (selectedAgent.name === "Canvas") {
-        setCanvasMode(true);
-      } else if (selectedAgent.name === "Google Drive") {
-        toast.info("Google Drive integration coming soon!");
-        // Here you would add Drive-specific functionality
-      } else if (selectedAgent.name === "Google Calendar") {
-        toast.info("Google Calendar integration coming soon!");
-        // Here you would add Calendar-specific functionality
-      }
+    if (agent.name === "Canvas") {
+      setCanvasMode(true);
+    } else if (agent.name === "Google Drive") {
+      toast.info("Google Drive integration coming soon!");
+    } else if (agent.name === "Google Calendar") {
+      toast.info("Google Calendar integration coming soon!");
     }
 
     setShowCanvasDropdown(false);
+    setActiveAgentIndex(-1);
   };
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -1162,6 +1199,10 @@ const ChatInterface = ({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.15, ease: "easeOut" }}
+                      ref={dropdownRef}
+                      role="listbox"
+                      id="ai-agents-dropdown"
+                      aria-label="AI Agents"
                     >
                       <div className="bg-white dark:bg-zinc-900 rounded-md border border-gray-200 dark:border-none shadow-md overflow-hidden">
                         <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
@@ -1178,8 +1219,17 @@ const ChatInterface = ({
                           .map((agent, index) => (
                             <motion.div
                               key={index}
-                              className="py-2 px-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-                              onClick={insertCanvasTag}
+                              id={`agent-option-${index}`}
+                              className={`py-2 px-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 ${
+                                index === activeAgentIndex
+                                  ? "bg-gray-100 dark:bg-gray-700"
+                                  : ""
+                              }`}
+                              onClick={() => handleAgentSelect(agent)}
+                              onMouseEnter={() => setActiveAgentIndex(index)}
+                              role="option"
+                              aria-selected={index === activeAgentIndex}
+                              tabIndex={0}
                               whileHover={{
                                 backgroundColor: "rgba(0,0,0,0.05)",
                               }}
@@ -1225,12 +1275,7 @@ const ChatInterface = ({
                   ref={inputRef}
                   value={input}
                   onChange={handleInputChange}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend();
-                    }
-                  }}
+                  onKeyDown={handleKeyDown}
                   placeholder={
                     isLoading
                       ? "Sending message..."
@@ -1245,6 +1290,13 @@ const ChatInterface = ({
                   minRows={2}
                   maxLength={4000}
                   disabled={isLoading}
+                  aria-expanded={showCanvasDropdown}
+                  aria-controls="ai-agents-dropdown"
+                  aria-activedescendant={
+                    activeAgentIndex >= 0
+                      ? `agent-option-${activeAgentIndex}`
+                      : undefined
+                  }
                 />
                 <div className="flex items-center justify-between px-3 py-2">
                   <div className="flex items-center gap-4">
