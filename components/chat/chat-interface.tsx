@@ -41,7 +41,7 @@ import { ThreadType } from "@/db/schema";
 import { Badge } from "../ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
-import { connectedToGoogleCalendar, connectedToGoogleDrive } from "@/actions";
+import { connectedToGoogle } from "@/actions";
 
 interface Source {
   id: string;
@@ -70,6 +70,27 @@ interface ExtendedMessage {
   modelName?: string;
 }
 
+const aiAgents = [
+  {
+    name: "Canvas",
+    icon: <LayoutTemplate className="h-4 w-4 text-blue-500" />,
+    description:
+      "Create beautiful UI components using shadcn/ui by describing what you want in simple text",
+  },
+  {
+    name: "Google Drive",
+    icon: <Upload className="h-4 w-4 text-blue-500" />,
+    description:
+      "Connect to your Google Drive and search for files and folders",
+  },
+  {
+    name: "Google Calendar",
+    icon: <Calendar className="h-4 w-4 text-blue-500" />,
+    description:
+      "Connect to your Google Calendar and search for events and appointments",
+  },
+];
+
 const TooltipComponent = ({
   children,
   description,
@@ -90,6 +111,38 @@ const TooltipComponent = ({
       </Tooltip>
     </TooltipProvider>
   );
+};
+
+const useGoogleConnectionCheck = (service: "drive" | "calendar") => {
+  return useMutation({
+    mutationFn: () => connectedToGoogle(service),
+    onMutate: () => {
+      const toastId = toast.loading(`Checking Google ${service} connection...`);
+      return { toastId };
+    },
+    onSuccess: (connected, _, context) => {
+      if (context?.toastId) {
+        toast.dismiss(context.toastId);
+      }
+      if (connected) {
+        toast.info(`Google ${service} integration coming soon!`);
+      } else {
+        toast.error(`Please connect your Google ${service}.`, {
+          action: {
+            label: "Connect",
+            onClick: () =>
+              toast.info(`Google ${service} integration coming soon!`),
+          },
+        });
+      }
+    },
+    onError: (_, __, context) => {
+      if (context?.toastId) {
+        toast.dismiss(context.toastId);
+      }
+      toast.error(`Failed to check Google ${service} connection`);
+    },
+  });
 };
 
 const ChatInterface = ({
@@ -122,27 +175,6 @@ const ChatInterface = ({
   const [activeAgentIndex, setActiveAgentIndex] = useState<number>(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-  const aiAgents = [
-    {
-      name: "Canvas",
-      icon: <LayoutTemplate className="h-4 w-4 text-blue-500" />,
-      description:
-        "Create beautiful UI components using shadcn/ui by describing what you want in simple text",
-    },
-    {
-      name: "Google Drive",
-      icon: <Upload className="h-4 w-4 text-blue-500" />,
-      description:
-        "Connect to your Google Drive and search for files and folders",
-    },
-    {
-      name: "Google Calendar",
-      icon: <Calendar className="h-4 w-4 text-blue-500" />,
-      description:
-        "Connect to your Google Calendar and search for events and appointments",
-    },
-  ];
 
   const {
     messages: chatMessages,
@@ -813,6 +845,9 @@ const ChatInterface = ({
     }
   };
 
+  const driveConnectionCheck = useGoogleConnectionCheck("drive");
+  const calendarConnectionCheck = useGoogleConnectionCheck("calendar");
+
   const handleAgentSelect = (agent: (typeof aiAgents)[0]) => {
     const newInput = input.substring(0, input.lastIndexOf("@"));
 
@@ -825,31 +860,9 @@ const ChatInterface = ({
     if (agent.name === "Canvas") {
       setCanvasMode(true);
     } else if (agent.name === "Google Drive") {
-      connectedToGoogleDrive().then((connected) => {
-        if (connected) {
-          toast.info("Google Drive integration coming soon!");
-        } else {
-          toast.error("You have not connected your google drive.", {
-            action: {
-              label: "Connect",
-              onClick: () => {},
-            },
-          });
-        }
-      });
+      driveConnectionCheck.mutate();
     } else if (agent.name === "Google Calendar") {
-      connectedToGoogleCalendar().then((connected) => {
-        if (connected) {
-          toast.info("Google Calendar integration coming soon!");
-        } else {
-          toast.error("You have not connected your google calendar.", {
-            action: {
-              label: "Connect",
-              onClick: () => {},
-            },
-          });
-        }
-      });
+      calendarConnectionCheck.mutate();
     }
 
     setShowCanvasDropdown(false);

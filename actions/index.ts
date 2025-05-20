@@ -342,7 +342,7 @@ export const updateAiCustomizations = async ({
   revalidatePath("/settings");
 };
 
-export const connectedToGoogleDrive = async () => {
+export const connectedToGoogle = async (type: "drive" | "calendar") => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -355,45 +355,17 @@ export const connectedToGoogleDrive = async () => {
     .from(accounts)
     .where(eq(accounts.userId, session.user.id));
 
-  let hasGoogleDriveProvider = false;
+  let hasGoogleProvider = false;
   account.forEach((account) => {
     const scopes = account.scope;
     if (
       account.providerId === "google" &&
       scopes &&
-      scopes.includes("https://www.googleapis.com/auth/drive")
+      scopes.includes(`https://www.googleapis.com/auth/${type}`)
     ) {
-      hasGoogleDriveProvider = true;
+      hasGoogleProvider = true;
     }
   });
 
-  return hasGoogleDriveProvider;
-};
-
-export const connectedToGoogleCalendar = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session) {
-    throw new Error("Unauthorized");
-  }
-
-  const account = await db
-    .select()
-    .from(accounts)
-    .where(eq(accounts.userId, session.user.id));
-
-  let hasGoogleCalendarProvider = false;
-  account.forEach((account) => {
-    const scopes = account.scope;
-    if (
-      account.providerId === "google" &&
-      scopes &&
-      scopes.includes("https://www.googleapis.com/auth/calendar")
-    ) {
-      hasGoogleCalendarProvider = true;
-    }
-  });
-
-  return hasGoogleCalendarProvider;
+  return hasGoogleProvider;
 };
