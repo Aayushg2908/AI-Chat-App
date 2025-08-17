@@ -48,6 +48,10 @@ const getModels = (useSearch: boolean = false) => ({
   "gpt-4.1-2025-04-14": openai.responses("gpt-4.1-2025-04-14"),
   "o3-mini-2025-01-31": openai.responses("o3-mini-2025-01-31"),
   "o4-mini-2025-04-16": openai.responses("o4-mini-2025-04-16"),
+  "gpt-5-nano-2025-08-07": openai.responses("gpt-5-nano-2025-08-07"),
+  "gpt-5-mini-2025-08-07": openai.responses("gpt-5-mini-2025-08-07"),
+  "gpt-5-chat-latest": openai.responses("gpt-5-chat-latest"),
+  "gpt-5-2025-08-07": openai.responses("gpt-5-2025-08-07"),
   "deepseek-r1-distill-llama-70b": groq("deepseek-r1-distill-llama-70b"),
   "deepseek-r1-distill-qwen-32b": groq("deepseek-r1-distill-qwen-32b"),
   "qwen-2.5-32b": groq("qwen-2.5-32b"),
@@ -227,10 +231,11 @@ export async function POST(req: Request) {
     messages: enhancedMessages,
     providerOptions: {
       openai: {
-        ...(model.startsWith("o3") || model.startsWith("o4")
+        ...(model.startsWith("o3") ||
+        model.startsWith("o4") ||
+        model === "gpt-5-2025-08-07"
           ? {
               reasoningEffort: effortLevel,
-              reasoningSummary: "auto",
             }
           : {}),
       } satisfies OpenAIResponsesProviderOptions,

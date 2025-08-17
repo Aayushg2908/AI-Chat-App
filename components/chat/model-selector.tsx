@@ -223,6 +223,41 @@ export const MODELS: {
     canSearch: true,
     canUploadFile: false,
   },
+  "GPT 5 Nano": {
+    id: "gpt-5-nano-2025-08-07",
+    description: "OpenAI's latest GPT 5 Nano model.",
+    icons: [createTooltipIcon(Zap, "Very Fast", "text-yellow-500")],
+    canSearch: false,
+    canUploadFile: false,
+  },
+  "GPT 5 Mini": {
+    id: "gpt-5-mini-2025-08-07",
+    description: "OpenAI's latest GPT 5 Mini model.",
+    icons: [createTooltipIcon(FileUpIcon, "File Upload", "text-blue-400")],
+    canSearch: false,
+    canUploadFile: true,
+  },
+  "GPT 5": {
+    id: "gpt-5-chat-latest",
+    description: "OpenAI's latest GPT 5 Chat model.",
+    icons: [
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
+      createTooltipIcon(FileUpIcon, "File Upload", "text-blue-400"),
+    ],
+    canSearch: true,
+    canUploadFile: true,
+  },
+  "GPT 5 Reasoning": {
+    id: "gpt-5-2025-08-07",
+    description: "OpenAI's latest GPT 5 Reasoning model.",
+    icons: [
+      createTooltipIcon(Globe, "Web Search", "text-green-500"),
+      createTooltipIcon(FileUpIcon, "File Upload", "text-blue-400"),
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: true,
+    canUploadFile: true,
+  },
   "Deepseek R1 (llama distilled)": {
     id: "deepseek-r1-distill-llama-70b",
     description: "Llama Distilled Deepseek model hosted on Groq",
