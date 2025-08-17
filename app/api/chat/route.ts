@@ -1,7 +1,7 @@
 import { google } from "@ai-sdk/google";
 import { openai, OpenAIResponsesProviderOptions } from "@ai-sdk/openai";
 import { groq } from "@ai-sdk/groq";
-import { LanguageModelV1, streamText } from "ai";
+import { streamText, LanguageModelV1 } from "ai";
 import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -59,6 +59,12 @@ const getModels = (useSearch: boolean = false) => ({
   "meta-llama/llama-4-scout-17b-16e-instruct": groq(
     "meta-llama/llama-4-scout-17b-16e-instruct"
   ),
+  "meta-llama/llama-4-maverick-17b-128e-instruct": groq(
+    "meta-llama/llama-4-maverick-17b-128e-instruct"
+  ),
+  "moonshotai/kimi-k2-instruct": groq("moonshotai/kimi-k2-instruct"),
+  "openai/gpt-oss-20b": groq("openai/gpt-oss-20b"),
+  "openai/gpt-oss-120b": groq("openai/gpt-oss-120b"),
 });
 
 type ModelKey = keyof ReturnType<typeof getModels>;
@@ -244,7 +250,11 @@ export async function POST(req: Request) {
           ? { thinkingConfig: { thinkingBudget: 0 } }
           : {}),
       },
+      groq: {
+        ...(model.startsWith("openai") ? { reasoningEffort: effortLevel } : {}),
+      },
     },
+    // @ts-ignore
     tools: {
       ...(search &&
       (model.startsWith("gpt") ||

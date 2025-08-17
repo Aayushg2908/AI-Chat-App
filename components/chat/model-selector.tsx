@@ -305,6 +305,49 @@ export const MODELS: {
     canSearch: false,
     canUploadFile: true,
   },
+  "Llama 4 Maverick": {
+    id: "meta-llama/llama-4-maverick-17b-128e-instruct",
+    description: "Llama 4 Maverick model hosted on Groq",
+    icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: true,
+  },
+  "Kimi K2": {
+    id: "moonshotai/kimi-k2-instruct",
+    description: "Kimi K2 model hosted on Groq",
+    icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+    ],
+    canSearch: false,
+    canUploadFile: true,
+  },
+  "GPT-OSS 20B": {
+    id: "openai/gpt-oss-20b",
+    description: "GPT-OSS 20B model",
+    icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: true,
+  },
+  "GPT-OSS 120B": {
+    id: "openai/gpt-oss-120b",
+    description: "GPT-OSS 120B model",
+    icons: [
+      createTooltipIcon(FlaskConical, "Experimental", "text-red-400"),
+      createTooltipIcon(FileText, "File Upload", "text-blue-400"),
+      createTooltipIcon(BrainIcon, "Reasoning Capabilities", "text-violet-400"),
+    ],
+    canSearch: false,
+    canUploadFile: true,
+  },
 };
 
 const filterOptions = [
@@ -1012,9 +1055,9 @@ const ModelSelector = ({
           )}
         </>
       )}
-      {(selectedModel === "o3-mini-2025-01-31" ||
-        selectedModel === "o4-mini-2025-04-16") &&
-        setEffortLevel && (
+      {selectedModel === "o3-mini-2025-01-31" ||
+        selectedModel === "o4-mini-2025-04-16" ||
+        (selectedModel.includes("gpt-oss") && setEffortLevel && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -1062,7 +1105,7 @@ const ModelSelector = ({
               </motion.div>
             </DropdownMenuContent>
           </DropdownMenu>
-        )}
+        ))}
     </div>
   );
 };
