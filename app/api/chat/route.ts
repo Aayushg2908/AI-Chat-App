@@ -254,7 +254,6 @@ export async function POST(req: Request) {
         ...(model.startsWith("openai") ? { reasoningEffort: effortLevel } : {}),
       },
     },
-    // @ts-ignore
     tools: {
       ...(search &&
       (model.startsWith("gpt") ||
